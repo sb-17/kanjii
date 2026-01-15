@@ -3,24 +3,27 @@ import * as wanakana from "wanakana";
 import KanjiCard from "../components/kanji-card/KanjiCard";
 import kanji from "../data/kanji.json";
 import "../styles/KanjiList.css";
+import type { Kanji } from "../types/kanjiType";
 
 export default function KanjiList() {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredKanji = kanji.filter((k) => {
+  const kanjiData = kanji as Kanji[];
+
+  const filteredKanji = kanjiData.filter((k: Kanji) => {
     const term = searchTerm.toLowerCase();
 
     const characterMatch = k.character.toLowerCase().includes(term);
 
-    const meaningMatch = k.meanings?.some((m) =>
+    const meaningMatch = k.meanings?.some((m: string) =>
       m.toLowerCase().includes(term)
     );
 
-    const kunReadingMatch = k.kun?.some((r) =>
+    const kunReadingMatch = k.kun?.some((r: string) =>
       wanakana.toRomaji(r).toLowerCase().includes(term)
     );
 
-    const onReadingMatch = k.on?.some((r) =>
+    const onReadingMatch = k.on?.some((r: string) =>
       wanakana.toRomaji(r).toLowerCase().includes(term)
     );
 
@@ -43,7 +46,6 @@ export default function KanjiList() {
           kanji={{
             character: k.character,
             meanings: k.meanings || [],
-            readings: k.readings || [],
           }}
         />
       ))}
