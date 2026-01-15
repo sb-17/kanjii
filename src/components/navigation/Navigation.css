@@ -1,0 +1,36 @@
+.navigation {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+
+  display: flex;
+
+  padding-bottom: env(safe-area-inset-bottom);
+
+  background-color: #555555;
+}
+
+.navButton {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 33.33%;
+  height: 100%;
+  min-height: 56px;
+  color: white;
+  text-decoration: none;
+  background: #484848;
+  cursor: pointer;
+  border: none;
+}
+
+
+.navButton:hover {
+  background: #3c3c3c;
+  color: white;
+}
+
+.navButton:focus {
+  outline: none;
+}

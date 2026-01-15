@@ -1,0 +1,46 @@
+.kanji-panel {
+    padding: 1rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.kanji-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.kanji-char {
+    font-size: 7rem;
+    font-weight: bold;
+    line-height: 1;
+    font-family: "Noto Sans JP", sans-serif;
+    transition: font-family 0.2s ease;
+}
+
+.kanji-char:hover {
+    font-family: "Sawarabi Mincho", "Noto Sans JP", sans-serif;
+}
+
+.kanji-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.kanji-meanings {
+    font-size: clamp(0.9rem, 4vw, 1.5rem);
+    font-weight: 500;
+}
+
+.kanji-readings-frequency-strokes {
+    font-size: clamp(0.7rem, 4vw, 1rem);
+    color: #ddd;
+}
+
+.kanji-readings-frequency-strokes strong {
+    color: #fff;
+}

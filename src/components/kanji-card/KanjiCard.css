@@ -1,0 +1,27 @@
+.kanji-card {
+  max-width: 800px;
+  width: 100%;
+  background-color: #555555;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  border-radius: 8px;
+}
+
+.kanji-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kanji {
+  font-size: clamp(1rem, 5vw, 1.5rem);
+  color: white;
+}
+
+.kanji-meanings {
+  font-size: clamp(1rem, 5vw, 1.5rem);
+  color: white;
+}
