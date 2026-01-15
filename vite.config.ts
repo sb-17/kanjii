@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  base: "/kanji/",
+  base: "/kanjii/",
   plugins: [
     react(),
     VitePWA({
@@ -22,8 +22,8 @@ export default defineConfig({
         background_color: "#111111",
         display: "standalone",
 
-        start_url: "/kanji/",
-        scope: "/kanji/",
+        start_url: "/kanjii/",
+        scope: "/kanjii/",
 
         icons: [
           {

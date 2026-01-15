@@ -10,7 +10,7 @@ import "./App.css";
 
 export default function App() {
   return (
-    <Router basename="/kanji">
+    <Router basename="/kanjii">
       <div className="app-container">
         <Navigation />
 
