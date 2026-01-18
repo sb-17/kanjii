@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "./KanjiCard.css";
+import type { KanjiStatus } from "../../types/kanjiProgress";
 
 export default function KanjiCard({
   kanji,

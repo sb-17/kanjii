@@ -3,7 +3,7 @@ import { useState } from "react";
 import kanji from "../data/kanji.json";
 import vocab from "../data/vocab.json";
 import "../styles/Kanji.css";
-import type { KanjiStatus } from "../types/kanjiProgress";
+import type { KanjiStatus, KanjiProgress } from "../types/kanjiProgress";
 import { loadKanjiProgress, updateKanjiStatus } from "../storage/kanjiProgress";
 import KanjiStrokeViewer from "../components/kanji-stroke-viewer/KanjiStrokeViewer";
 import type { Vocab } from "../types/vocabType";

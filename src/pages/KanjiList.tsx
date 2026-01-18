@@ -4,7 +4,7 @@ import KanjiCard from "../components/kanji-card/KanjiCard";
 import kanji from "../data/kanji.json";
 import "../styles/KanjiList.css";
 import type { Kanji } from "../types/kanjiType";
-import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgressType";
+import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgress";
 import { loadKanjiProgress, updateKanjiStatus } from "../storage/kanjiProgress";
 
 export default function KanjiList() {
