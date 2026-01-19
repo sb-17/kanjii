@@ -22,8 +22,8 @@ export default function Learn() {
   return (
     <div className="learn-page">
       <div className="learn-progress">
-        <span>🔁 Learning: {statusCounts.learning}</span>
-        <span>✅ Known: {statusCounts.known}</span>
+        <strong>🔁 Learning: {statusCounts.learning}</strong>
+        <strong>✅ Known: {statusCounts.known}</strong>
       </div>
 
       <div className="sets-container">

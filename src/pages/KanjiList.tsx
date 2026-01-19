@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import * as wanakana from "wanakana";
 import KanjiCard from "../components/kanji-card/KanjiCard";
 import kanji from "../data/kanji.json";
@@ -8,9 +9,24 @@ import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgress";
 import { loadKanjiProgress, updateKanjiStatus } from "../storage/kanjiProgress";
 
 export default function KanjiList() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const initialSearchTerm = searchParams.get("q") || "";
+  const initialNumberShown = Number(searchParams.get("n") ?? 100);
+  const initialStatusFilter =
+    searchParams.get("status") === "new" ||
+    searchParams.get("status") === "learning" ||
+    searchParams.get("status") === "known"
+      ? (searchParams.get("status") as KanjiStatus)
+      : null;
+
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [progress, setProgress] = useState<KanjiProgress>(loadKanjiProgress());
-  const [numberOfKanjiShown, setNumberOfKanjiShown] = useState(100);
+  const [numberOfKanjiShown, setNumberOfKanjiShown] =
+    useState(initialNumberShown);
+  const [statusFilter, setStatusFilter] = useState<KanjiStatus | null>(
+    initialStatusFilter,
+  );
 
   const kanjiData = kanji as Kanji[];
 
@@ -31,8 +47,23 @@ export default function KanjiList() {
       wanakana.toRomaji(r).toLowerCase().includes(term),
     );
 
-    return characterMatch || meaningMatch || kunReadingMatch || onReadingMatch;
+    const statusMatch = !statusFilter || progress[k.character] === statusFilter;
+
+    return (
+      (characterMatch || meaningMatch || kunReadingMatch || onReadingMatch) &&
+      statusMatch
+    );
   });
+
+  const updateFilter = (key: string, value: string | number | null) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (value === null || value === "") {
+      newParams.delete(key);
+    } else {
+      newParams.set(key, String(value));
+    }
+    setSearchParams(newParams, { replace: true });
+  };
 
   const handleUpdateStatus = (character: string, newStatus: KanjiStatus) => {
     const updatedProgress = updateKanjiStatus(progress, character, newStatus);
@@ -58,7 +89,10 @@ export default function KanjiList() {
           type="text"
           placeholder="Search by character, meaning, or reading..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            updateFilter("q", e.target.value);
+          }}
           className="kanji-list-search-bar"
         />
         <div className="kanji-list-count">
@@ -67,7 +101,11 @@ export default function KanjiList() {
             type="number"
             placeholder=""
             value={numberOfKanjiShown}
-            onChange={(e) => setNumberOfKanjiShown(Number(e.target.value))}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              setNumberOfKanjiShown(val);
+              updateFilter("n", val);
+            }}
             className="kanji-list-count-input"
             min={1}
             max={filteredKanji.length}
@@ -78,8 +116,26 @@ export default function KanjiList() {
       </div>
 
       <div className="kanji-list-progress">
-        <span>🔁 Learning: {statusCounts.learning}</span>
-        <span>✅ Known: {statusCounts.known}</span>
+        <strong
+          onClick={() => {
+            const newFilter = statusFilter === "learning" ? null : "learning";
+            setStatusFilter(newFilter);
+            updateFilter("status", newFilter);
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          🔁 Learning {statusCounts.learning}
+        </strong>
+        <strong
+          onClick={() => {
+            const newFilter = statusFilter === "known" ? null : "known";
+            setStatusFilter(newFilter);
+            updateFilter("status", newFilter);
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          ✅ Known: {statusCounts.known}
+        </strong>
       </div>
 
       {filteredKanji.slice(0, numberOfKanjiShown).map((k, i) => (

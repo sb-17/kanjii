@@ -720,5 +720,159 @@
     "reading": "かいがい",
     "meanings": ["overseas"],
     "kanji": ["海", "外"]
+  },
+  {
+    "word": "王",
+    "reading": "おう",
+    "meanings": ["king"],
+    "kanji": ["王"]
+  },
+  {
+    "word": "女王",
+    "reading": "じょおう",
+    "meanings": ["queen"],
+    "kanji": ["女", "王"]
+  },
+  {
+    "word": "王子",
+    "reading": "おうじ",
+    "meanings": ["prince"],
+    "kanji": ["王", "子"]
+  },
+  {
+    "word": "王国",
+    "reading": "おうこく",
+    "meanings": ["kingdom"],
+    "kanji": ["王", "国"]
+  },
+  {
+    "word": "岩",
+    "reading": "いわ",
+    "meanings": ["rock"],
+    "kanji": ["岩"]
+  },
+  {
+    "word": "火山岩",
+    "reading": "かざんがん",
+    "meanings": ["volcanic rock"],
+    "kanji": ["火", "山", "岩"]
+  },
+  {
+    "word": "目",
+    "reading": "め",
+    "meanings": ["eye"],
+    "kanji": ["目"]
+  },
+  {
+    "word": "目上",
+    "reading": "めうえ",
+    "meanings": ["superior", "superiors", "senior"],
+    "kanji": ["目", "上"]
+  },
+  {
+    "word": "目下",
+    "reading": "めした",
+    "meanings": [
+      "subordinate",
+      "subordinates",
+      "inferior",
+      "inferiors",
+      "junior"
+    ],
+    "kanji": ["目", "下"]
+  },
+  {
+    "word": "目次",
+    "reading": "もくじ",
+    "meanings": ["table of contents", "contents"],
+    "kanji": ["目", "次"]
+  },
+  {
+    "word": "耳",
+    "reading": "みみ",
+    "meanings": ["ear"],
+    "kanji": ["耳"]
+  },
+  {
+    "word": "手",
+    "reading": "て",
+    "meanings": ["hand", "arm"],
+    "kanji": ["手"]
+  },
+  {
+    "word": "上手な",
+    "reading": "じょうずな",
+    "meanings": ["skillful", "skilled", "proficient", "good (at)"],
+    "kanji": ["上", "手"]
+  },
+  {
+    "word": "足りる",
+    "reading": "たりる",
+    "meanings": ["to be sufficient", "to be enough"],
+    "kanji": ["足"]
+  },
+  {
+    "word": "足す",
+    "reading": "たす",
+    "meanings": [
+      "to add (numbers)",
+      "to add (something)",
+      "to top up (with something)"
+    ],
+    "kanji": ["足"]
+  },
+  {
+    "word": "足",
+    "reading": "あし",
+    "meanings": ["foot", "leg"],
+    "kanji": ["足"]
+  },
+  {
+    "word": "雨",
+    "reading": "あめ",
+    "meanings": ["rain"],
+    "kanji": ["雨"]
+  },
+  {
+    "word": "大雨",
+    "reading": "おおあめ",
+    "meanings": ["heavy rain"],
+    "kanji": ["大", "雨"]
+  },
+  {
+    "word": "雨天",
+    "reading": "うてん",
+    "meanings": ["rainy weather"],
+    "kanji": ["雨", "天"]
+  },
+  {
+    "word": "竹",
+    "reading": "たけ",
+    "meanings": ["bamboo"],
+    "kanji": ["竹"]
+  },
+  {
+    "word": "米",
+    "reading": "こめ",
+    "meanings": ["rice"],
+    "kanji": ["米"]
+  },
+  {
+    "word": "米国",
+    "reading": "べいこく",
+    "meanings": ["(United States of) America", "USA", "US"],
+    "kanji": ["米", "国"]
+  },
+  {
+    "word": "中米",
+    "reading": "ちゅうべい",
+    "meanings": ["Central America"],
+    "kanji": ["中", "米"]
+  },
+  {
+    "word": "石",
+    "reading": "いし",
+    "meanings": ["stone"],
+    "kanji": ["石"]
   }
 ]
