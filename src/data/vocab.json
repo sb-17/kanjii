@@ -874,5 +874,815 @@
     "reading": "いし",
     "meanings": ["stone"],
     "kanji": ["石"]
+  },
+  {
+    "word": "午後",
+    "reading": "ごご",
+    "meanings": ["afternoon", "P.M."],
+    "kanji": ["午", "後"]
+  },
+  {
+    "word": "午前",
+    "reading": "ごぜん",
+    "meanings": ["morning", "A.M."],
+    "kanji": ["午", "前"]
+  },
+  {
+    "word": "名前",
+    "reading": "なまえ",
+    "meanings": ["name"],
+    "kanji": ["名", "前"]
+  },
+  {
+    "word": "雨の日",
+    "reading": "あめのひ",
+    "meanings": ["rainy day"],
+    "kanji": ["雨", "日"]
+  },
+  {
+    "word": "目的",
+    "reading": "もくてき",
+    "meanings": ["purpose", "aim", "goal", "objective", "intention"],
+    "kanji": ["目", "的"]
+  },
+  {
+    "word": "下手な",
+    "reading": "へたな",
+    "meanings": ["unskilled", "unskillful", "bad (at)"],
+    "kanji": ["下", "手"]
+  },
+  {
+    "word": "花",
+    "reading": "はな",
+    "meanings": ["flower"],
+    "kanji": ["花"]
+  },
+  {
+    "word": "花火",
+    "reading": "はなび",
+    "meanings": ["fireworks"],
+    "kanji": ["花", "火"]
+  },
+  {
+    "word": "来る",
+    "reading": "くる",
+    "meanings": ["to come"],
+    "kanji": ["来"]
+  },
+  {
+    "word": "売る",
+    "reading": "うる",
+    "meanings": ["to sell"],
+    "kanji": ["売"]
+  },
+  {
+    "word": "曜日",
+    "reading": "ようび",
+    "meanings": ["day of the week"],
+    "kanji": ["曜", "日"]
+  },
+  {
+    "word": "お早う",
+    "reading": "おはよう",
+    "meanings": ["good morning"],
+    "kanji": ["早"]
+  },
+  {
+    "word": "お茶",
+    "reading": "おちゃ",
+    "meanings": ["tea"],
+    "kanji": ["茶"]
+  },
+  {
+    "word": "日本茶",
+    "reading": "にほんちゃ",
+    "meanings": ["Japanese tea"],
+    "kanji": ["日", "本", "茶"]
+  },
+  {
+    "word": "肉",
+    "reading": "にく",
+    "meanings": ["meat"],
+    "kanji": ["肉"]
+  },
+  {
+    "word": "牛肉",
+    "reading": "ぎゅうにく",
+    "meanings": ["beef"],
+    "kanji": ["牛", "肉"]
+  },
+  {
+    "word": "字",
+    "reading": "じ",
+    "meanings": ["character", "letter"],
+    "kanji": ["字"]
+  },
+  {
+    "word": "鳥肉",
+    "reading": "とりにく",
+    "meanings": ["chicken meat"],
+    "kanji": ["鳥", "肉"]
+  },
+  {
+    "word": "肉体",
+    "reading": "にくたい",
+    "meanings": ["body", "flesh"],
+    "kanji": ["肉", "体"]
+  },
+  {
+    "word": "文",
+    "reading": "ぶん",
+    "meanings": ["sentence"],
+    "kanji": ["文"]
+  },
+  {
+    "word": "早い",
+    "reading": "はやい",
+    "meanings": ["early", "fast", "quick", "rapid", "swift"],
+    "kanji": ["早"]
+  },
+  {
+    "word": "文学",
+    "reading": "ぶんがく",
+    "meanings": ["literature"],
+    "kanji": ["文", "学"]
+  },
+  {
+    "word": "牛",
+    "reading": "うし",
+    "meanings": ["cow", "cattle"],
+    "kanji": ["牛"]
+  },
+  {
+    "word": "子牛",
+    "reading": "こうし",
+    "meanings": ["calf"],
+    "kanji": ["子", "牛"]
+  },
+  {
+    "word": "買い物",
+    "reading": "かいもの",
+    "meanings": ["shopping"],
+    "kanji": ["買", "い"]
+  },
+  {
+    "word": "生物",
+    "reading": "せいぶつ",
+    "meanings": ["living thing", "organism", "creature"],
+    "kanji": ["生", "物"]
+  },
+  {
+    "word": "馬",
+    "reading": "うま",
+    "meanings": ["horse"],
+    "kanji": ["馬"]
+  },
+  {
+    "word": "馬車",
+    "reading": "ばしゃ",
+    "meanings": ["horse-drawn carriage"],
+    "kanji": ["馬", "車"]
+  },
+  {
+    "word": "馬力",
+    "reading": "ばりき",
+    "meanings": ["horsepower"],
+    "kanji": ["馬", "力"]
+  },
+  {
+    "word": "白鳥",
+    "reading": "はくちょう",
+    "meanings": ["white bird", "swan"],
+    "kanji": ["白", "鳥"]
+  },
+  {
+    "word": "魚",
+    "reading": "さかな",
+    "meanings": ["fish"],
+    "kanji": ["魚"]
+  },
+  {
+    "word": "金魚",
+    "reading": "きんぎょ",
+    "meanings": ["goldfish"],
+    "kanji": ["金", "魚"]
+  },
+  {
+    "word": "新車",
+    "reading": "しんしゃ",
+    "meanings": ["new car"],
+    "kanji": ["新", "車"]
+  },
+  {
+    "word": "新聞",
+    "reading": "しんぶん",
+    "meanings": ["newspaper"],
+    "kanji": ["新", "聞"]
+  },
+  {
+    "word": "新年",
+    "reading": "しんねん",
+    "meanings": ["new year"],
+    "kanji": ["新", "年"]
+  },
+  {
+    "word": "古本",
+    "reading": "ふるほん",
+    "meanings": ["old book"],
+    "kanji": ["古", "本"]
+  },
+  {
+    "word": "中古車",
+    "reading": "ちゅうこしゃ",
+    "meanings": ["used car", "second-hand car"],
+    "kanji": ["中", "古", "車"]
+  },
+  {
+    "word": "長い",
+    "reading": "ながい",
+    "meanings": ["long"],
+    "kanji": ["長"]
+  },
+  {
+    "word": "学長",
+    "reading": "がくちょう",
+    "meanings": ["principal", "head of a school", "university president"],
+    "kanji": ["学", "長"]
+  },
+  {
+    "word": "長男",
+    "reading": "ちょうなん",
+    "meanings": ["eldest son"],
+    "kanji": ["長", "男"]
+  },
+  {
+    "word": "短い",
+    "reading": "みじかい",
+    "meanings": ["short"],
+    "kanji": ["短"]
+  },
+  {
+    "word": "短時間",
+    "reading": "たんじかん",
+    "meanings": ["short time", "brief period"],
+    "kanji": ["短", "時", "間"]
+  },
+  {
+    "word": "低い",
+    "reading": "ひくい",
+    "meanings": ["low", "short"],
+    "kanji": ["低"]
+  },
+  {
+    "word": "低下する",
+    "reading": "ていかする",
+    "meanings": ["to decline", "to fall", "to drop"],
+    "kanji": ["低", "下"]
+  },
+  {
+    "word": "暗い",
+    "reading": "くらい",
+    "meanings": ["dark", "gloomy"],
+    "kanji": ["暗"]
+  },
+  {
+    "word": "暗室",
+    "reading": "あんしつ",
+    "meanings": ["dark room"],
+    "kanji": ["暗", "室"]
+  },
+  {
+    "word": "多い",
+    "reading": "おおい",
+    "meanings": ["many", "much", "a lot"],
+    "kanji": ["多"]
+  },
+  {
+    "word": "多少",
+    "reading": "たしょう",
+    "meanings": ["a little", "some"],
+    "kanji": ["少", "多"]
+  },
+  {
+    "word": "朝食",
+    "reading": "ちょうしょく",
+    "meanings": ["breakfast"],
+    "kanji": ["朝", "食"]
+  },
+  {
+    "word": "朝",
+    "reading": "あさ",
+    "meanings": ["morning"],
+    "kanji": ["朝"]
+  },
+  {
+    "word": "朝ご飯",
+    "reading": "あさごはん",
+    "meanings": ["breakfast"],
+    "kanji": ["朝", "飯"]
+  },
+  {
+    "word": "昼食",
+    "reading": "ちゅうしょく",
+    "meanings": ["lunch"],
+    "kanji": ["昼", "食"]
+  },
+  {
+    "word": "昼ご飯",
+    "reading": "ひるごはん",
+    "meanings": ["lunch"],
+    "kanji": ["昼", "飯"]
+  },
+  {
+    "word": "夜食",
+    "reading": "やしょく",
+    "meanings": ["dinner", "late-night snack"],
+    "kanji": ["夜", "食"]
+  },
+  {
+    "word": "夕食",
+    "reading": "ゆうしょく",
+    "meanings": ["dinner", "supper"],
+    "kanji": ["夕", "食"]
+  },
+  {
+    "word": "晩ご飯",
+    "reading": "ばんごはん",
+    "meanings": ["dinner"],
+    "kanji": ["晩", "飯"]
+  },
+  {
+    "word": "今度",
+    "reading": "こんど",
+    "meanings": ["this time", "next time"],
+    "kanji": ["今", "度"]
+  },
+  {
+    "word": "広い",
+    "reading": "ひろい",
+    "meanings": ["wide", "spacious", "large"],
+    "kanji": ["広"]
+  },
+  {
+    "word": "広さ",
+    "reading": "ひろさ",
+    "meanings": ["width"],
+    "kanji": ["広"]
+  },
+  {
+    "word": "店",
+    "reading": "みせ",
+    "meanings": ["shop", "store"],
+    "kanji": ["店"]
+  },
+  {
+    "word": "書店",
+    "reading": "しょてん",
+    "meanings": ["bookstore"],
+    "kanji": ["書", "店"]
+  },
+  {
+    "word": "本店",
+    "reading": "ほんてん",
+    "meanings": ["main store of a chain"],
+    "kanji": ["本", "店"]
+  },
+  {
+    "word": "教える",
+    "reading": "おしえる",
+    "meanings": ["to teach"],
+    "kanji": ["教"]
+  },
+  {
+    "word": "教会",
+    "reading": "きょうかい",
+    "meanings": ["church"],
+    "kanji": ["教", "会"]
+  },
+  {
+    "word": "昼",
+    "reading": "ひる",
+    "meanings": ["noon", "daytime"],
+    "kanji": ["昼"]
+  },
+  {
+    "word": "昼休み",
+    "reading": "ひるやすみ",
+    "meanings": ["lunch break"],
+    "kanji": ["昼", "休"]
+  },
+  {
+    "word": "夜",
+    "reading": "よる",
+    "meanings": ["night"],
+    "kanji": ["夜"]
+  },
+  {
+    "word": "夜中",
+    "reading": "よなか",
+    "meanings": ["middle of the night"],
+    "kanji": ["夜", "中"]
+  },
+  {
+    "word": "今夜",
+    "reading": "こんや",
+    "meanings": ["tonight"],
+    "kanji": ["今", "夜"]
+  },
+  {
+    "word": "晩",
+    "reading": "ばん",
+    "meanings": ["evening", "night"],
+    "kanji": ["晩"]
+  },
+  {
+    "word": "今晩",
+    "reading": "こんばん",
+    "meanings": ["tonight"],
+    "kanji": ["今", "晩"]
+  },
+  {
+    "word": "夕べ",
+    "reading": "ゆうべ",
+    "meanings": ["evening"],
+    "kanji": ["夕"]
+  },
+  {
+    "word": "書き方",
+    "reading": "かきかた",
+    "meanings": ["way of writing"],
+    "kanji": ["書", "方"]
+  },
+  {
+    "word": "夕方",
+    "reading": "ゆうがた",
+    "meanings": ["early evening"],
+    "kanji": ["夕", "方"]
+  },
+  {
+    "word": "前",
+    "reading": "まえ",
+    "meanings": ["before", "front"],
+    "kanji": ["前"]
+  },
+  {
+    "word": "~年前",
+    "reading": "~ねんまえ",
+    "meanings": ["~ years ago"],
+    "kanji": ["年", "前"]
+  },
+  {
+    "word": "前半",
+    "reading": "ぜんはん",
+    "meanings": ["first half"],
+    "kanji": ["前", "半"]
+  },
+  {
+    "word": "作る",
+    "reading": "つくる",
+    "meanings": ["to make", "to create"],
+    "kanji": ["作"]
+  },
+  {
+    "word": "作文",
+    "reading": "さくぶん",
+    "meanings": ["composition"],
+    "kanji": ["作", "文"]
+  },
+  {
+    "word": "泳ぐ",
+    "reading": "およぐ",
+    "meanings": ["to swim"],
+    "kanji": ["泳"]
+  },
+  {
+    "word": "泳ぎ",
+    "reading": "およぎ",
+    "meanings": ["swimming"],
+    "kanji": ["泳"]
+  },
+  {
+    "word": "泳ぎ方",
+    "reading": "およぎかた",
+    "meanings": ["way of swimming"],
+    "kanji": ["泳", "方"]
+  },
+  {
+    "word": "水泳",
+    "reading": "すいえい",
+    "meanings": ["swimming"],
+    "kanji": ["水", "泳"]
+  },
+  {
+    "word": "油",
+    "reading": "あぶら",
+    "meanings": ["oil"],
+    "kanji": ["油"]
+  },
+  {
+    "word": "石油",
+    "reading": "せきゆ",
+    "meanings": ["petroleum oil"],
+    "kanji": ["石", "油"]
+  },
+  {
+    "word": "油田",
+    "reading": "ゆでん",
+    "meanings": ["oil field"],
+    "kanji": ["油", "田"]
+  },
+  {
+    "word": "海",
+    "reading": "うみ",
+    "meanings": ["sea", "ocean"],
+    "kanji": ["海"]
+  },
+  {
+    "word": "日本海",
+    "reading": "にほんかい",
+    "meanings": ["Japan Sea"],
+    "kanji": ["日", "本", "海"]
+  },
+  {
+    "word": "海水",
+    "reading": "かいすい",
+    "meanings": ["sea water"],
+    "kanji": ["海", "水"]
+  },
+  {
+    "word": "酒",
+    "reading": "さけ",
+    "meanings": ["sake", "alcohol"],
+    "kanji": ["酒"]
+  },
+  {
+    "word": "待つ",
+    "reading": "まつ",
+    "meanings": ["to wait"],
+    "kanji": ["待"]
+  },
+  {
+    "word": "日本酒",
+    "reading": "にほんしゅ",
+    "meanings": ["Japanese sake"],
+    "kanji": ["日", "本", "酒"]
+  },
+  {
+    "word": "言う",
+    "reading": "いう",
+    "meanings": ["to say"],
+    "kanji": ["言"]
+  },
+  {
+    "word": "言語",
+    "reading": "げんご",
+    "meanings": ["language"],
+    "kanji": ["言", "語"]
+  },
+  {
+    "word": "時計",
+    "reading": "とけい",
+    "meanings": ["clock", "watch"],
+    "kanji": ["時", "計"]
+  },
+  {
+    "word": "物語",
+    "reading": "ものがたり",
+    "meanings": ["story"],
+    "kanji": ["物", "語"]
+  },
+  {
+    "word": "中国語",
+    "reading": "ちゅうごくご",
+    "meanings": ["Chinese language"],
+    "kanji": ["中", "国", "語"]
+  },
+  {
+    "word": "ご飯",
+    "reading": "ごはん",
+    "meanings": ["cooked rice", "meal"],
+    "kanji": ["飯"]
+  },
+  {
+    "word": "お宅",
+    "reading": "おたく",
+    "meanings": ["your home", "your house"],
+    "kanji": ["宅"]
+  },
+  {
+    "word": "自宅",
+    "reading": "じたく",
+    "meanings": ["one's home", "one's house"],
+    "kanji": ["自", "宅"]
+  },
+  {
+    "word": "帰宅する",
+    "reading": "きたくする",
+    "meanings": ["to go home"],
+    "kanji": ["帰", "宅"]
+  },
+  {
+    "word": "客",
+    "reading": "きゃく",
+    "meanings": ["guest", "customer"],
+    "kanji": ["客"]
+  },
+  {
+    "word": "室内",
+    "reading": "しつない",
+    "meanings": ["indoor", "interior"],
+    "kanji": ["室", "内"]
+  },
+  {
+    "word": "教室",
+    "reading": "きょうしつ",
+    "meanings": ["classroom"],
+    "kanji": ["教", "室"]
+  },
+  {
+    "word": "家",
+    "reading": "いえ",
+    "meanings": ["house", "residence"],
+    "kanji": ["家"]
+  },
+  {
+    "word": "大家",
+    "reading": "おおや",
+    "meanings": ["landlord", "landlady"],
+    "kanji": ["大", "家"]
+  },
+  {
+    "word": "英国",
+    "reading": "えいこく",
+    "meanings": ["England"],
+    "kanji": ["英", "国"]
+  },
+  {
+    "word": "英語",
+    "reading": "えいご",
+    "meanings": ["English language"],
+    "kanji": ["英", "語"]
+  },
+  {
+    "word": "薬",
+    "reading": "くすり",
+    "meanings": ["medicine", "drug"],
+    "kanji": ["薬"]
+  },
+  {
+    "word": "会う",
+    "reading": "あう",
+    "meanings": ["to meet"],
+    "kanji": ["会"]
+  },
+  {
+    "word": "会話",
+    "reading": "かいわ",
+    "meanings": ["conversation"],
+    "kanji": ["会", "話"]
+  },
+  {
+    "word": "曇",
+    "reading": "くも",
+    "meanings": ["cloud"],
+    "kanji": ["曇"]
+  },
+  {
+    "word": "雪",
+    "reading": "ゆき",
+    "meanings": ["snow"],
+    "kanji": ["雪"]
+  },
+  {
+    "word": "雪国",
+    "reading": "ゆきぐに",
+    "meanings": ["snow country", "snowy region"],
+    "kanji": ["雪", "国"]
+  },
+  {
+    "word": "病人",
+    "reading": "びょうにん",
+    "meanings": ["sick person", "patient"],
+    "kanji": ["病", "人"]
+  },
+  {
+    "word": "疲れる",
+    "reading": "つかれる",
+    "meanings": ["to get tired"],
+    "kanji": ["疲"]
+  },
+  {
+    "word": "疲れ",
+    "reading": "つかれ",
+    "meanings": ["tiredness", "fatigue"],
+    "kanji": ["疲"]
+  },
+  {
+    "word": "痛い",
+    "reading": "いたい",
+    "meanings": ["painful", "sore"],
+    "kanji": ["痛"]
+  },
+  {
+    "word": "痛む",
+    "reading": "いたむ",
+    "meanings": ["to hurt", "to ache"],
+    "kanji": ["痛"]
+  },
+  {
+    "word": "屋",
+    "reading": "や",
+    "meanings": ["shop", "store", "restaurant"],
+    "kanji": ["屋"]
+  },
+  {
+    "word": "本屋",
+    "reading": "ほんや",
+    "meanings": ["bookstore"],
+    "kanji": ["本", "屋"]
+  },
+  {
+    "word": "肉屋",
+    "reading": "にくや",
+    "meanings": ["butcher's shop"],
+    "kanji": ["肉", "屋"]
+  },
+  {
+    "word": "屋上",
+    "reading": "おくじょう",
+    "meanings": ["roof", "rooftop"],
+    "kanji": ["屋", "上"]
+  },
+  {
+    "word": "外国人",
+    "reading": "がいこくじん",
+    "meanings": ["foreigner"],
+    "kanji": ["外", "国", "人"]
+  },
+  {
+    "word": "回す",
+    "reading": "まわす",
+    "meanings": ["to turn", "to rotate"],
+    "kanji": ["回"]
+  },
+  {
+    "word": "回る",
+    "reading": "まわる",
+    "meanings": ["to turn around", "to rotate"],
+    "kanji": ["回"]
+  },
+  {
+    "word": "困る",
+    "reading": "こまる",
+    "meanings": ["to be in trouble", "to be embarrassed"],
+    "kanji": ["困"]
+  },
+  {
+    "word": "開く",
+    "reading": "あく",
+    "meanings": ["to open"],
+    "kanji": ["開"]
+  },
+  {
+    "word": "開く",
+    "reading": "ひらく",
+    "meanings": ["to open"],
+    "kanji": ["開"]
+  },
+  {
+    "word": "開会する",
+    "reading": "かいかいする",
+    "meanings": ["to open a meeting"],
+    "kanji": ["開", "会"]
+  },
+  {
+    "word": "開店する",
+    "reading": "かいてんする",
+    "meanings": ["to open a store"],
+    "kanji": ["開", "店"]
+  },
+  {
+    "word": "閉まる",
+    "reading": "しまる",
+    "meanings": ["to close"],
+    "kanji": ["閉"]
+  },
+  {
+    "word": "閉じる",
+    "reading": "とじる",
+    "meanings": ["to close"],
+    "kanji": ["閉"]
+  },
+  {
+    "word": "閉会する",
+    "reading": "へいかいする",
+    "meanings": ["to close a meeting"],
+    "kanji": ["閉", "会"]
+  },
+  {
+    "word": "閉店する",
+    "reading": "へいてんする",
+    "meanings": ["to close a store"],
+    "kanji": ["閉", "店"]
   }
 ]
