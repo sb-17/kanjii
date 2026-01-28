@@ -141,7 +141,7 @@
     "word": "時々",
     "reading": "ときどき",
     "meanings": ["sometimes"],
-    "kanji": ["時", "々"]
+    "kanji": ["時"]
   },
   {
     "word": "人々",
@@ -1023,7 +1023,7 @@
     "word": "買い物",
     "reading": "かいもの",
     "meanings": ["shopping"],
-    "kanji": ["買", "い"]
+    "kanji": ["買", "物"]
   },
   {
     "word": "生物",
@@ -1792,5 +1792,185 @@
     "reading": "にしぐち",
     "meanings": ["west entrance", "west exit"],
     "kanji": ["西", "口"]
+  },
+  {
+    "word": "門",
+    "reading": "もん",
+    "meanings": ["gate"],
+    "kanji": ["門"]
+  },
+  {
+    "word": "私",
+    "reading": "わたし",
+    "meanings": ["I", "me"],
+    "kanji": ["私"]
+  },
+  {
+    "word": "一",
+    "reading": "いち",
+    "meanings": ["one"],
+    "kanji": ["一"]
+  },
+  {
+    "word": "二",
+    "reading": "に",
+    "meanings": ["two"],
+    "kanji": ["二"]
+  },
+  {
+    "word": "三",
+    "reading": "さん",
+    "meanings": ["three"],
+    "kanji": ["三"]
+  },
+  {
+    "word": "四",
+    "reading": "よん",
+    "meanings": ["four"],
+    "kanji": ["四"]
+  },
+  {
+    "word": "五",
+    "reading": "ご",
+    "meanings": ["five"],
+    "kanji": ["五"]
+  },
+  {
+    "word": "六",
+    "reading": "ろく",
+    "meanings": ["six"],
+    "kanji": ["六"]
+  },
+  {
+    "word": "七",
+    "reading": "しち",
+    "meanings": ["seven"],
+    "kanji": ["七"]
+  },
+  {
+    "word": "八",
+    "reading": "はち",
+    "meanings": ["eight"],
+    "kanji": ["八"]
+  },
+  {
+    "word": "九",
+    "reading": "きゅう",
+    "meanings": ["nine"],
+    "kanji": ["九"]
+  },
+  {
+    "word": "十",
+    "reading": "じゅう",
+    "meanings": ["ten"],
+    "kanji": ["十"]
+  },
+  {
+    "word": "百",
+    "reading": "ひゃく",
+    "meanings": ["hundred"],
+    "kanji": ["百"]
+  },
+  {
+    "word": "千",
+    "reading": "せん",
+    "meanings": ["thousand"],
+    "kanji": ["千"]
+  },
+  {
+    "word": "万",
+    "reading": "まん",
+    "meanings": ["ten thousand"],
+    "kanji": ["万"]
+  },
+  {
+    "word": "聞く",
+    "reading": "きく",
+    "meanings": ["to hear"],
+    "kanji": ["聞"]
+  },
+  {
+    "word": "読む",
+    "reading": "よむ",
+    "meanings": ["to read"],
+    "kanji": ["読"]
+  },
+  {
+    "word": "買う",
+    "reading": "かう",
+    "meanings": ["to buy"],
+    "kanji": ["買"]
+  },
+  {
+    "word": "書く",
+    "reading": "かく",
+    "meanings": ["to write"],
+    "kanji": ["書"]
+  },
+  {
+    "word": "帰る",
+    "reading": "かえる",
+    "meanings": ["to return", "to come home", "to go home"],
+    "kanji": ["帰"]
+  },
+  {
+    "word": "眠る",
+    "reading": "ねむる",
+    "meanings": ["to sleep", "to die", "to rest"],
+    "kanji": ["眠"]
+  },
+  {
+    "word": "入る",
+    "reading": "はいる",
+    "meanings": ["to enter", "to come in", "to go in"],
+    "kanji": ["入"]
+  },
+  {
+    "word": "出る",
+    "reading": "でる",
+    "meanings": ["to leave"],
+    "kanji": ["出"]
+  },
+  {
+    "word": "歩く",
+    "reading": "あるく",
+    "meanings": ["to walk"],
+    "kanji": ["歩"]
+  },
+  {
+    "word": "走る",
+    "reading": "はしる",
+    "meanings": ["to run"],
+    "kanji": ["走"]
+  },
+  {
+    "word": "座る",
+    "reading": "すわる",
+    "meanings": ["to sit (down)", "to have a seat", "to be seated"],
+    "kanji": ["座"]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
   }
 ]

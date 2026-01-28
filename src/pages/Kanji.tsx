@@ -46,7 +46,9 @@ export default function Kanji() {
   // load vocab data
   const filteredVocab = vocab.filter((v) =>
     v.kanji.includes(kanjiObj.character),
-  );
+  ).sort(function(a, b) {
+        return a.kanji.length - b.kanji.length;
+    });
 
   const fullyKnownVocab = filteredVocab.filter((v) =>
     v.kanji.every((k) => isKnownOrLearning(progress[k])),
