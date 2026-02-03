@@ -21,6 +21,7 @@ export default function Practice() {
   const kanjiData = kanji as Kanji[];
   const vocabData = vocab as Vocab[];
 
+  // filter kanji and vocab
   const kanjiQuestions = kanjiData
     .filter((k) => {
       const status: KanjiStatus = progress[k.character] || "new";
