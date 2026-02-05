@@ -2213,5 +2213,95 @@
     "reading": "そくたつ",
     "meanings": ["express delivery"],
     "kanji": ["速", "達"]
+  },
+  {
+    "word": "遅い",
+    "reading": "おそい",
+    "meanings": ["slow", "late"],
+    "kanji": ["遅"]
+  },
+  {
+    "word": "遅れる",
+    "reading": "おくれる",
+    "meanings": ["to be late"],
+    "kanji": ["遅"]
+  },
+  {
+    "word": "遅刻する",
+    "reading": "ちこくする",
+    "meanings": ["to be late"],
+    "kanji": ["遅", "刻"]
+  },
+  {
+    "word": "道",
+    "reading": "みち",
+    "meanings": ["path", "street", "road"],
+    "kanji": ["道"]
+  },
+  {
+    "word": "水道",
+    "reading": "すいどう",
+    "meanings": ["waterworks", "water supply"],
+    "kanji": ["水", "道"]
+  },
+  {
+    "word": "歩道",
+    "reading": "ほどう",
+    "meanings": ["sidewalk", "footpath"],
+    "kanji": ["歩", "道"]
+  },
+  {
+    "word": "車道",
+    "reading": "しゃどう",
+    "meanings": ["roadway"],
+    "kanji": ["車", "道"]
+  },
+  {
+    "word": "青い",
+    "reading": "あおい",
+    "meanings": ["blue"],
+    "kanji": ["青"]
+  },
+  {
+    "word": "青年",
+    "reading": "せいねん",
+    "meanings": ["young man", "young person"],
+    "kanji": ["青", "年"]
+  },
+  {
+    "word": "青信号",
+    "reading": "あおしんごう",
+    "meanings": ["green light"],
+    "kanji": ["青", "信", "号"]
+  },
+  {
+    "word": "晴れ",
+    "reading": "はれ",
+    "meanings": ["clear weather", "sunny weather"],
+    "kanji": ["晴"]
+  },
+  {
+    "word": "晴れる",
+    "reading": "はれる",
+    "meanings": ["to clear up", "to be sunny"],
+    "kanji": ["晴"]
+  },
+  {
+    "word": "晴天",
+    "reading": "せいてん",
+    "meanings": ["fair weather"],
+    "kanji": ["晴", "天"]
+  },
+  {
+    "word": "静かな",
+    "reading": "しずかな",
+    "meanings": ["quiet"],
+    "kanji": ["静"]
+  },
+  {
+    "word": "安静",
+    "reading": "あんせい",
+    "meanings": ["rest"],
+    "kanji": ["安", "静"]
   }
 ]
