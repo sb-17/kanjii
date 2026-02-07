@@ -1995,7 +1995,7 @@
   {
     "word": "読書",
     "reading": "どくしょ",
-    "meanings": ["reading (books)"],
+    "meanings": ["reading books"],
     "kanji": ["読", "書"]
   },
   {
@@ -2411,5 +2411,311 @@
     "reading": "しちゅう",
     "meanings": ["in the city"],
     "kanji": ["市", "中"]
+  },
+  {
+    "word": "紫",
+    "reading": "むらさき",
+    "meanings": ["purple", "violet"],
+    "kanji": ["紫"]
+  },
+  {
+    "word": "紫外線",
+    "reading": "しがいせん",
+    "meanings": ["ultraviolet ray", "ultraviolet radiation"],
+    "kanji": ["紫", "外", "線"]
+  },
+  {
+    "word": "物理学",
+    "reading": "ぶつりがく",
+    "meanings": ["physics"],
+    "kanji": ["物", "理", "学"]
+  },
+  {
+    "word": "料理",
+    "reading": "りょうり",
+    "meanings": ["cooking", "dish", "cuisine", "food"],
+    "kanji": ["料", "理"]
+  },
+  {
+    "word": "理由",
+    "reading": "りゆう",
+    "meanings": ["reason", "grounds"],
+    "kanji": ["理", "由"]
+  },
+  {
+    "word": "地理",
+    "reading": "ちり",
+    "meanings": ["geography"],
+    "kanji": ["地", "理"]
+  },
+  {
+    "word": "日記",
+    "reading": "にっき",
+    "meanings": ["diary", "journal"],
+    "kanji": ["日", "記"]
+  },
+  {
+    "word": "先日",
+    "reading": "せんじつ",
+    "meanings": ["the other day", "a few days ago"],
+    "kanji": ["先", "日"]
+  },
+  {
+    "word": "生年月日",
+    "reading": "せいねんがっぴ",
+    "meanings": ["date of birth"],
+    "kanji": ["生", "年", "月", "日"]
+  },
+  {
+    "word": "来月",
+    "reading": "らいげつ",
+    "meanings": ["next month"],
+    "kanji": ["来", "月"]
+  },
+  {
+    "word": "今月",
+    "reading": "こんげつ",
+    "meanings": ["this month"],
+    "kanji": ["今", "月"]
+  },
+  {
+    "word": "毎月",
+    "reading": "まいげつ",
+    "meanings": ["every month", "monthly"],
+    "kanji": ["毎", "月"]
+  },
+  {
+    "word": "月末",
+    "reading": "げつまつ",
+    "meanings": ["end of the month"],
+    "kanji": ["月", "末"]
+  },
+  {
+    "word": "大木",
+    "reading": "たいぼく",
+    "meanings": ["large tree"],
+    "kanji": ["大", "木"]
+  },
+  {
+    "word": "大人",
+    "reading": "おとな",
+    "meanings": ["adult"],
+    "kanji": ["大", "人"]
+  },
+  {
+    "word": "二人",
+    "reading": "ふたり",
+    "meanings": ["two people", "pair", "couple"],
+    "kanji": ["二", "人"]
+  },
+  {
+    "word": "一人",
+    "reading": "ひとり",
+    "meanings": ["one person", "being alone", "being single", "alone"],
+    "kanji": ["一", "人"]
+  },
+  {
+    "word": "人生",
+    "reading": "じんせい",
+    "meanings": ["life", "human life"],
+    "kanji": ["人", "生"]
+  },
+  {
+    "word": "私鉄",
+    "reading": "してつ",
+    "meanings": ["private railway"],
+    "kanji": ["私", "鉄"]
+  },
+  {
+    "word": "私物",
+    "reading": "しぶつ",
+    "meanings": ["private property", "personal belongings"],
+    "kanji": ["私", "物"]
+  },
+  {
+    "word": "生きる",
+    "reading": "いきる",
+    "meanings": ["to live", "to exist"],
+    "kanji": ["生"]
+  },
+  {
+    "word": "上り",
+    "reading": "のぼり",
+    "meanings": ["ascent", "climbing", "climb"],
+    "kanji": ["上"]
+  },
+  {
+    "word": "上る",
+    "reading": "のぼる",
+    "meanings": ["to ascend", "to climb", "to go up"],
+    "kanji": ["上"]
+  },
+  {
+    "word": "靴下",
+    "reading": "くつした",
+    "meanings": ["socks"],
+    "kanji": ["靴", "下"]
+  },
+  {
+    "word": "廊下",
+    "reading": "ろうか",
+    "meanings": ["corridor", "hallway"],
+    "kanji": ["廊", "下"]
+  },
+  {
+    "word": "低下",
+    "reading": "ていか",
+    "meanings": ["fall", "decline", "lowering", "degradation"],
+    "kanji": ["低", "下"]
+  },
+  {
+    "word": "市内",
+    "reading": "しない",
+    "meanings": ["within the city", "in the city"],
+    "kanji": ["市", "内"]
+  },
+  {
+    "word": "国内",
+    "reading": "こくない",
+    "meanings": ["domestic", "within the country"],
+    "kanji": ["国", "内"]
+  },
+  {
+    "word": "室内",
+    "reading": "しつない",
+    "meanings": ["indoor", "inside a room"],
+    "kanji": ["室", "内"]
+  },
+  {
+    "word": "身内",
+    "reading": "みうち",
+    "meanings": ["family members", "relatives"],
+    "kanji": ["身", "内"]
+  },
+  {
+    "word": "屋外",
+    "reading": "おくがい",
+    "meanings": ["outdoor", "outside"],
+    "kanji": ["屋", "外"]
+  },
+  {
+    "word": "旅行",
+    "reading": "りょこう",
+    "meanings": ["travel", "journey", "trip"],
+    "kanji": ["旅", "行"]
+  },
+  {
+    "word": "銀行",
+    "reading": "ぎんこう",
+    "meanings": ["bank"],
+    "kanji": ["銀", "行"]
+  },
+  {
+    "word": "売店",
+    "reading": "ばいてん",
+    "meanings": ["stand", "kiosk", "store"],
+    "kanji": ["売", "店"]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
   }
 ]
