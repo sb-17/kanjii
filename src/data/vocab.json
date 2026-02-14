@@ -2701,16 +2701,34 @@
     "kanji": ["金", "持"]
   },
   {
-    "word": "",
-    "reading": "",
-    "meanings": [""],
-    "kanji": [""]
+    "word": "各自",
+    "reading": "かくじ",
+    "meanings": ["each person", "everyone"],
+    "kanji": ["各", "自"]
   },
   {
-    "word": "",
-    "reading": "",
-    "meanings": [""],
-    "kanji": [""]
+    "word": "独自",
+    "reading": "どくじ",
+    "meanings": ["original", "unique"],
+    "kanji": ["独", "自"]
+  },
+  {
+    "word": "墓地",
+    "reading": "ぼち",
+    "meanings": ["cemetery", "graveyard"],
+    "kanji": ["墓", "地"]
+  },
+  {
+    "word": "年初",
+    "reading": "ねんしょ",
+    "meanings": ["beginning of the year"],
+    "kanji": ["年", "初"]
+  },
+  {
+    "word": "署名",
+    "reading": "しょめい",
+    "meanings": ["signature", "autograph"],
+    "kanji": ["署", "名"]
   },
   {
     "word": "",
