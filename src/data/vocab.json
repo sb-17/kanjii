@@ -2731,6 +2731,150 @@
     "kanji": ["署", "名"]
   },
   {
+    "word": "電気",
+    "reading": "でんき",
+    "meanings": ["electricity"],
+    "kanji": ["電", "気"]
+  },
+  {
+    "word": "勇気",
+    "reading": "ゆうき",
+    "meanings": ["courage", "bravery"],
+    "kanji": ["勇", "気"]
+  },
+  {
+    "word": "天気",
+    "reading": "てんき",
+    "meanings": ["weather"],
+    "kanji": ["天", "気"]
+  },
+  {
+    "word": "元気",
+    "reading": "げんき",
+    "meanings": ["lively", "energetic", "healthy", "well"],
+    "kanji": ["元", "気"]
+  },
+  {
+    "word": "美しい",
+    "reading": "うつくしい",
+    "meanings": ["beautiful", "pretty", "lovely", "sweet"],
+    "kanji": ["美"]
+  },
+  {
+    "word": "黒い",
+    "reading": "くろい",
+    "meanings": ["black"],
+    "kanji": ["黒"]
+  },
+  {
+    "word": "電鉄",
+    "reading": "でんてつ",
+    "meanings": ["electric railway"],
+    "kanji": ["電", "鉄"]
+  },
+  {
+    "word": "撮る",
+    "reading": "とる",
+    "meanings": ["to take a photograph", "to film"],
+    "kanji": ["撮"]
+  },
+  {
+    "word": "写す",
+    "reading": "うつす",
+    "meanings": ["to copy", "to duplicate"],
+    "kanji": ["写"]
+  },
+  {
+    "word": "写る",
+    "reading": "うつる",
+    "meanings": ["to be photographed"],
+    "kanji": ["写"]
+  },
+  {
+    "word": "専攻",
+    "reading": "せんこう",
+    "meanings": ["major subject"],
+    "kanji": ["専", "攻"]
+  },
+  {
+    "word": "専門",
+    "reading": "せんもん",
+    "meanings": ["speciality", "specialty", "area of expertise", "one's field"],
+    "kanji": ["専", "門"]
+  },
+  {
+    "word": "専門学校",
+    "reading": "せんもんがっこう",
+    "meanings": ["technical school"],
+    "kanji": ["専", "門", "学", "校"]
+  },
+  {
+    "word": "味",
+    "reading": "あじ",
+    "meanings": ["flavor", "taste"],
+    "kanji": ["味"]
+  },
+  {
+    "word": "真空",
+    "reading": "しんくう",
+    "meanings": ["vacuum"],
+    "kanji": ["真", "空"]
+  },
+  {
+    "word": "同",
+    "reading": "どう",
+    "meanings": ["the same"],
+    "kanji": ["同"]
+  },
+  {
+    "word": "同時",
+    "reading": "どうじ",
+    "meanings": ["same time"],
+    "kanji": ["同", "時"]
+  },
+  {
+    "word": "政府",
+    "reading": "せいふ",
+    "meanings": ["government"],
+    "kanji": ["政", "府"]
+  },
+  {
+    "word": "政党",
+    "reading": "せいとう",
+    "meanings": ["political party"],
+    "kanji": ["政", "党"]
+  },
+  {
+    "word": "政治家",
+    "reading": "せいじか",
+    "meanings": ["politician"],
+    "kanji": ["政", "治", "家"]
+  },
+  {
+    "word": "社会",
+    "reading": "しゃかい",
+    "meanings": ["society", "public", "community"],
+    "kanji": ["社", "会"]
+  },
+  {
+    "word": "社会学",
+    "reading": "しゃかいがく",
+    "meanings": ["sociology"],
+    "kanji": ["社", "会", "学"]
+  },
+  {
+    "word": "社会党",
+    "reading": "しゃかいとう",
+    "meanings": ["Socialist Party"],
+    "kanji": ["社", "会", "党"]
+  },
+  {
+    "word": "会社",
+    "reading": "かいしゃ",
+    "meanings": ["company", "corporation", "firm"],
+    "kanji": ["会", "社"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
