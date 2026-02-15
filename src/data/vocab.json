@@ -2875,6 +2875,186 @@
     "kanji": ["会", "社"]
   },
   {
+    "word": "元日",
+    "reading": "がんじつ",
+    "meanings": ["New Year's Day"],
+    "kanji": ["元", "日"]
+  },
+  {
+    "word": "気分",
+    "reading": "きぶん",
+    "meanings": ["mood"],
+    "kanji": ["気", "分"]
+  },
+  {
+    "word": "有力な",
+    "reading": "ゆうりょくな",
+    "meanings": ["strong", "influential"],
+    "kanji": ["有", "力"]
+  },
+  {
+    "word": "所有する",
+    "reading": "しょゆうする",
+    "meanings": ["to own", "to possess"],
+    "kanji": ["所", "有"]
+  },
+  {
+    "word": "名古屋",
+    "reading": "なごや",
+    "meanings": ["Nagoya"],
+    "kanji": ["名", "古", "屋"]
+  },
+  {
+    "word": "名所",
+    "reading": "めいしょ",
+    "meanings": ["famous sights"],
+    "kanji": ["名", "所"]
+  },
+  {
+    "word": "名物",
+    "reading": "めいぶつ",
+    "meanings": ["local specialty"],
+    "kanji": ["名", "物"]
+  },
+  {
+    "word": "親",
+    "reading": "おや",
+    "meanings": ["parent"],
+    "kanji": ["親"]
+  },
+  {
+    "word": "親しい",
+    "reading": "したしい",
+    "meanings": ["close", "intimate", "familiar"],
+    "kanji": ["親"]
+  },
+  {
+    "word": "親切な",
+    "reading": "しんせつな",
+    "meanings": ["kind", "gentle", "considerate"],
+    "kanji": ["親", "切"]
+  },
+  {
+    "word": "切る",
+    "reading": "きる",
+    "meanings": ["to cut"],
+    "kanji": ["切"]
+  },
+  {
+    "word": "切符",
+    "reading": "きっぷ",
+    "meanings": ["ticket"],
+    "kanji": ["切", "符"]
+  },
+  {
+    "word": "切手",
+    "reading": "きって",
+    "meanings": ["stamp"],
+    "kanji": ["切", "手"]
+  },
+  {
+    "word": "大切な",
+    "reading": "たいせつな",
+    "meanings": ["important", "precious", "valuable"],
+    "kanji": ["大", "切"]
+  },
+  {
+    "word": "航空便",
+    "reading": "こうくうびん",
+    "meanings": ["air mail"],
+    "kanji": ["航", "空", "便"]
+  },
+  {
+    "word": "便利な",
+    "reading": "べんりな",
+    "meanings": ["convenient"],
+    "kanji": ["便", "利"]
+  },
+  {
+    "word": "宅配便",
+    "reading": "たくはいびん",
+    "meanings": ["home delivery service"],
+    "kanji": ["宅", "配", "便"]
+  },
+  {
+    "word": "便所",
+    "reading": "べんじょ",
+    "meanings": ["bathroom", "toilet"],
+    "kanji": ["便", "所"]
+  },
+  {
+    "word": "利子",
+    "reading": "りす",
+    "meanings": ["bank interest"],
+    "kanji": ["利", "子"]
+  },
+  {
+    "word": "有利な",
+    "reading": "ゆうりな",
+    "meanings": ["advantageous", "favorable"],
+    "kanji": ["有", "利"]
+  },
+  {
+    "word": "利用する",
+    "reading": "りようする",
+    "meanings": ["to use"],
+    "kanji": ["利", "用"]
+  },
+  {
+    "word": "不便な",
+    "reading": "ふべんな",
+    "meanings": ["inconvenient"],
+    "kanji": ["不", "便"]
+  },
+  {
+    "word": "不足する",
+    "reading": "ふそくする",
+    "meanings": ["to　lack"],
+    "kanji": ["不", "足"]
+  },
+  {
+    "word": "不安な",
+    "reading": "ふあんな",
+    "meanings": ["anxious", "uneasy", "worried"],
+    "kanji": ["不", "安"]
+  },
+  {
+    "word": "不親切な",
+    "reading": "ふしんせつな",
+    "meanings": ["unfriendly", "unkind"],
+    "kanji": ["不", "親", "切"]
+  },
+  {
+    "word": "若い",
+    "reading": "わかい",
+    "meanings": ["young"],
+    "kanji": ["若"]
+  },
+  {
+    "word": "若者",
+    "reading": "わかもの",
+    "meanings": ["young person", "youth"],
+    "kanji": ["若", "者"]
+  },
+  {
+    "word": "早朝",
+    "reading": "そうちょう",
+    "meanings": ["early morning"],
+    "kanji": ["早", "朝"]
+  },
+  {
+    "word": "忙しい",
+    "reading": "いそがしい",
+    "meanings": ["busy"],
+    "kanji": ["忙", "しい"]
+  },
+  {
+    "word": "多忙な",
+    "reading": "たぼうな",
+    "meanings": ["very busy"],
+    "kanji": ["多", "忙"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
