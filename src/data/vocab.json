@@ -3055,6 +3055,30 @@
     "kanji": ["多", "忙"]
   },
   {
+    "word": "主人",
+    "reading": "しゅじん",
+    "meanings": ["landlord", "head of a household"],
+    "kanji": ["主", "人"]
+  },
+  {
+    "word": "党首",
+    "reading": "とうしゅ",
+    "meanings": ["party leader"],
+    "kanji": ["党", "首"]
+  },
+  {
+    "word": "党利",
+    "reading": "とうり",
+    "meanings": ["party interests"],
+    "kanji": ["党", "利"]
+  },
+  {
+    "word": "党員",
+    "reading": "とういん",
+    "meanings": ["party member"],
+    "kanji": ["党", "員"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
