@@ -3079,6 +3079,18 @@
     "kanji": ["党", "員"]
   },
   {
+    "word": "家族",
+    "reading": "かぞく",
+    "meanings": ["family"],
+    "kanji": ["家", "族"]
+  },
+  {
+    "word": "味わう",
+    "reading": "あじわう",
+    "meanings": ["to savor", "to taste"],
+    "kanji": ["味"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
