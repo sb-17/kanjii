@@ -3091,6 +3091,138 @@
     "kanji": ["味"]
   },
   {
+    "word": "出す",
+    "reading": "だす",
+    "meanings": ["to put out", "to hand in"],
+    "kanji": ["出"]
+  },
+  {
+    "word": "外出する",
+    "reading": "がいしゅつする",
+    "meanings": ["to go out"],
+    "kanji": ["外", "出"]
+  },
+  {
+    "word": "人気",
+    "reading": "にんき",
+    "meanings": ["popularity", "fame"],
+    "kanji": ["人", "気"]
+  },
+  {
+    "word": "入学する",
+    "reading": "にゅうがくする",
+    "meanings": ["to enter school", "to enroll", "to be admitted to a school"],
+    "kanji": ["入", "学"]
+  },
+  {
+    "word": "乗る",
+    "reading": "のる",
+    "meanings": ["to ride", "to board", "to get on"],
+    "kanji": ["乗"]
+  },
+  {
+    "word": "乗り物",
+    "reading": "のりもの",
+    "meanings": ["vehicle"],
+    "kanji": ["乗", "物"]
+  },
+  {
+    "word": "乗客",
+    "reading": "じょうきゃく",
+    "meanings": ["passenger"],
+    "kanji": ["乗", "客"]
+  },
+  {
+    "word": "降りる",
+    "reading": "おりる",
+    "meanings": ["to get off"],
+    "kanji": ["降"]
+  },
+  {
+    "word": "降る",
+    "reading": "ふる",
+    "meanings": ["to fall (rain, snow)"],
+    "kanji": ["降"]
+  },
+  {
+    "word": "着く",
+    "reading": "つく",
+    "meanings": ["to arrive", "to reach"],
+    "kanji": ["着"]
+  },
+  {
+    "word": "着る",
+    "reading": "きる",
+    "meanings": ["to wear"],
+    "kanji": ["着"]
+  },
+  {
+    "word": "着物",
+    "reading": "きもの",
+    "meanings": ["kimono"],
+    "kanji": ["着", "物"]
+  },
+  {
+    "word": "渡る",
+    "reading": "わたる",
+    "meanings": ["to cross", "to go across"],
+    "kanji": ["渡"]
+  },
+  {
+    "word": "渡す",
+    "reading": "わたす",
+    "meanings": ["to hand over", "to pass"],
+    "kanji": ["渡"]
+  },
+  {
+    "word": "通る",
+    "reading": "とおる",
+    "meanings": ["to go by", "to go past"],
+    "kanji": ["通"]
+  },
+  {
+    "word": "交通",
+    "reading": "こうつう",
+    "meanings": ["traffic"],
+    "kanji": ["交", "通"]
+  },
+  {
+    "word": "走者",
+    "reading": "そうしゃ",
+    "meanings": ["runner"],
+    "kanji": ["走", "者"]
+  },
+  {
+    "word": "走る",
+    "reading": "はしる",
+    "meanings": ["to run"],
+    "kanji": ["走"]
+  },
+  {
+    "word": "歩く",
+    "reading": "あるく",
+    "meanings": ["to walk"],
+    "kanji": ["歩"]
+  },
+  {
+    "word": "歩道",
+    "reading": "ほどう",
+    "meanings": ["footpath", "sidewalk"],
+    "kanji": ["歩", "道"]
+  },
+  {
+    "word": "歩行者",
+    "reading": "ほこうしゃ",
+    "meanings": ["pedestrian"],
+    "kanji": ["歩", "行", "者"]
+  },
+  {
+    "word": "止まる",
+    "reading": "とまる",
+    "meanings": ["to stop"],
+    "kanji": ["止"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
