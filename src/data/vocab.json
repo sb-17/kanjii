@@ -3223,6 +3223,18 @@
     "kanji": ["止"]
   },
   {
+    "word": "主査",
+    "reading": "しゅさ",
+    "meanings": ["chief examiner", "chief investigator"],
+    "kanji": ["主", "査"]
+  },
+  {
+    "word": "意見",
+    "reading": "いけん",
+    "meanings": ["opinion", "view", "comment"],
+    "kanji": ["意", "見"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
