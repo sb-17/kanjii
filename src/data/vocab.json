@@ -3235,6 +3235,12 @@
     "kanji": ["意", "見"]
   },
   {
+    "word": "外",
+    "reading": "そと",
+    "meanings": ["outside", "exterior"],
+    "kanji": ["外"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
