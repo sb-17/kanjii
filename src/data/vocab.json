@@ -3241,6 +3241,156 @@
     "kanji": ["外"]
   },
   {
+    "word": "中止する",
+    "reading": "ちゅうしする",
+    "meanings": ["to cancel", "to stop"],
+    "kanji": ["中", "止"]
+  },
+  {
+    "word": "禁止する",
+    "reading": "きんしする",
+    "meanings": ["to prohibit", "to ban"],
+    "kanji": ["禁", "止"]
+  },
+  {
+    "word": "動く",
+    "reading": "うごく",
+    "meanings": ["to move"],
+    "kanji": ["動"]
+  },
+  {
+    "word": "自動車",
+    "reading": "じどうしゃ",
+    "meanings": ["automobile", "car"],
+    "kanji": ["自", "動", "車"]
+  },
+  {
+    "word": "動物",
+    "reading": "どうぶつ",
+    "meanings": ["animal"],
+    "kanji": ["動", "物"]
+  },
+  {
+    "word": "働く",
+    "reading": "はたらく",
+    "meanings": ["to work"],
+    "kanji": ["働"]
+  },
+  {
+    "word": "労働者",
+    "reading": "ろうどうしゃ",
+    "meanings": ["worker"],
+    "kanji": ["労", "働", "者"]
+  },
+  {
+    "word": "労働",
+    "reading": "ろうどう",
+    "meanings": ["labor", "work"],
+    "kanji": ["労", "働"]
+  },
+  {
+    "word": "右手",
+    "reading": "みぎて",
+    "meanings": ["right hand"],
+    "kanji": ["右", "手"]
+  },
+  {
+    "word": "左手",
+    "reading": "ひだりて",
+    "meanings": ["left hand"],
+    "kanji": ["左", "手"]
+  },
+  {
+    "word": "右折する",
+    "reading": "うせつする",
+    "meanings": ["to turn right"],
+    "kanji": ["右", "折"]
+  },
+  {
+    "word": "左折する",
+    "reading": "させつする",
+    "meanings": ["to turn left"],
+    "kanji": ["左", "折"]
+  },
+  {
+    "word": "関東",
+    "reading": "かんとう",
+    "meanings": ["Kanto region"],
+    "kanji": ["関", "東"]
+  },
+  {
+    "word": "関西",
+    "reading": "かんさい",
+    "meanings": ["Kansai region"],
+    "kanji": ["関", "西"]
+  },
+  {
+    "word": "北米",
+    "reading": "ほくべい",
+    "meanings": ["North America"],
+    "kanji": ["北", "米"]
+  },
+  {
+    "word": "北海道",
+    "reading": "ほっかいどう",
+    "meanings": ["Hokkaido"],
+    "kanji": ["北", "海", "道"]
+  },
+  {
+    "word": "南米",
+    "reading": "なんべい",
+    "meanings": ["South America"],
+    "kanji": ["南", "米"]
+  },
+  {
+    "word": "外科",
+    "reading": "げか",
+    "meanings": ["surgery"],
+    "kanji": ["外", "科"]
+  },
+  {
+    "word": "部分",
+    "reading": "ぶぶん",
+    "meanings": ["part", "section"],
+    "kanji": ["部", "分"]
+  },
+  {
+    "word": "全部",
+    "reading": "ぜんぶ",
+    "meanings": ["all", "everything"],
+    "kanji": ["全", "部"]
+  },
+  {
+    "word": "駅",
+    "reading": "えき",
+    "meanings": ["station"],
+    "kanji": ["駅"]
+  },
+  {
+    "word": "駅長",
+    "reading": "えきちょう",
+    "meanings": ["station master", "station manager"],
+    "kanji": ["駅", "長"]
+  },
+  {
+    "word": "駅員",
+    "reading": "えきいん",
+    "meanings": ["station staff", "station employee"],
+    "kanji": ["駅", "員"]
+  },
+  {
+    "word": "社長",
+    "reading": "しゃちょう",
+    "meanings": ["company president", "chairman"],
+    "kanji": ["社", "長"]
+  },
+  {
+    "word": "大学院",
+    "reading": "だいがくいん",
+    "meanings": ["graduate school", "graduate institute"],
+    "kanji": ["大", "学", "院"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
