@@ -3391,6 +3391,174 @@
     "kanji": ["大", "学", "院"]
   },
   {
+    "word": "春",
+    "reading": "はる",
+    "meanings": ["spring"],
+    "kanji": ["春"]
+  },
+  {
+    "word": "夏",
+    "reading": "なつ",
+    "meanings": ["summer"],
+    "kanji": ["夏"]
+  },
+  {
+    "word": "秋",
+    "reading": "あき",
+    "meanings": ["autumn", "fall"],
+    "kanji": ["秋"]
+  },
+  {
+    "word": "冬",
+    "reading": "ふゆ",
+    "meanings": ["winter"],
+    "kanji": ["冬"]
+  },
+  {
+    "word": "土地",
+    "reading": "とち",
+    "meanings": ["land"],
+    "kanji": ["土", "地"]
+  },
+  {
+    "word": "地方",
+    "reading": "ちほう",
+    "meanings": ["district", "region", "area"],
+    "kanji": ["地", "方"]
+  },
+  {
+    "word": "地震",
+    "reading": "じしん",
+    "meanings": ["earthquake"],
+    "kanji": ["地", "震"]
+  },
+  {
+    "word": "鉄",
+    "reading": "てつ",
+    "meanings": ["iron"],
+    "kanji": ["鉄"]
+  },
+  {
+    "word": "鉄道",
+    "reading": "てつどう",
+    "meanings": ["railway", "railroad"],
+    "kanji": ["鉄", "道"]
+  },
+  {
+    "word": "私鉄",
+    "reading": "してつ",
+    "meanings": ["private railway"],
+    "kanji": ["私", "鉄"]
+  },
+  {
+    "word": "工場",
+    "reading": "こうじょう",
+    "meanings": ["factory"],
+    "kanji": ["工", "場"]
+  },
+  {
+    "word": "工学",
+    "reading": "こうがく",
+    "meanings": ["engineering"],
+    "kanji": ["工", "学"]
+  },
+  {
+    "word": "工事",
+    "reading": "こうじ",
+    "meanings": ["construction work"],
+    "kanji": ["工", "事"]
+  },
+  {
+    "word": "工業",
+    "reading": "こうぎょう",
+    "meanings": ["industry"],
+    "kanji": ["工", "業"]
+  },
+  {
+    "word": "場所",
+    "reading": "ばしょ",
+    "meanings": ["place", "location"],
+    "kanji": ["場", "所"]
+  },
+  {
+    "word": "場合",
+    "reading": "ばあい",
+    "meanings": ["case", "situation", "occasion"],
+    "kanji": ["場", "合"]
+  },
+  {
+    "word": "広場",
+    "reading": "ひろば",
+    "meanings": ["square", "plaza"],
+    "kanji": ["広", "場"]
+  },
+  {
+    "word": "運動場",
+    "reading": "うんどうじょう",
+    "meanings": ["sports field", "playground"],
+    "kanji": ["運", "動", "場"]
+  },
+  {
+    "word": "地図",
+    "reading": "ちず",
+    "meanings": ["map"],
+    "kanji": ["地", "図"]
+  },
+  {
+    "word": "天気図",
+    "reading": "てんきず",
+    "meanings": ["weather map"],
+    "kanji": ["天", "気", "図"]
+  },
+  {
+    "word": "図書",
+    "reading": "としょ",
+    "meanings": ["books"],
+    "kanji": ["図", "書"]
+  },
+  {
+    "word": "図書館",
+    "reading": "としょかん",
+    "meanings": ["library"],
+    "kanji": ["図", "書", "館"]
+  },
+  {
+    "word": "大使館",
+    "reading": "たいしかん",
+    "meanings": ["embassy"],
+    "kanji": ["大", "使", "館"]
+  },
+  {
+    "word": "映画館",
+    "reading": "えいがかん",
+    "meanings": ["movie theater"],
+    "kanji": ["映", "画", "館"]
+  },
+  {
+    "word": "映画",
+    "reading": "えいが",
+    "meanings": ["movie"],
+    "kanji": ["映", "画"]
+  },
+  {
+    "word": "公園",
+    "reading": "こうえん",
+    "meanings": ["park"],
+    "kanji": ["公", "園"]
+  },
+  {
+    "word": "動物園",
+    "reading": "どうぶつえん",
+    "meanings": ["zoo"],
+    "kanji": ["動", "物", "園"]
+  },
+  {
+    "word": "遊園地",
+    "reading": "ゆうえんち",
+    "meanings": ["amusement park"],
+    "kanji": ["遊", "園", "地"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
