@@ -3559,6 +3559,228 @@
     "kanji": ["遊", "園", "地"]
   },
   {
+    "word": "住む",
+    "reading": "すむ",
+    "meanings": ["to live"],
+    "kanji": ["住"]
+  },
+  {
+    "word": "住所",
+    "reading": "じゅうしょ",
+    "meanings": ["address"],
+    "kanji": ["住", "所"]
+  },
+  {
+    "word": "住民",
+    "reading": "じゅうみん",
+    "meanings": ["resident", "inhabitant"],
+    "kanji": ["住", "民"]
+  },
+  {
+    "word": "住宅",
+    "reading": "じゅうたく",
+    "meanings": ["residence", "house"],
+    "kanji": ["住", "宅"]
+  },
+  {
+    "word": "所",
+    "reading": "ところ",
+    "meanings": ["place", "location"],
+    "kanji": ["所"]
+  },
+  {
+    "word": "台所",
+    "reading": "だいどころ",
+    "meanings": ["kitchen"],
+    "kanji": ["台", "所"]
+  },
+  {
+    "word": "事務所",
+    "reading": "じむしょ",
+    "meanings": ["office"],
+    "kanji": ["事", "務", "所"]
+  },
+  {
+    "word": "研究所",
+    "reading": "けんきゅうじょ",
+    "meanings": ["research institute"],
+    "kanji": ["研", "究", "所"]
+  },
+  {
+    "word": "番号",
+    "reading": "ばんごう",
+    "meanings": ["number"],
+    "kanji": ["番", "号"]
+  },
+  {
+    "word": "交番",
+    "reading": "こうばん",
+    "meanings": ["police box"],
+    "kanji": ["交", "番"]
+  },
+  {
+    "word": "記号",
+    "reading": "きごう",
+    "meanings": ["symbol", "mark", "sign"],
+    "kanji": ["記", "号"]
+  },
+  {
+    "word": "電話番号",
+    "reading": "でんわばんごう",
+    "meanings": ["phone number"],
+    "kanji": ["電", "話", "番", "号"]
+  },
+  {
+    "word": "信号",
+    "reading": "しんごう",
+    "meanings": ["signal", "traffic light"],
+    "kanji": ["信", "号"]
+  },
+  {
+    "word": "市民",
+    "reading": "しみん",
+    "meanings": ["citizen"],
+    "kanji": ["市", "民"]
+  },
+  {
+    "word": "市長",
+    "reading": "しちょう",
+    "meanings": ["mayor"],
+    "kanji": ["市", "長"]
+  },
+  {
+    "word": "市場",
+    "reading": "いちば",
+    "meanings": ["market"],
+    "kanji": ["市", "場"]
+  },
+  {
+    "word": "町",
+    "reading": "まち",
+    "meanings": ["town"],
+    "kanji": ["町"]
+  },
+  {
+    "word": "下町",
+    "reading": "しもまち",
+    "meanings": ["lower town", "downtown"],
+    "kanji": ["下", "町"]
+  },
+  {
+    "word": "町長",
+    "reading": "ちょうちょう",
+    "meanings": ["town mayor"],
+    "kanji": ["町", "長"]
+  },
+  {
+    "word": "村",
+    "reading": "むら",
+    "meanings": ["village"],
+    "kanji": ["村"]
+  },
+  {
+    "word": "村役場",
+    "reading": "むらやくば",
+    "meanings": ["village office"],
+    "kanji": ["村", "役", "場"]
+  },
+  {
+    "word": "区",
+    "reading": "く",
+    "meanings": ["ward", "district"],
+    "kanji": ["区"]
+  },
+  {
+    "word": "区役所",
+    "reading": "くやくしょ",
+    "meanings": ["ward office"],
+    "kanji": ["区", "役", "所"]
+  },
+  {
+    "word": "地区",
+    "reading": "ちく",
+    "meanings": ["district"],
+    "kanji": ["地", "区"]
+  },
+  {
+    "word": "都市",
+    "reading": "とし",
+    "meanings": ["town", "city", "municipal"],
+    "kanji": ["都", "市"]
+  },
+  {
+    "word": "都会",
+    "reading": "とかい",
+    "meanings": ["urban area", "city"],
+    "kanji": ["都", "会"]
+  },
+  {
+    "word": "大阪府",
+    "reading": "おおさかふ",
+    "meanings": ["Osaka Prefecture"],
+    "kanji": ["大", "阪", "府"]
+  },
+  {
+    "word": "京都府",
+    "reading": "きょうとふ",
+    "meanings": ["Kyoto Prefecture"],
+    "kanji": ["京", "都", "府"]
+  },
+  {
+    "word": "県",
+    "reading": "けん",
+    "meanings": ["prefecture"],
+    "kanji": ["県"]
+  },
+  {
+    "word": "県庁",
+    "reading": "けんちょう",
+    "meanings": ["prefectural office"],
+    "kanji": ["県", "庁"]
+  },
+  {
+    "word": "県知事",
+    "reading": "けんちじ",
+    "meanings": ["prefectural governor"],
+    "kanji": ["県", "知", "事"]
+  },
+  {
+    "word": "島",
+    "reading": "しま",
+    "meanings": ["island"],
+    "kanji": ["島"]
+  },
+  {
+    "word": "島国",
+    "reading": "しまぐに",
+    "meanings": ["island country"],
+    "kanji": ["島", "国"]
+  },
+  {
+    "word": "半島",
+    "reading": "はんとう",
+    "meanings": ["peninsula"],
+    "kanji": ["半", "島"]
+  },
+  {
+    "word": "様々な",
+    "reading": "さまざまな",
+    "meanings": ["various", "diverse"],
+    "kanji": ["様"]
+  },
+  {
+    "word": "様式",
+    "reading": "ようしき",
+    "meanings": ["style", "form"],
+    "kanji": ["様", "式"]
+  },
+  {
+    "word": "様",
+    "reading": "さま",
+    "meanings": ["Mr", "Ms", "Mrs", "Miss"],
+    "kanji": ["様"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
