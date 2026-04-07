@@ -3775,6 +3775,192 @@
     "kanji": ["様"]
   },
   {
+    "word": "練習する",
+    "reading": "れんしゅうする",
+    "meanings": ["to practice"],
+    "kanji": ["練", "習"]
+  },
+  {
+    "word": "訓練する",
+    "reading": "くんれんする",
+    "meanings": ["to train"],
+    "kanji": ["訓", "練"]
+  },
+  {
+    "word": "習う",
+    "reading": "ならう",
+    "meanings": ["to learn", "to take lessons in", "to be taught"],
+    "kanji": ["習"]
+  },
+  {
+    "word": "習慣",
+    "reading": "しゅうかん",
+    "meanings": ["habit", "custom", "practice"],
+    "kanji": ["習", "慣"]
+  },
+  {
+    "word": "勉強する",
+    "reading": "べんきょうする",
+    "meanings": ["to study", "to learn"],
+    "kanji": ["勉", "強"]
+  },
+  {
+    "word": "強い",
+    "reading": "つよい",
+    "meanings": ["strong", "powerful"],
+    "kanji": ["強"]
+  },
+  {
+    "word": "強調する",
+    "reading": "きょうちょうする",
+    "meanings": ["to emphasize", "to highlight"],
+    "kanji": ["強", "調"]
+  },
+  {
+    "word": "強調",
+    "reading": "きょうちょう",
+    "meanings": ["emphasis", "stress", "highlighting"],
+    "kanji": ["強", "調"]
+  },
+  {
+    "word": "研究する",
+    "reading": "けんきゅうする",
+    "meanings": ["to research", "to study"],
+    "kanji": ["研", "究"]
+  },
+  {
+    "word": "研究者",
+    "reading": "けんきゅうしゃ",
+    "meanings": ["researcher"],
+    "kanji": ["研", "究", "者"]
+  },
+  {
+    "word": "書留",
+    "reading": "かきとめ",
+    "meanings": ["registered mail"],
+    "kanji": ["書", "留"]
+  },
+  {
+    "word": "留学する",
+    "reading": "りゅうがくする",
+    "meanings": ["to study abroad"],
+    "kanji": ["留", "学"]
+  },
+  {
+    "word": "留学生",
+    "reading": "りゅうがくせい",
+    "meanings": ["overseas student", "exchange student", "foreign student"],
+    "kanji": ["留", "学", "生"]
+  },
+  {
+    "word": "質",
+    "reading": "しつ",
+    "meanings": ["quality", "value"],
+    "kanji": ["質"]
+  },
+  {
+    "word": "質問する",
+    "reading": "しつもんする",
+    "meanings": ["to ask a question", "to inquire"],
+    "kanji": ["質", "問"]
+  },
+  {
+    "word": "性質",
+    "reading": "せいしつ",
+    "meanings": ["nature of a person", "character", "temperament"],
+    "kanji": ["性", "質"]
+  },
+  {
+    "word": "問い合わせる",
+    "reading": "といあわせる",
+    "meanings": ["to inquire", "to ask"],
+    "kanji": ["問", "合"]
+  },
+  {
+    "word": "問う",
+    "reading": "とう",
+    "meanings": ["to ask", "to inquire"],
+    "kanji": ["問"]
+  },
+  {
+    "word": "問い",
+    "reading": "とい",
+    "meanings": ["question"],
+    "kanji": ["問"]
+  },
+  {
+    "word": "訪問する",
+    "reading": "ほうもんする",
+    "meanings": ["to visit"],
+    "kanji": ["訪", "問"]
+  },
+  {
+    "word": "問題",
+    "reading": "もんだい",
+    "meanings": ["problem", "question on a test"],
+    "kanji": ["問", "題"]
+  },
+  {
+    "word": "宿題",
+    "reading": "しゅくだい",
+    "meanings": ["homework"],
+    "kanji": ["宿", "題"]
+  },
+  {
+    "word": "話題",
+    "reading": "わだい",
+    "meanings": ["topic", "subject"],
+    "kanji": ["話", "題"]
+  },
+  {
+    "word": "題名",
+    "reading": "だいめい",
+    "meanings": ["title"],
+    "kanji": ["題", "名"]
+  },
+  {
+    "word": "答える",
+    "reading": "こたえる",
+    "meanings": ["to answer", "to reply"],
+    "kanji": ["答"]
+  },
+  {
+    "word": "答え",
+    "reading": "こたえ",
+    "meanings": ["answer", "reply"],
+    "kanji": ["答"]
+  },
+  {
+    "word": "返答する",
+    "reading": "へんとうする",
+    "meanings": ["to answer", "to reply"],
+    "kanji": ["返", "答"]
+  },
+  {
+    "word": "回答する",
+    "reading": "かいとうする",
+    "meanings": ["to answer", "to reply"],
+    "kanji": ["回答"]
+  },
+  {
+    "word": "宿舎",
+    "reading": "しゅくしゃ",
+    "meanings": ["dormitory", "accomodation"],
+    "kanji": ["宿", "舎"]
+  },
+  {
+    "word": "宿泊する",
+    "reading": "しゅくはくする",
+    "meanings": ["to stay overnight"],
+    "kanji": ["宿", "泊"]
+  },
+  {
+    "word": "合宿",
+    "reading": "がっしゅく",
+    "meanings": ["training camp"],
+    "kanji": ["合", "宿"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
