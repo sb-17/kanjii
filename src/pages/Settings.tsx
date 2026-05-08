@@ -1,8 +1,13 @@
 import "../styles/Settings.css";
+import { useState } from "react";
 import { loadKanjiProgress, saveKanjiProgress } from "../storage/kanjiProgress";
+import { loadSettings, saveSettings } from "../storage/settings";
 import type { KanjiProgress } from "../types/kanjiProgress";
+import type { Settings } from "../types/settingsType";
 
 export default function Settings() {
+  const [practiceSettings, setPracticeSettings] = useState<Settings>(loadSettings());
+
   const handleExport = () => {
     const progress = loadKanjiProgress();
     const blob = new Blob([JSON.stringify(progress, null, 2)], {
@@ -38,6 +43,20 @@ export default function Settings() {
     reader.readAsText(file);
   };
 
+  const handlePracticeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, checked } = e.target;
+
+    const settings = loadSettings();
+
+    const updatedSettings: Settings = {
+        ...settings,
+        [id]: checked,
+    };
+
+    setPracticeSettings(updatedSettings);
+    saveSettings(updatedSettings);
+  };
+
   return (
     <div className="settings-page">
       <h1 className="settings-title">Settings</h1>
@@ -65,6 +84,20 @@ export default function Settings() {
               hidden
             />
           </label>
+        </div>
+      </div>
+      <div className="settings-card">
+        <strong>Practice</strong>
+
+        <p className="settings-description">
+          Select what you want to practice.
+        </p>
+
+        <div className="settings-actions">
+          <input type="checkbox" id="kanji" name="settings-checkbox-kanji" checked={practiceSettings.kanji} onChange={handlePracticeChange} />
+          <label>Kanji</label>
+          <input type="checkbox" id="vocab" name="settings-checkbox-vocab" checked={practiceSettings.vocab} onChange={handlePracticeChange} />
+          <label>Vocabulary</label>
         </div>
       </div>
     </div>

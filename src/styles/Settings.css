@@ -14,6 +14,7 @@
     border-radius: 12px;
     padding: 1.2rem;
     background: var(--card-bg, #555555);
+    margin-bottom: 1rem;
 }
 
 .settings-card strong {

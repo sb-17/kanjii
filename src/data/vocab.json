@@ -3961,6 +3961,84 @@
     "kanji": ["合", "宿"]
   },
   {
+    "word": "解析学",
+    "reading": "かいせきがく",
+    "meanings": ["mathematical analysis"],
+    "kanji": ["解", "析", "学"]
+  },
+  {
+    "word": "走り去る",
+    "reading": "はしりさる",
+    "meanings": ["to run away"],
+    "kanji": ["走", "去"]
+  },
+  {
+    "word": "去る",
+    "reading": "さる",
+    "meanings": ["to leave"],
+    "kanji": ["去"]
+  },
+  {
+    "word": "歩き去る",
+    "reading": "あるきさる",
+    "meanings": ["to walk away"],
+    "kanji": ["歩", "去"]
+  },
+  {
+    "word": "死去",
+    "reading": "しきょ",
+    "meanings": ["death", "passing away"],
+    "kanji": ["死", "去"]
+  },
+  {
+    "word": "去月",
+    "reading": "きょげつ",
+    "meanings": ["last month"],
+    "kanji": ["去", "月"]
+  },
+  {
+    "word": "点",
+    "reading": "てん",
+    "meanings": ["dot", "spot", "point", "mark"],
+    "kanji": ["点"]
+  },
+  {
+    "word": "時点",
+    "reading": "じてん",
+    "meanings": ["point in time", "occasion"],
+    "kanji": ["点", "時"]
+  },
+  {
+    "word": "地点",
+    "reading": "ちてん",
+    "meanings": ["site", "point on a map"],
+    "kanji": ["地", "点"]
+  },
+  {
+    "word": "赤点",
+    "reading": "あかてん",
+    "meanings": ["failing mark"],
+    "kanji": ["赤", "点"]
+  },
+  {
+    "word": "位の高い",
+    "reading": "くらいのたかい",
+    "meanings": ["high-ranking", "senior"],
+    "kanji": ["位", "高"]
+  },
+  {
+    "word": "地位",
+    "reading": "ちい",
+    "meanings": ["position", "status"],
+    "kanji": ["地", "位"]
+  },
+  {
+    "word": "一位",
+    "reading": "いちい",
+    "meanings": ["first place", "first rank"],
+    "kanji": ["一", "位"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],

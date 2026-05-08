@@ -7,6 +7,8 @@ import type { Vocab } from "../types/vocabType";
 import type { Question } from "../types/questionType";
 import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgress";
 import { loadKanjiProgress } from "../storage/kanjiProgress";
+import { loadSettings } from "../storage/settings";
+import type { Settings } from "../types/settingsType";
 
 function isKnownOrLearning(status: KanjiStatus | undefined) {
   return status === "known" || status === "learning";
@@ -15,8 +17,23 @@ function isKnownOrLearning(status: KanjiStatus | undefined) {
 export default function Practice() {
   const [progress] = useState<KanjiProgress>(loadKanjiProgress());
   const [answer, setAnswer] = useState<string>("");
+  const [settings] = useState<Settings>(loadSettings());
 
-  const probabilities = [0, 0.5, 0.5];
+  var count = 0;
+  if (settings.kanji) count++;
+  else if (settings.vocab) count += 2;
+
+  var probabilities = [] as number[];
+  if (settings.kanji) probabilities[0] = 1/count;
+  else probabilities[0] = 0;
+  if (settings.vocab) {
+    probabilities[1] = 1/count;
+    probabilities[2] = 1/count;
+  }
+  else {
+    probabilities[1] = 0;
+    probabilities[2] = 0;
+  }
 
   const kanjiData = kanji as Kanji[];
   const vocabData = vocab as Vocab[];
@@ -153,8 +170,18 @@ export default function Practice() {
             </>
           ) : (
             <div className="practice-drawing-area">
-              {/* Drawing area for kanji practice can be implemented here */}
-              <em>Drawing area coming soon!</em>
+              <button
+                onClick={handleNextQuestion}
+                className="practice-skip-button"
+              >
+                Submit
+              </button>
+              <button
+                onClick={handleNextQuestion}
+                className="practice-skip-button"
+              >
+                Next
+              </button>
             </div>
           )
         ) : (
