@@ -6,6 +6,7 @@ const pages = [
   { id: "learn", label: "Learn", path: "/" },
   { id: "practice", label: "Practice", path: "/practice" },
   { id: "settings", label: "Settings", path: "/settings" },
+  { id: "about", label: "About", path: "/about" },
 ];
 
 export default function Navigation() {

@@ -1,0 +1,32 @@
+.about-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.about-title {
+    color: #ffffff;
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+    font-weight: 600;
+}
+
+.about-text {
+    color: #e0e0e0;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.github-link {
+    color: #4da6ff;
+    text-decoration: none;
+    font-weight: bold;
+    border-bottom: 1px dashed #4da6ff;
+    transition: color 0.2s ease;
+}
+
+.github-link:hover {
+    color: #80bfff;
+    border-bottom-style: solid;
+}
