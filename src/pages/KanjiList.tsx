@@ -36,6 +36,8 @@ export default function KanjiList() {
 
       const characterMatch = k.character.toLowerCase().includes(term);
 
+      const wordMatch = term.includes(k.character.toLowerCase());
+
       const meaningMatch = k.meanings?.some((m: string) =>
         m.toLowerCase().includes(term),
       );
@@ -52,7 +54,7 @@ export default function KanjiList() {
         !statusFilter || progress[k.character] === statusFilter;
 
       return (
-        (characterMatch || meaningMatch || kunReadingMatch || onReadingMatch) &&
+        (characterMatch || wordMatch || meaningMatch || kunReadingMatch || onReadingMatch) &&
         statusMatch
       );
     })
