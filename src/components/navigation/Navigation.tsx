@@ -2,8 +2,9 @@ import { NavLink } from "react-router-dom";
 import "./Navigation.css";
 
 const pages = [
-  { id: "kanji", label: "All kanji", path: "/kanji-list" },
-  { id: "learn", label: "Learn", path: "/" },
+  { id: "kanji", label: "All kanji", path: "/" },
+  { id: "learn", label: "Learn", path: "/learn" },
+  { id: "cards", label: "Cards", path: "/cards" },
   { id: "practice", label: "Practice", path: "/practice" },
   { id: "settings", label: "Settings", path: "/settings" },
   { id: "about", label: "About", path: "/about" },

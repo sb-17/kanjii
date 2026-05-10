@@ -28,3 +28,7 @@ export function updateKanjiStatus(
   saveKanjiProgress(next);
   return next;
 }
+
+export function isKnownOrLearning(status: KanjiStatus | undefined) {
+  return status === "known" || status === "learning";
+}

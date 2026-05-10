@@ -6,13 +6,9 @@ import type { Kanji } from "../types/kanjiType";
 import type { Vocab } from "../types/vocabType";
 import type { Question } from "../types/questionType";
 import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgress";
-import { loadKanjiProgress } from "../storage/kanjiProgress";
+import { loadKanjiProgress, isKnownOrLearning } from "../storage/kanjiProgress";
 import { loadSettings } from "../storage/settings";
 import type { Settings } from "../types/settingsType";
-
-function isKnownOrLearning(status: KanjiStatus | undefined) {
-  return status === "known" || status === "learning";
-}
 
 export default function Practice() {
   const [progress] = useState<KanjiProgress>(loadKanjiProgress());

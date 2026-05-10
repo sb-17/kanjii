@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Navigation from "./components/navigation/Navigation";
 import Learn from "./pages/Learn";
+import Cards from "./pages/Cards";
 import Practice from "./pages/Practice";
 import SetDetail from "./pages/SetDetail";
 import Kanji from "./pages/Kanji";
@@ -39,10 +40,11 @@ export default function App() {
         <Navigation />
 
         <Routes>
-          <Route path="/" element={<Learn />} />
+          <Route path="/" element={<KanjiList />} />
           <Route path="/sets/:setId" element={<SetDetail />} />
-          <Route path="/kanji-list" element={<KanjiList />} />
+          <Route path="/learn" element={<Learn />} />
           <Route path="/kanji/:char" element={<Kanji />} />
+          <Route path="/cards" element={<Cards />} />
           <Route path="/practice" element={<Practice />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/about" element={<About />} />
