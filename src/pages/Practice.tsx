@@ -13,6 +13,7 @@ import type { Settings } from "../types/settingsType";
 export default function Practice() {
   const [progress] = useState<KanjiProgress>(loadKanjiProgress());
   const [answer, setAnswer] = useState<string>("");
+  const [answerKanji, setAnswerKanji] = useState<string>("");
   const [settings] = useState<Settings>(loadSettings());
 
   var count = 0;
@@ -99,6 +100,7 @@ export default function Practice() {
     } else {
       setQuestion(vocabQuestions[randIndex]);
     }
+    setAnswerKanji("");
   };
 
   const handleSubmit = () => {
@@ -118,6 +120,13 @@ export default function Practice() {
           setAnswer("");
         }
       }
+    }
+    setAnswerKanji("");
+  };
+
+  const handleShow = () => {
+    if (vocabQuestions.length > 0 && questionType === "kanji") {
+        setAnswerKanji(question.jp);
     }
   };
 
@@ -165,20 +174,23 @@ export default function Practice() {
               </button>
             </>
           ) : (
-            <div className="practice-drawing-area">
-              <button
-                onClick={handleNextQuestion}
-                className="practice-skip-button"
-              >
-                Submit
-              </button>
-              <button
-                onClick={handleNextQuestion}
-                className="practice-skip-button"
-              >
-                Next
-              </button>
-            </div>
+            <>
+                <div className="practice-drawing-area">
+                <button
+                    onClick={handleShow}
+                    className="practice-skip-button"
+                >
+                    Show
+                </button>
+                <button
+                    onClick={handleNextQuestion}
+                    className="practice-skip-button"
+                >
+                    Next
+                </button>
+                </div>
+                <p>{answerKanji}</p>
+            </>
           )
         ) : (
           ""

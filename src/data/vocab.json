@@ -4039,6 +4039,42 @@
     "kanji": ["一", "位"]
   },
   {
+    "word": "夏休み",
+    "reading": "なつやすみ",
+    "meanings": ["summer holiday", "summer vacation"],
+    "kanji": ["夏", "休"]
+  },
+  {
+    "word": "直す",
+    "reading": "なおす",
+    "meanings": ["to repair", "to fix", "to correct"],
+    "kanji": ["直"]
+  },
+  {
+    "word": "正直",
+    "reading": "しょうじき",
+    "meanings": ["honest"],
+    "kanji": ["正", "直"]
+  },
+  {
+    "word": "直接",
+    "reading": "ちょくせつ",
+    "meanings": ["directly", "firsthand"],
+    "kanji": ["直", "接"]
+  },
+  {
+    "word": "直後",
+    "reading": "ちょくご",
+    "meanings": ["immediately after"],
+    "kanji": ["直", "後"]
+  },
+  {
+    "word": "使う",
+    "reading": "つかう",
+    "meanings": ["to use"],
+    "kanji": ["使"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
