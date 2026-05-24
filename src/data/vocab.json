@@ -4081,6 +4081,48 @@
     "kanji": ["若"]
   },
   {
+    "word": "真ん中",
+    "reading": "まんなか",
+    "meanings": ["right in the middle", "center"],
+    "kanji": ["真", "中"]
+  },
+  {
+    "word": "真実",
+    "reading": "しんじつ",
+    "meanings": ["truth", "reality"],
+    "kanji": ["真", "実"]
+  },
+  {
+    "word": "特撮",
+    "reading": "とくさつ",
+    "meanings": ["special effects", "SFX"],
+    "kanji": ["特", "撮"]
+  },
+  {
+    "word": "特に",
+    "reading": "とくに",
+    "meanings": ["particularly", "especially", "in particular"],
+    "kanji": ["特"]
+  },
+  {
+    "word": "特売",
+    "reading": "とくばい",
+    "meanings": ["special sale"],
+    "kanji": ["特", "売"]
+  },
+  {
+    "word": "特大",
+    "reading": "とくだい",
+    "meanings": ["extra-large"],
+    "kanji": ["特", "大"]
+  },
+  {
+    "word": "",
+    "reading": "",
+    "meanings": [""],
+    "kanji": [""]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
