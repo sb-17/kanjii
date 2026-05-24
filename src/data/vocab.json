@@ -4117,10 +4117,40 @@
     "kanji": ["特", "大"]
   },
   {
-    "word": "",
-    "reading": "",
-    "meanings": [""],
-    "kanji": [""]
+    "word": "日",
+    "reading": "ひ",
+    "meanings": ["day", "sun"],
+    "kanji": ["日"]
+  },
+  {
+    "word": "主に",
+    "reading": "おもに",
+    "meanings": ["mainly", "mostly"],
+    "kanji": ["主"]
+  },
+  {
+    "word": "ご主人",
+    "reading": "ごしゅじん",
+    "meanings": ["your husband"],
+    "kanji": ["主", "人"]
+  },
+  {
+    "word": "主人公",
+    "reading": "しゅじんこう",
+    "meanings": ["main character", "protagonist", "hero"],
+    "kanji": ["主", "人", "公"]
+  },
+  {
+    "word": "主食",
+    "reading": "しゅしょく",
+    "meanings": ["staple food"],
+    "kanji": ["主", "食"]
+  },
+  {
+    "word": "持ち主",
+    "reading": "もちぬし",
+    "meanings": ["owner"],
+    "kanji": ["持", "主"]
   },
   {
     "word": "",
