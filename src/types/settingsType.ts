@@ -1,4 +1,5 @@
 export type Settings = {
-  kanji: boolean;
+  kanjiKnown: boolean;
+  kanjiLearning: boolean;
   vocab: boolean;
 };

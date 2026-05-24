@@ -94,8 +94,10 @@ export default function Settings() {
         </p>
 
         <div className="settings-actions">
-          <input type="checkbox" id="kanji" name="settings-checkbox-kanji" checked={practiceSettings.kanji} onChange={handlePracticeChange} />
-          <label>Kanji</label>
+          <input type="checkbox" id="kanjiKnown" name="settings-checkbox-kanji-known" checked={practiceSettings.kanjiKnown} onChange={handlePracticeChange} />
+          <label>Known kanji</label>
+          <input type="checkbox" id="kanjiLearning" name="settings-checkbox-kanji-learning" checked={practiceSettings.kanjiLearning} onChange={handlePracticeChange} />
+          <label>Learning kanji</label>
           <input type="checkbox" id="vocab" name="settings-checkbox-vocab" checked={practiceSettings.vocab} onChange={handlePracticeChange} />
           <label>Vocabulary</label>
         </div>

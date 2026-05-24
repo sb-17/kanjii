@@ -17,19 +17,22 @@ export default function Practice() {
   const [settings] = useState<Settings>(loadSettings());
 
   var count = 0;
-  if (settings.kanji) count++;
-  else if (settings.vocab) count += 2;
+  if (settings.kanjiKnown) count++;
+  if (settings.kanjiLearning) count++;
+  if (settings.vocab) count += 2;
 
   var probabilities = [] as number[];
-  if (settings.kanji) probabilities[0] = 1/count;
+  if (settings.kanjiKnown) probabilities[0] = 1/count;
   else probabilities[0] = 0;
+  if (settings.kanjiLearning) probabilities[1] = 1/count;
+  else probabilities[1] = 0;
   if (settings.vocab) {
-    probabilities[1] = 1/count;
     probabilities[2] = 1/count;
+    probabilities[3] = 1/count;
   }
   else {
-    probabilities[1] = 0;
     probabilities[2] = 0;
+    probabilities[3] = 0;
   }
 
   const kanjiData = kanji as Kanji[];
@@ -39,7 +42,9 @@ export default function Practice() {
   const kanjiQuestions = kanjiData
     .filter((k) => {
       const status: KanjiStatus = progress[k.character] || "new";
-      return status === "learning" || status === "known";
+      if (settings.kanjiKnown && settings.kanjiLearning) return status === "learning" || status === "known";
+      if (settings.kanjiKnown) return status === "known";
+      return status === "learning";
     })
     .map((k) => {
       return {
@@ -60,22 +65,23 @@ export default function Practice() {
     });
 
   const [questionType, setQuestionType] = useState<
-    "kanji" | "vocab etj" | "vocab jte"
+    "kanji known" | "kanji learning" | "vocab etj" | "vocab jte"
   >(() => {
     const rand = Math.random();
-    if (rand < probabilities[0]) return "kanji";
-    else if (rand < probabilities[0] + probabilities[1]) return "vocab etj";
+    if (rand < probabilities[0]) return "kanji known";
+    else if (rand < probabilities[0] + probabilities[1]) return "kanji learning";
+    else if (rand < probabilities[0] + probabilities[1] + probabilities[2]) return "vocab etj";
     else return "vocab jte";
   });
 
   const [question, setQuestion] = useState<Question>(() => {
     let max = 0;
-    if (questionType === "kanji") max = kanjiQuestions.length;
+    if (questionType === "kanji known" || questionType === "kanji learning") max = kanjiQuestions.length;
     else max = vocabQuestions.length;
 
     const randIndex = Math.floor(Math.random() * max);
 
-    if (vocabQuestions.length > 0 && questionType === "kanji") {
+    if (vocabQuestions.length > 0 && (questionType === "kanji known" || questionType === "kanji learning")) {
       return kanjiQuestions[randIndex];
     } else {
       return vocabQuestions[randIndex];
@@ -85,17 +91,17 @@ export default function Practice() {
   const handleNextQuestion = () => {
     const rand = Math.random();
 
-    if (rand < probabilities[0]) setQuestionType("kanji");
-    else if (rand < probabilities[0] + probabilities[1])
-      setQuestionType("vocab etj");
+    if (rand < probabilities[0]) setQuestionType("kanji known");
+    else if (rand < probabilities[0] + probabilities[1]) setQuestionType("kanji learning");
+    else if (rand < probabilities[0] + probabilities[1] + probabilities[2]) setQuestionType("vocab etj");
     else setQuestionType("vocab jte");
 
     let max = 0;
-    if (questionType === "kanji") max = kanjiQuestions.length;
+    if (questionType === "kanji known" || questionType === "kanji learning") max = kanjiQuestions.length;
     else max = vocabQuestions.length;
 
     const randIndex = Math.floor(Math.random() * max);
-    if (vocabQuestions.length > 0 && questionType === "kanji") {
+    if (vocabQuestions.length > 0 && (questionType === "kanji known" || questionType === "kanji learning")) {
       setQuestion(kanjiQuestions[randIndex]);
     } else {
       setQuestion(vocabQuestions[randIndex]);
@@ -125,7 +131,7 @@ export default function Practice() {
   };
 
   const handleShow = () => {
-    if (vocabQuestions.length > 0 && questionType === "kanji") {
+    if (vocabQuestions.length > 0 && (questionType === "kanji known" || questionType === "kanji learning")) {
         setAnswerKanji(question.jp);
     }
   };
@@ -134,7 +140,7 @@ export default function Practice() {
     <div className="practice-panel">
       <div className="practice-question-container">
         <strong>
-          {questionType === "kanji"
+          {(questionType === "kanji known" || questionType === "kanji learning")
             ? "Draw the kanji for: "
             : questionType === "vocab etj"
               ? "Translate to Japanese: "
@@ -163,31 +169,34 @@ export default function Practice() {
                 className="practice-answer-input"
                 placeholder="Type your answer here"
               />
-              <button onClick={handleSubmit} className="practice-submit-button">
-                Submit
-              </button>
-              <button
-                onClick={handleNextQuestion}
-                className="practice-skip-button"
-              >
-                Skip
-              </button>
-            </>
-          ) : (
-            <>
-                <div className="practice-drawing-area">
-                <button
-                    onClick={handleShow}
-                    className="practice-skip-button"
-                >
-                    Show
+              
+              <div className="practice-actions">
+                <button onClick={handleSubmit} className="practice-submit-button">
+                    Submit
                 </button>
                 <button
                     onClick={handleNextQuestion}
                     className="practice-skip-button"
                 >
-                    Next
+                    Skip
                 </button>
+              </div>
+            </>
+          ) : (
+            <>
+                <div className="practice-actions">
+                    <button
+                        onClick={handleShow}
+                        className="practice-skip-button"
+                    >
+                        Show
+                    </button>
+                    <button
+                        onClick={handleNextQuestion}
+                        className="practice-skip-button"
+                    >
+                        Next
+                    </button>
                 </div>
                 <p>{answerKanji}</p>
             </>
