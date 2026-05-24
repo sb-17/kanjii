@@ -198,7 +198,12 @@ export default function Practice() {
                         Next
                     </button>
                 </div>
-                <p>{answerKanji}</p>
+                <a
+                    href={`https://sb-17.github.io/kanjii/kanji/${answerKanji}`}
+                    className="github-link"
+                >
+                    {answerKanji}
+                </a>
             </>
           )
         ) : (
