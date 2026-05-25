@@ -4159,6 +4159,24 @@
     "kanji": ["真", "面", "目"]
   },
   {
+    "word": "初めて",
+    "reading": "はじめて",
+    "meanings": ["for the first time"],
+    "kanji": ["初"]
+  },
+  {
+    "word": "初めは",
+    "reading": "はじめは",
+    "meanings": ["at first"],
+    "kanji": ["初"]
+  },
+  {
+    "word": "初心者",
+    "reading": "しょしんしゃ",
+    "meanings": ["beginner"],
+    "kanji": ["初", "心", "者"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
