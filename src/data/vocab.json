@@ -4177,6 +4177,108 @@
     "kanji": ["初", "心", "者"]
   },
   {
+    "word": "正しい",
+    "reading": "ただしい",
+    "meanings": ["correct", "right", "proper"],
+    "kanji": ["正"]
+  },
+  {
+    "word": "正月",
+    "reading": "しょうがつ",
+    "meanings": ["New Year"],
+    "kanji": ["正", "月"]
+  },
+  {
+    "word": "政治",
+    "reading": "せいじ",
+    "meanings": ["politics"],
+    "kanji": ["政", "治"]
+  },
+  {
+    "word": "行政",
+    "reading": "ぎょうせい",
+    "meanings": ["administration"],
+    "kanji": ["行", "政"]
+  },
+  {
+    "word": "治す",
+    "reading": "なおす",
+    "meanings": ["to cure", "to heal"],
+    "kanji": ["治"]
+  },
+  {
+    "word": "治める",
+    "reading": "おさめる",
+    "meanings": ["to govern"],
+    "kanji": ["治"]
+  },
+  {
+    "word": "経済",
+    "reading": "けいざい",
+    "meanings": ["economy"],
+    "kanji": ["経", "済"]
+  },
+  {
+    "word": "経済学",
+    "reading": "けいざいがく",
+    "meanings": ["economics"],
+    "kanji": ["経", "済", "学"]
+  },
+  {
+    "word": "経営",
+    "reading": "けいえい",
+    "meanings": ["management", "administration"],
+    "kanji": ["経", "営"]
+  },
+  {
+    "word": "歴史",
+    "reading": "れきし",
+    "meanings": ["history"],
+    "kanji": ["歴", "史"]
+  },
+  {
+    "word": "史学",
+    "reading": "しがく",
+    "meanings": ["study of history"],
+    "kanji": ["史", "学"]
+  },
+  {
+    "word": "日本史",
+    "reading": "にほんし",
+    "meanings": ["Japanese history"],
+    "kanji": ["日", "本", "史"]
+  },
+  {
+    "word": "育てる",
+    "reading": "そだてる",
+    "meanings": ["to raise", "to bring up"],
+    "kanji": ["育"]
+  },
+  {
+    "word": "教育",
+    "reading": "きょういく",
+    "meanings": ["education"],
+    "kanji": ["教", "育"]
+  },
+  {
+    "word": "治安",
+    "reading": "ちあん",
+    "meanings": ["public order", "public security"],
+    "kanji": ["治", "安"]
+  },
+  {
+    "word": "自治",
+    "reading": "じち",
+    "meanings": ["autonomy"],
+    "kanji": ["自", "治"]
+  },
+  {
+    "word": "治る",
+    "reading": "なおる",
+    "meanings": ["to be cured", "to get better"],
+    "kanji": ["治"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
