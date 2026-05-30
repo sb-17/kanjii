@@ -4339,6 +4339,18 @@
     "kanji": ["医", "者"]
   },
   {
+    "word": "意味",
+    "reading": "いみ",
+    "meanings": ["meaning", "significance"],
+    "kanji": ["意", "味"]
+  },
+  {
+    "word": "意外",
+    "reading": "いがい",
+    "meanings": ["unexpected", "surprising"],
+    "kanji": ["意", "外"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
