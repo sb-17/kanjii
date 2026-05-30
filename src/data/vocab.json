@@ -2443,10 +2443,10 @@
     "kanji": ["理", "由"]
   },
   {
-    "word": "地理",
-    "reading": "ちり",
+    "word": "地理学",
+    "reading": "ちりがく",
     "meanings": ["geography"],
-    "kanji": ["地", "理"]
+    "kanji": ["地", "理", "学"]
   },
   {
     "word": "日記",
@@ -4277,6 +4277,66 @@
     "reading": "なおる",
     "meanings": ["to be cured", "to get better"],
     "kanji": ["治"]
+  },
+  {
+    "word": "化学",
+    "reading": "かがく",
+    "meanings": ["chemistry"],
+    "kanji": ["化", "学"]
+  },
+  {
+    "word": "文化",
+    "reading": "ぶんか",
+    "meanings": ["culture", "civilization"],
+    "kanji": ["文", "化"]
+  },
+  {
+    "word": "科学",
+    "reading": "かがく",
+    "meanings": ["science"],
+    "kanji": ["科", "学"]
+  },
+  {
+    "word": "外科",
+    "reading": "げか",
+    "meanings": ["surgery"],
+    "kanji": ["外", "科"]
+  },
+  {
+    "word": "数える",
+    "reading": "かぞえる",
+    "meanings": ["to count"],
+    "kanji": ["数"]
+  },
+  {
+    "word": "数",
+    "reading": "かず",
+    "meanings": ["number", "amount"],
+    "kanji": ["数"]
+  },
+  {
+    "word": "数学",
+    "reading": "すうがく",
+    "meanings": ["mathematics"],
+    "kanji": ["数", "学"]
+  },
+  {
+    "word": "数人",
+    "reading": "すうにん",
+    "meanings": ["several people"],
+    "kanji": ["数", "人"]
+  },
+  {
+    "word": "医学",
+    "reading": "いがく",
+    "meanings": ["medicine", "medical science"],
+    "kanji": ["医", "学"]
+  },
+  {
+    "word": "医者",
+    "reading": "いしゃ",
+    "meanings": ["doctor"],
+    "kanji": ["医", "者"]
   },
   {
     "word": "",
