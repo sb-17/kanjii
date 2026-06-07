@@ -4351,6 +4351,24 @@
     "kanji": ["意", "外"]
   },
   {
+    "word": "世界",
+    "reading": "せかい",
+    "meanings": ["the world"],
+    "kanji": ["世", "界"]
+  },
+  {
+    "word": "世の中",
+    "reading": "よのなか",
+    "meanings": ["society", "the world", "current times"],
+    "kanji": ["世", "中"]
+  },
+  {
+    "word": "世代",
+    "reading": "せだい",
+    "meanings": ["generation"],
+    "kanji": ["世", "代"]
+  },
+  {
     "word": "",
     "reading": "",
     "meanings": [""],
