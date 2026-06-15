@@ -1,11 +1,11 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import kanji from "../data/kanji.json";
 import "../styles/Home.css";
-import { loadKanjiProgress, getStatusCounts } from "../storage/kanjiProgress";
+import { getStatusCounts } from "../storage/kanjiProgress";
+import { useProgress } from "../context/ProgressContext";
 
 export default function Home() {
-  const [progress] = useState(loadKanjiProgress());
+  const { progress } = useProgress();
   const statusCounts = getStatusCounts(progress);
   const total = kanji.length;
   const newCount = total - statusCounts.learning - statusCounts.known;

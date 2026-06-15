@@ -1,26 +1,19 @@
 import { useParams } from "react-router-dom";
-import { useState } from "react";
 import KanjiCard from "../components/kanji-card/KanjiCard";
 import sets from "../data/sets.json";
 import kanji from "../data/kanji.json";
-import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgress";
-import { loadKanjiProgress, updateKanjiStatus } from "../storage/kanjiProgress";
+import { useProgress } from "../context/ProgressContext";
 
 export default function SetDetail() {
   const { setId } = useParams<{ setId: string }>();
 
-  const [progress, setProgress] = useState<KanjiProgress>(loadKanjiProgress());
+  const { progress, setStatus } = useProgress();
 
   const set = sets.find((s) => s.id === Number(setId));
 
   if (!set) {
     return <div>Set not found</div>;
   }
-
-  const handleUpdateStatus = (character: string, newStatus: KanjiStatus) => {
-    const updatedProgress = updateKanjiStatus(progress, character, newStatus);
-    setProgress(updatedProgress);
-  };
 
   return (
     <div className="page page-center">
@@ -33,7 +26,7 @@ export default function SetDetail() {
               kanji.find((item) => item.character === k)?.meanings || [],
           }}
           status={progress[k] || "new"}
-          onStatusChange={(newStatus) => handleUpdateStatus(k, newStatus)}
+          onStatusChange={(newStatus) => setStatus(k, newStatus)}
         />
       ))}
     </div>

@@ -1,17 +1,16 @@
 import { useParams } from "react-router-dom";
-import { useState } from "react";
 import kanji from "../data/kanji.json";
 import vocab from "../data/vocab.json";
 import "../styles/Kanji.css";
-import type { KanjiStatus, KanjiProgress } from "../types/kanjiProgress";
+import type { KanjiStatus } from "../types/kanjiProgress";
 import type { Kanji } from "../types/kanjiType";
-import { loadKanjiProgress, updateKanjiStatus } from "../storage/kanjiProgress";
 import { isVocabAvailable, knownRatio } from "../lib/vocab";
+import { useProgress } from "../context/ProgressContext";
 import KanjiStrokeViewer from "../components/kanji-stroke-viewer/KanjiStrokeViewer";
 
 export default function Kanji() {
   const { char } = useParams<{ char: string }>();
-  const [progress, setProgress] = useState<KanjiProgress>(loadKanjiProgress());
+  const { progress, setStatus } = useProgress();
 
   // load kanji data
   const kanjiObj = (kanji as Kanji[]).find((k) => k.character === char);
@@ -23,12 +22,7 @@ export default function Kanji() {
   const status: KanjiStatus = progress[kanjiObj.character] || "new";
 
   const updateStatus = (newStatus: KanjiStatus) => {
-    const updatedProgress = updateKanjiStatus(
-      progress,
-      kanjiObj.character,
-      newStatus,
-    );
-    setProgress(updatedProgress);
+    setStatus(kanjiObj.character, newStatus);
   };
 
   // load vocab data
@@ -46,6 +40,19 @@ export default function Kanji() {
     const ratio = knownRatio(v, progress);
     return ratio >= 0.5 && ratio < 1;
   });
+
+  const renderVocabList = (items: typeof filteredVocab, emptyMessage: string) =>
+    items.length === 0 ? (
+      <p className="kanji-vocab-empty">{emptyMessage}</p>
+    ) : (
+      items.map((v) => (
+        <div className="kanji-vocab-item" key={v.word}>
+          <span className="kanji-vocab-word">{v.word}</span>
+          <span className="kanji-vocab-reading">{v.reading}</span>
+          <span className="kanji-vocab-meaning">{v.meanings.join(", ")}</span>
+        </div>
+      ))
+    );
 
   return (
     <div className="page">
@@ -94,24 +101,24 @@ export default function Kanji() {
       </div>
 
       <div className="kanji-vocab-section">
-        <div className="kanji-vocab-fully-known">
-          <strong>Vocabulary with known/learning kanji</strong>
-
-          {fullyKnownVocab.map((v) => (
-            <div key={v.word}>
-              {v.word} [{v.reading}] {v.meanings.join(", ")}
-            </div>
-          ))}
+        <div className="kanji-vocab-column">
+          <strong className="kanji-vocab-heading">
+            Words you can read ({fullyKnownVocab.length})
+          </strong>
+          {renderVocabList(
+            fullyKnownVocab,
+            "No words yet where you know every kanji — mark more kanji as Learning or Known.",
+          )}
         </div>
 
-        <div className="kanji-vocab-mostly-known">
-          <strong>Vocabulary with some new kanji</strong>
-
-          {mostlyKnownVocab.map((v) => (
-            <div key={v.word}>
-              {v.word} [{v.reading}] {v.meanings.join(", ")}
-            </div>
-          ))}
+        <div className="kanji-vocab-column">
+          <strong className="kanji-vocab-heading">
+            Words with some new kanji ({mostlyKnownVocab.length})
+          </strong>
+          {renderVocabList(
+            mostlyKnownVocab,
+            "No close matches right now.",
+          )}
         </div>
       </div>
     </div>

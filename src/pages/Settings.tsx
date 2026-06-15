@@ -1,15 +1,15 @@
 import "../styles/Settings.css";
 import { useState } from "react";
-import { loadKanjiProgress, saveKanjiProgress } from "../storage/kanjiProgress";
 import { loadSettings, saveSettings } from "../storage/settings";
 import type { KanjiProgress } from "../types/kanjiProgress";
 import type { Settings } from "../types/settingsType";
+import { useProgress } from "../context/ProgressContext";
 
 export default function Settings() {
+  const { progress, replaceProgress } = useProgress();
   const [practiceSettings, setPracticeSettings] = useState<Settings>(loadSettings());
 
   const handleExport = () => {
-    const progress = loadKanjiProgress();
     const blob = new Blob([JSON.stringify(progress, null, 2)], {
       type: "application/json",
     });
@@ -31,9 +31,8 @@ export default function Settings() {
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result as string) as KanjiProgress;
-        saveKanjiProgress(data);
-        alert("Progress imported successfully! Reloading…");
-        window.location.reload();
+        replaceProgress(data);
+        alert("Progress imported successfully!");
       } catch {
         alert("Invalid file. Please select a valid progress export.");
       }

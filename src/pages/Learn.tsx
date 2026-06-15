@@ -1,10 +1,11 @@
 import SetCard from "../components/set-card/SetCard";
 import sets from "../data/sets.json";
-import { loadKanjiProgress, getStatusCounts } from "../storage/kanjiProgress";
+import { getStatusCounts } from "../storage/kanjiProgress";
+import { useProgress } from "../context/ProgressContext";
 import "../styles/Learn.css";
 
 export default function Learn() {
-  const progress = loadKanjiProgress();
+  const { progress } = useProgress();
   const statusCounts = getStatusCounts(progress);
 
   return (

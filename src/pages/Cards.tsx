@@ -3,13 +3,12 @@ import vocab from "../data/vocab.json";
 import "../styles/Cards.css";
 import type { Vocab } from "../types/vocabType";
 import type { Question } from "../types/questionType";
-import type { KanjiProgress } from "../types/kanjiProgress";
-import { loadKanjiProgress } from "../storage/kanjiProgress";
 import { isVocabAvailable } from "../lib/vocab";
+import { useProgress } from "../context/ProgressContext";
 import EmptyState from "../components/empty-state/EmptyState";
 
 export default function Cards() {
-  const [progress] = useState<KanjiProgress>(loadKanjiProgress());
+  const { progress } = useProgress();
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
 
   // Available vocab depends only on progress — memoized so flipping a card
@@ -30,12 +29,18 @@ export default function Cards() {
 
   const handleNextQuestion = () => {
     setIsFlipped(false);
-    
+
     setTimeout(() => {
-      const max = vocabQuestions.length;
-      const randIndex = Math.floor(Math.random() * max);
-      setQuestion(vocabQuestions[randIndex]);
-    }, 150); 
+      // Pick a different card than the current one (when more than one exists).
+      setQuestion((current) => {
+        if (vocabQuestions.length <= 1) return vocabQuestions[0];
+        let next = current;
+        while (!next || next.jp === current?.jp) {
+          next = vocabQuestions[Math.floor(Math.random() * vocabQuestions.length)];
+        }
+        return next;
+      });
+    }, 150);
   };
 
   const handleFlip = () => {

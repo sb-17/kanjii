@@ -5,12 +5,9 @@ import KanjiCard from "../components/kanji-card/KanjiCard";
 import kanji from "../data/kanji.json";
 import "../styles/KanjiList.css";
 import type { Kanji } from "../types/kanjiType";
-import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgress";
-import {
-  loadKanjiProgress,
-  updateKanjiStatus,
-  getStatusCounts,
-} from "../storage/kanjiProgress";
+import type { KanjiStatus } from "../types/kanjiProgress";
+import { getStatusCounts } from "../storage/kanjiProgress";
+import { useProgress } from "../context/ProgressContext";
 
 export default function KanjiList() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,8 +21,8 @@ export default function KanjiList() {
       ? (searchParams.get("status") as KanjiStatus)
       : null;
 
+  const { progress, setStatus } = useProgress();
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
-  const [progress, setProgress] = useState<KanjiProgress>(loadKanjiProgress());
   const [numberOfKanjiShown, setNumberOfKanjiShown] =
     useState(initialNumberShown);
   const [statusFilter, setStatusFilter] = useState<KanjiStatus | null>(
@@ -82,11 +79,6 @@ export default function KanjiList() {
       newParams.set(key, String(value));
     }
     setSearchParams(newParams, { replace: true });
-  };
-
-  const handleUpdateStatus = (character: string, newStatus: KanjiStatus) => {
-    const updatedProgress = updateKanjiStatus(progress, character, newStatus);
-    setProgress(updatedProgress);
   };
 
   const statusCounts = getStatusCounts(progress);
@@ -161,9 +153,7 @@ export default function KanjiList() {
             meanings: k.meanings || [],
           }}
           status={progress[k.character] || "new"}
-          onStatusChange={(newStatus) =>
-            handleUpdateStatus(k.character, newStatus)
-          }
+          onStatusChange={(newStatus) => setStatus(k.character, newStatus)}
         />
       ))}
     </div>

@@ -6,9 +6,9 @@ import "../styles/Practice.css";
 import type { Kanji } from "../types/kanjiType";
 import type { Vocab } from "../types/vocabType";
 import type { Question } from "../types/questionType";
-import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgress";
-import { loadKanjiProgress } from "../storage/kanjiProgress";
+import type { KanjiStatus } from "../types/kanjiProgress";
 import { isVocabAvailable } from "../lib/vocab";
+import { useProgress } from "../context/ProgressContext";
 import { loadSettings } from "../storage/settings";
 import type { Settings } from "../types/settingsType";
 import EmptyState from "../components/empty-state/EmptyState";
@@ -23,9 +23,11 @@ const QUESTION_TYPES: QuestionType[] = [
 ];
 
 export default function Practice() {
-  const [progress] = useState<KanjiProgress>(loadKanjiProgress());
+  const { progress } = useProgress();
   const [answer, setAnswer] = useState<string>("");
   const [answerKanji, setAnswerKanji] = useState<string>("");
+  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
+  const [revealed, setRevealed] = useState<boolean>(false);
   const [settings] = useState<Settings>(loadSettings());
 
   // Weight per question type, derived only from settings.
@@ -122,28 +124,35 @@ export default function Practice() {
     const nextType = pickQuestionType();
     setQuestionType(nextType);
     setQuestion(nextType ? pickQuestion(nextType) : null);
+    setAnswer("");
     setAnswerKanji("");
+    setFeedback(null);
+    setRevealed(false);
   };
 
   const handleSubmit = () => {
     if (!question) return;
 
+    const guess = answer.trim().toLowerCase();
+    let correct = false;
     if (questionType === "vocab etj") {
-      if (answer.toLowerCase() === question.jp.toLowerCase()) {
-        handleNextQuestion();
-        setAnswer("");
-      }
+      correct = guess === question.jp.toLowerCase();
     } else if (questionType === "vocab jte") {
-      if (
-        question.en.some(
-          (meaning) => meaning.toLowerCase() === answer.toLowerCase(),
-        )
-      ) {
-        handleNextQuestion();
-        setAnswer("");
-      }
+      correct = question.en.some((meaning) => meaning.toLowerCase() === guess);
     }
-    setAnswerKanji("");
+
+    if (correct) {
+      setFeedback("correct");
+      setRevealed(false);
+      setTimeout(handleNextQuestion, 700);
+    } else {
+      setFeedback("wrong");
+    }
+  };
+
+  const handleReveal = () => {
+    setRevealed(true);
+    setFeedback(null);
   };
 
   const handleShow = () => {
@@ -188,7 +197,10 @@ export default function Practice() {
           <>
             <textarea
               value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
+              onChange={(e) => {
+                setAnswer(e.target.value);
+                if (feedback) setFeedback(null);
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -203,6 +215,9 @@ export default function Practice() {
               <button onClick={handleSubmit} className="practice-submit-button">
                 Submit
               </button>
+              <button onClick={handleReveal} className="practice-skip-button">
+                Show answer
+              </button>
               <button
                 onClick={handleNextQuestion}
                 className="practice-skip-button"
@@ -210,6 +225,21 @@ export default function Practice() {
                 Skip
               </button>
             </div>
+
+            {feedback === "correct" && (
+              <p className="practice-feedback correct">✓ Correct!</p>
+            )}
+            {feedback === "wrong" && (
+              <p className="practice-feedback wrong">✗ Not quite — try again</p>
+            )}
+            {revealed && (
+              <p className="practice-reveal">
+                Answer:{" "}
+                {questionType === "vocab etj"
+                  ? `${question.jp} (${question.reading})`
+                  : question.en.join(", ")}
+              </p>
+            )}
           </>
         ) : (
           <>

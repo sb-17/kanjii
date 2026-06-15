@@ -68,11 +68,33 @@
     outline: none;
 }
 
-.kanji-answer-link {
-    margin-top: 1rem;
-    display: inline-block;
+.practice-feedback {
+    margin-top: var(--space-3);
     text-align: center;
-    width: 100%;
+    font-size: var(--text-md);
+    font-weight: 600;
+}
+
+.practice-feedback.correct {
+    color: var(--success);
+}
+
+.practice-feedback.wrong {
+    color: var(--error);
+}
+
+.practice-reveal {
+    margin-top: var(--space-3);
+    text-align: center;
+    font-size: var(--text-md);
+    color: var(--text);
+}
+
+.kanji-answer-link {
+    margin: var(--space-4) auto 0;
+    display: block;
+    width: fit-content;
+    text-align: center;
     font-size: clamp(2rem, 8vw, 3rem);
     color: var(--accent);
     text-decoration: none;

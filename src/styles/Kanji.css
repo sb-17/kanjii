@@ -92,16 +92,50 @@
 .kanji-vocab-section {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-4);
+    gap: var(--space-5);
 }
 
-.kanji-vocab-section strong {
-    font-size: clamp(0.8rem, 4vw, 1rem);
+.kanji-vocab-column {
+    flex: 1 1 300px;
+    text-align: left;
+}
+
+.kanji-vocab-heading {
+    display: block;
+    font-size: var(--text-md);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: var(--space-3);
+}
+
+.kanji-vocab-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.kanji-vocab-word {
+    font-size: var(--text-md);
+    font-weight: 600;
     color: #fff;
 }
 
-.kanji-vocab-fully-known,
-.kanji-vocab-mostly-known {
-    flex: 1 1 300px;
-    text-align: left;
+.kanji-vocab-reading {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.kanji-vocab-meaning {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.kanji-vocab-empty {
+    color: var(--text-faint);
+    font-size: var(--text-sm);
+    font-style: italic;
+    margin: 0;
 }
