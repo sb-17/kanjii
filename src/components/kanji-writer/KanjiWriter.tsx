@@ -32,6 +32,20 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
     };
   }, [kanji]);
 
+  // `touch-action: none` isn't reliably honored on SVG elements on mobile, so
+  // stop the page from scrolling while drawing with a non-passive touch guard.
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const prevent = (e: TouchEvent) => e.preventDefault();
+    el.addEventListener("touchmove", prevent, { passive: false });
+    el.addEventListener("touchstart", prevent, { passive: false });
+    return () => {
+      el.removeEventListener("touchmove", prevent);
+      el.removeEventListener("touchstart", prevent);
+    };
+  }, []);
+
   const toSvg = (e: React.PointerEvent): Point => {
     const rect = svgRef.current!.getBoundingClientRect();
     return {

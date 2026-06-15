@@ -16,11 +16,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-5);
-    margin-bottom: var(--space-4);
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
     flex-wrap: wrap;
 }
 
+/* segmented control: rounded outer shell, clean rectangular segments inside */
 .write-modes {
     display: inline-flex;
     border: 1px solid var(--border);
@@ -32,11 +33,21 @@
     background: var(--surface-strong);
     color: var(--text-muted);
     border: none;
+    border-radius: 0;
     padding: var(--space-2) var(--space-5);
     font-size: var(--text-sm);
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.write-toggle:not(:last-child) {
+    border-right: 1px solid var(--border);
+}
+
+.write-toggle:not(.active):hover {
+    background: var(--surface-strong-hover);
+    color: #ffffff;
 }
 
 .write-toggle.active {
@@ -97,7 +108,7 @@
     color: #ffffff;
     border: none;
     border-radius: var(--radius);
-    padding: var(--space-3) var(--space-5);
+    padding: var(--space-3) var(--space-6);
     font-size: var(--text-base);
     font-weight: 600;
     cursor: pointer;
@@ -106,4 +117,8 @@
 
 .write-action:hover {
     background: var(--surface-strong-hover);
+}
+
+.write-action:active {
+    transform: translateY(1px);
 }
