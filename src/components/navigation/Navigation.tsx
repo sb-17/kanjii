@@ -4,15 +4,34 @@ import "./Navigation.css";
 
 const DESKTOP_BREAKPOINT = 900;
 
-const pages = [
-  { id: "home", label: "Home", path: "/" },
-  { id: "kanji-list", label: "All kanji", path: "/kanji-list" },
-  { id: "learn", label: "Learn", path: "/learn" },
-  { id: "cards", label: "Cards", path: "/cards" },
-  { id: "practice", label: "Vocabulary", path: "/practice" },
-  { id: "write", label: "Write", path: "/write" },
-  { id: "settings", label: "Settings", path: "/settings" },
-  { id: "about", label: "About", path: "/about" },
+type NavItem = { id: string; label: string; path: string; end?: boolean };
+type NavGroup = { title?: string; items: NavItem[] };
+
+const navGroups: NavGroup[] = [
+  { items: [{ id: "home", label: "Home", path: "/", end: true }] },
+  {
+    title: "Kanji",
+    items: [
+      { id: "kanji", label: "All kanji", path: "/kanji" },
+      { id: "sets", label: "Sets", path: "/sets" },
+      { id: "write", label: "Write", path: "/write" },
+    ],
+  },
+  {
+    title: "Vocabulary",
+    items: [
+      { id: "words", label: "My words", path: "/words" },
+      { id: "cards", label: "Cards", path: "/cards" },
+      { id: "practice", label: "Practice", path: "/practice" },
+    ],
+  },
+  {
+    title: "Other",
+    items: [
+      { id: "settings", label: "Settings", path: "/settings" },
+      { id: "about", label: "About", path: "/about" },
+    ],
+  },
 ];
 
 export default function Navigation() {
@@ -43,18 +62,23 @@ export default function Navigation() {
       )}
 
       <nav className={`side-nav ${open ? "open" : "closed"}`}>
-        {pages.map((page) => (
-          <NavLink
-            key={page.id}
-            to={page.path}
-            end={page.path === "/"}
-            className={({ isActive }) =>
-              "navButton" + (isActive ? " active" : "")
-            }
-            onClick={closeOnMobile}
-          >
-            {page.label}
-          </NavLink>
+        {navGroups.map((group, gi) => (
+          <div className="nav-group" key={group.title ?? `group-${gi}`}>
+            {group.title && <div className="nav-group-title">{group.title}</div>}
+            {group.items.map((item) => (
+              <NavLink
+                key={item.id}
+                to={item.path}
+                end={item.end}
+                className={({ isActive }) =>
+                  "navButton" + (isActive ? " active" : "")
+                }
+                onClick={closeOnMobile}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
         ))}
       </nav>
     </>

@@ -54,6 +54,19 @@
     margin-left: -220px;
 }
 
+.nav-group + .nav-group {
+    margin-top: var(--space-3);
+}
+
+.nav-group-title {
+    padding: var(--space-2) var(--space-5) var(--space-1);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+}
+
 .navButton {
     display: flex;
     align-items: center;

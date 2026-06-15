@@ -1,10 +1,10 @@
 import { useParams, Link } from "react-router-dom";
 import kanji from "../data/kanji.json";
-import vocab from "../data/vocab.json";
 import "../styles/Kanji.css";
 import type { KanjiStatus } from "../types/kanjiProgress";
 import type { Kanji } from "../types/kanjiType";
 import { isVocabAvailable, knownRatio } from "../lib/vocab";
+import { loadUserVocab } from "../storage/userVocab";
 import { useProgress } from "../context/ProgressContext";
 import KanjiStrokeViewer from "../components/kanji-stroke-viewer/KanjiStrokeViewer";
 
@@ -25,12 +25,10 @@ export default function Kanji() {
     setStatus(kanjiObj.character, newStatus);
   };
 
-  // load vocab data
-  const filteredVocab = vocab.filter((v) =>
-    v.kanji.includes(kanjiObj.character),
-  ).sort(function(a, b) {
-        return a.kanji.length - b.kanji.length;
-    });
+  // the learner's own vocab that uses this kanji
+  const filteredVocab = loadUserVocab()
+    .filter((v) => v.kanji.includes(kanjiObj.character))
+    .sort((a, b) => a.kanji.length - b.kanji.length);
 
   const fullyKnownVocab = filteredVocab.filter((v) =>
     isVocabAvailable(v, progress),
@@ -45,8 +43,8 @@ export default function Kanji() {
     items.length === 0 ? (
       <p className="kanji-vocab-empty">{emptyMessage}</p>
     ) : (
-      items.map((v) => (
-        <div className="kanji-vocab-item" key={v.word}>
+      items.map((v, i) => (
+        <div className="kanji-vocab-item" key={`${v.word}-${i}`}>
           <span className="kanji-vocab-word">{v.word}</span>
           <span className="kanji-vocab-reading">{v.reading}</span>
           <span className="kanji-vocab-meaning">{v.meanings.join(", ")}</span>
@@ -55,34 +53,36 @@ export default function Kanji() {
     );
 
   return (
-    <div className="page">
-      <div className="kanji-header">
+    <div className="page kanji-page">
+      <div className="kanji-top">
         <div className="kanji-char">{kanjiObj.character}</div>
 
         <div className="kanji-info">
           <div className="kanji-meanings">{kanjiObj.meanings.join(", ")}</div>
 
           <div className="kanji-readings-frequency-strokes">
-            {kanjiObj.kun?.length > 0 && (
+            {kanjiObj.kun.length > 0 && (
               <div>
                 <strong>Kunyomi:</strong> {kanjiObj.kun.join(", ")}
               </div>
             )}
-            {kanjiObj.on?.length > 0 && (
+            {kanjiObj.on.length > 0 && (
               <div>
                 <strong>Onyomi:</strong> {kanjiObj.on.join(", ")}
               </div>
             )}
             <div>
-              <strong>Frequency:</strong> {kanjiObj.frequency}{" "}
+              <strong>Frequency:</strong> {kanjiObj.frequency ?? "—"}
+              {"  "}
               <strong>Strokes:</strong> {kanjiObj.strokes}
             </div>
           </div>
         </div>
 
-        <div className="kanji-status-section">
-          <strong className="kanji-status-label">Status</strong>
-
+        <div className="kanji-controls">
+          <label className="kanji-status-label" htmlFor="kanji-status-select">
+            Status
+          </label>
           <select
             id="kanji-status-select"
             className="kanji-status-select"
@@ -93,17 +93,17 @@ export default function Kanji() {
             <option value="learning">🔁 Learning</option>
             <option value="known">✅ Known</option>
           </select>
+          <Link
+            to={`/kanji/${encodeURIComponent(kanjiObj.character)}/write`}
+            className="kanji-write-link"
+          >
+            ✏️ Practice writing
+          </Link>
         </div>
       </div>
 
-      <div className="kanji-stroke-section">
+      <div className="kanji-strokes">
         <KanjiStrokeViewer kanji={kanjiObj.character} />
-        <Link
-          to={`/write?kanji=${encodeURIComponent(kanjiObj.character)}`}
-          className="kanji-write-link"
-        >
-          ✏️ Practice writing
-        </Link>
       </div>
 
       <div className="kanji-vocab-section">
@@ -113,7 +113,7 @@ export default function Kanji() {
           </strong>
           {renderVocabList(
             fullyKnownVocab,
-            "No words yet where you know every kanji — mark more kanji as Learning or Known.",
+            "No words here yet — add words with this kanji in My words.",
           )}
         </div>
 

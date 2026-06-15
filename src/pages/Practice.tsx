@@ -1,9 +1,8 @@
 import { useState, useMemo } from "react";
-import vocab from "../data/vocab.json";
 import "../styles/Practice.css";
-import type { Vocab } from "../types/vocabType";
 import type { Question } from "../types/questionType";
 import { isVocabAvailable } from "../lib/vocab";
+import { loadUserVocab } from "../storage/userVocab";
 import { useProgress } from "../context/ProgressContext";
 import EmptyState from "../components/empty-state/EmptyState";
 
@@ -16,14 +15,16 @@ export default function Practice() {
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [revealed, setRevealed] = useState<boolean>(false);
 
+  const userVocab = loadUserVocab();
+
   // Available vocab depends only on progress — memoized so typing an answer
   // (which re-renders every keystroke) doesn't re-filter the whole list.
   const vocabQuestions = useMemo(
     () =>
-      (vocab as Vocab[])
+      userVocab
         .filter((v) => isVocabAvailable(v, progress))
         .map((v) => ({ jp: v.word, en: v.meanings, reading: v.reading })),
-    [progress],
+    [progress, userVocab],
   );
 
   const pickDirection = (): Direction => (Math.random() < 0.5 ? "etj" : "jte");
@@ -68,14 +69,22 @@ export default function Practice() {
   if (vocabQuestions.length === 0 || !question) {
     return (
       <div className="page page-center">
-        <EmptyState
-          title="Nothing to practice yet"
-          message="Vocabulary practice uses words whose kanji are all marked Learning or Known. Mark some kanji to unlock words to practise."
-          actions={[
-            { to: "/kanji-list", label: "Browse kanji" },
-            { to: "/learn", label: "Browse by set" },
-          ]}
-        />
+        {userVocab.length === 0 ? (
+          <EmptyState
+            title="No vocabulary yet"
+            message="Practice uses your own word list. Add or import words to start practising."
+            actions={[{ to: "/words", label: "Add words" }]}
+          />
+        ) : (
+          <EmptyState
+            title="Nothing to practice yet"
+            message="A word becomes practiceable once all of its kanji are marked Learning or Known. Mark some kanji to unlock your words."
+            actions={[
+              { to: "/kanji", label: "Browse kanji" },
+              { to: "/words", label: "My words" },
+            ]}
+          />
+        )}
       </div>
     );
   }

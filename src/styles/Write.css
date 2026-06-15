@@ -1,3 +1,15 @@
+.write-back {
+    align-self: flex-start;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    margin-bottom: var(--space-3);
+}
+
+.write-back:hover {
+    color: var(--accent);
+}
+
 .write-prompt {
     font-size: clamp(1.3rem, 4vw, 1.8rem);
     text-align: center;

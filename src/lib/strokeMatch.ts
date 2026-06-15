@@ -5,12 +5,23 @@ export type Point = { x: number; y: number };
 
 const SAMPLES = 16;
 
-// Tunable thresholds (in 109-space units).
-const START_END_MAX = 30; // how far the user's endpoints may be from the template's
-const MEAN_DIST_MAX = 22; // average per-point distance allowed along the stroke
-const DOT_LEN = 8; // template strokes shorter than this are treated as dots
-const DOT_RADIUS = 18; // a tap within this of a dot counts
-const MIN_LEN_RATIO = 0.35; // user stroke must be at least this fraction of template length
+// Tunable thresholds (in the KanjiVG 109-space).
+export type MatchThresholds = {
+  startEndMax: number; // how far the user's endpoints may be from the template's
+  meanDistMax: number; // average per-point distance allowed along the stroke
+  minLenRatio: number; // user stroke must be at least this fraction of template length
+  dotLen: number; // template strokes shorter than this are treated as dots
+  dotRadius: number; // a tap within this of a dot counts
+};
+
+// Tuned on a real touchscreen (2026-06-15).
+export const DEFAULT_THRESHOLDS: MatchThresholds = {
+  startEndMax: 25,
+  meanDistMax: 22,
+  minLenRatio: 0.35,
+  dotLen: 8,
+  dotRadius: 18,
+};
 
 function dist(a: Point, b: Point): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
@@ -66,35 +77,39 @@ export type MatchResult = { ok: boolean; reason?: string };
 // Compare a user-drawn stroke to a template stroke path. Lenient: checks the
 // endpoints, the average distance along the stroke, and (implicitly, by comparing
 // point-for-point from start to end) the drawing direction.
-export function matchStroke(userPoints: Point[], templateD: string): MatchResult {
+export function matchStroke(
+  userPoints: Point[],
+  templateD: string,
+  thresholds: MatchThresholds = DEFAULT_THRESHOLDS,
+): MatchResult {
   const template = sampleStrokePath(templateD);
   if (template.length === 0) return { ok: false, reason: "no-template" };
 
   const tmplLen = pathLength(template);
 
   // Dot / tiny stroke: accept a tap near it.
-  if (tmplLen < DOT_LEN) {
+  if (tmplLen < thresholds.dotLen) {
     const c = template[0];
-    return userPoints.some((p) => dist(p, c) < DOT_RADIUS)
+    return userPoints.some((p) => dist(p, c) < thresholds.dotRadius)
       ? { ok: true }
       : { ok: false, reason: "far" };
   }
 
-  if (pathLength(userPoints) < tmplLen * MIN_LEN_RATIO) {
+  if (pathLength(userPoints) < tmplLen * thresholds.minLenRatio) {
     return { ok: false, reason: "short" };
   }
 
   const user = resample(userPoints);
   if (
-    dist(user[0], template[0]) > START_END_MAX ||
-    dist(user[user.length - 1], template[template.length - 1]) > START_END_MAX
+    dist(user[0], template[0]) > thresholds.startEndMax ||
+    dist(user[user.length - 1], template[template.length - 1]) > thresholds.startEndMax
   ) {
     return { ok: false, reason: "endpoints" };
   }
 
   let sum = 0;
   for (let i = 0; i < user.length; i++) sum += dist(user[i], template[i]);
-  if (sum / user.length > MEAN_DIST_MAX) return { ok: false, reason: "shape" };
+  if (sum / user.length > thresholds.meanDistMax) return { ok: false, reason: "shape" };
 
   return { ok: true };
 }

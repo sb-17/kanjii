@@ -1,9 +1,8 @@
 import { useState, useMemo } from "react";
-import vocab from "../data/vocab.json";
 import "../styles/Cards.css";
-import type { Vocab } from "../types/vocabType";
 import type { Question } from "../types/questionType";
 import { isVocabAvailable } from "../lib/vocab";
+import { loadUserVocab } from "../storage/userVocab";
 import { useProgress } from "../context/ProgressContext";
 import EmptyState from "../components/empty-state/EmptyState";
 
@@ -11,14 +10,16 @@ export default function Cards() {
   const { progress } = useProgress();
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
 
+  const userVocab = loadUserVocab();
+
   // Available vocab depends only on progress — memoized so flipping a card
   // (which re-renders) doesn't re-filter the whole vocab list each time.
   const vocabQuestions = useMemo(
     () =>
-      (vocab as Vocab[])
+      userVocab
         .filter((v) => isVocabAvailable(v, progress))
         .map((v) => ({ jp: v.word, en: v.meanings, reading: v.reading })),
-    [progress],
+    [progress, userVocab],
   );
 
   const [question, setQuestion] = useState<Question>(() => {
@@ -50,14 +51,22 @@ export default function Cards() {
   if (!question) {
     return (
       <div className="page page-center">
-        <EmptyState
-          title="No vocabulary to review yet"
-          message="Cards are generated from vocabulary whose kanji are all marked Learning or Known. Mark some kanji as Learning or Known to start building your card deck."
-          actions={[
-            { to: "/kanji-list", label: "Browse kanji" },
-            { to: "/learn", label: "Browse by set" },
-          ]}
-        />
+        {userVocab.length === 0 ? (
+          <EmptyState
+            title="No vocabulary yet"
+            message="Cards come from your own word list. Add or import words to start building your deck."
+            actions={[{ to: "/words", label: "Add words" }]}
+          />
+        ) : (
+          <EmptyState
+            title="No cards to review yet"
+            message="A word becomes a card once all of its kanji are marked Learning or Known. Mark some kanji to unlock your words."
+            actions={[
+              { to: "/kanji", label: "Browse kanji" },
+              { to: "/words", label: "My words" },
+            ]}
+          />
+        )}
       </div>
     );
   }

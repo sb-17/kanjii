@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import kanji from "../data/kanji.json";
 import "../styles/Home.css";
 import { getStatusCounts } from "../storage/kanjiProgress";
+import { loadUserVocab } from "../storage/userVocab";
 import { useProgress } from "../context/ProgressContext";
 
 export default function Home() {
@@ -9,6 +10,7 @@ export default function Home() {
   const statusCounts = getStatusCounts(progress);
   const total = kanji.length;
   const newCount = total - statusCounts.learning - statusCounts.known;
+  const wordCount = loadUserVocab().length;
 
   return (
     <div className="page page-center">
@@ -24,20 +26,23 @@ export default function Home() {
         <div className="home-stat surface-card">
           <strong>{newCount}</strong> new
         </div>
+        <div className="home-stat surface-card">
+          <strong>{wordCount}</strong> {wordCount === 1 ? "word" : "words"}
+        </div>
       </div>
 
       <div className="home-links">
-        <Link to="/practice" className="home-link-card surface-card">
-          Practice
-        </Link>
-        <Link to="/learn" className="home-link-card surface-card">
-          Learn
-        </Link>
-        <Link to="/kanji-list" className="home-link-card surface-card">
+        <Link to="/kanji" className="home-link-card surface-card">
           All kanji
         </Link>
-        <Link to="/cards" className="home-link-card surface-card">
-          Cards
+        <Link to="/write" className="home-link-card surface-card">
+          Write
+        </Link>
+        <Link to="/words" className="home-link-card surface-card">
+          My words
+        </Link>
+        <Link to="/practice" className="home-link-card surface-card">
+          Practice
         </Link>
       </div>
     </div>

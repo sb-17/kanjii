@@ -22,8 +22,15 @@ export function parseStrokePaths(svgText: string): string[] {
     .filter((d): d is string => Boolean(d));
 }
 
+// Parsed strokes are cached for the session so repeated practice of the same
+// kanji (and revisits) are instant instead of re-fetching + re-parsing the SVG.
+const strokeCache = new Map<string, string[]>();
+
 // Fetch + parse a kanji's ordered stroke paths. Returns [] if unavailable.
 export async function loadKanjiStrokes(kanji: string): Promise<string[]> {
+  const cached = strokeCache.get(kanji);
+  if (cached) return cached;
+
   const fileName = kanjiToSvgName(kanji);
   try {
     const res = await fetch(`/kanjii/kanjiVG/${fileName}`);
@@ -31,7 +38,9 @@ export async function loadKanjiStrokes(kanji: string): Promise<string[]> {
       console.error("KanjiVG not found:", fileName);
       return [];
     }
-    return parseStrokePaths(await res.text());
+    const paths = parseStrokePaths(await res.text());
+    strokeCache.set(kanji, paths);
+    return paths;
   } catch (err) {
     console.error("Error loading KanjiVG:", err);
     return [];

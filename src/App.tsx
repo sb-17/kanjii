@@ -1,11 +1,12 @@
 import { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navigation from "./components/navigation/Navigation";
 import Home from "./pages/Home";
 import Learn from "./pages/Learn";
 import Cards from "./pages/Cards";
 import Practice from "./pages/Practice";
 import Write from "./pages/Write";
+import MyWords from "./pages/MyWords";
 import SetDetail from "./pages/SetDetail";
 import Kanji from "./pages/Kanji";
 import KanjiList from "./pages/KanjiList";
@@ -46,15 +47,21 @@ export default function App() {
           <main className="app-content">
             <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/kanji-list" element={<KanjiList />} />
-            <Route path="/sets/:setId" element={<SetDetail />} />
-            <Route path="/learn" element={<Learn />} />
+            <Route path="/kanji" element={<KanjiList />} />
             <Route path="/kanji/:char" element={<Kanji />} />
+            <Route path="/kanji/:char/write" element={<Write />} />
+            <Route path="/sets" element={<Learn />} />
+            <Route path="/sets/:setId" element={<SetDetail />} />
             <Route path="/cards" element={<Cards />} />
             <Route path="/practice" element={<Practice />} />
             <Route path="/write" element={<Write />} />
+            <Route path="/words" element={<MyWords />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
+            {/* redirects from the old paths */}
+            <Route path="/kanji-list" element={<Navigate to="/kanji" replace />} />
+            <Route path="/learn" element={<Navigate to="/sets" replace />} />
+            <Route path="/my-words" element={<Navigate to="/words" replace />} />
             </Routes>
           </main>
         </div>

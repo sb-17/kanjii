@@ -1,18 +1,23 @@
 import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgress";
+import { readWithMigration, writeValue } from "./db";
 
 const STORAGE_KEY = "kanjii:progress";
 
+// In-memory source of truth, hydrated once at startup (see hydrateProgress).
+// Reads stay synchronous for components; writes persist to IndexedDB async.
+let cache: KanjiProgress = {};
+
+export async function hydrateProgress(): Promise<void> {
+  cache = (await readWithMigration<KanjiProgress>(STORAGE_KEY)) ?? {};
+}
+
 export function loadKanjiProgress(): KanjiProgress {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
+  return cache;
 }
 
 export function saveKanjiProgress(progress: KanjiProgress): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  cache = progress;
+  void writeValue(STORAGE_KEY, progress);
 }
 
 export function updateKanjiStatus(

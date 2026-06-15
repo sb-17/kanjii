@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import kanji from "../data/kanji.json";
 import "../styles/Write.css";
 import type { Kanji } from "../types/kanjiType";
@@ -12,15 +12,16 @@ import EmptyState from "../components/empty-state/EmptyState";
 
 export default function Write() {
   const { progress } = useProgress();
-  const [searchParams] = useSearchParams();
-  const focus = searchParams.get("kanji") || "";
+  // Present on /kanji/:char/write — drills a single kanji on a loop.
+  const { char: routeChar } = useParams<{ char?: string }>();
+  const single = !!routeChar;
 
   const [settings, setSettings] = useState<Settings>(loadSettings());
   const { writeMode, guide, writePool } = settings;
 
   const kanjiData = kanji as Kanji[];
 
-  // Kanji to practice, filtered by the selected status pool.
+  // Kanji to practice in session mode, filtered by the selected status pool.
   const computePool = (p: WritePool) =>
     kanjiData.filter((k) => {
       const status = progress[k.character];
@@ -31,18 +32,25 @@ export default function Write() {
 
   const pool = useMemo(() => computePool(writePool), [progress, writePool]);
 
-  const focusValid = !!focus && kanjiData.some((k) => k.character === focus);
-
   const [current, setCurrent] = useState<string>(() => {
-    if (focusValid) return focus;
+    if (single) return routeChar!;
     if (pool.length > 0)
       return pool[Math.floor(Math.random() * pool.length)].character;
     return "";
   });
   const [revealed, setRevealed] = useState(false);
-  // Bumped on every advance so the writer remounts even when the kanji repeats
-  // (single-kanji pool, or a focused kanji that isn't in the pool).
+  // Bumped on every advance so the writer remounts even when the kanji repeats.
   const [round, setRound] = useState(0);
+
+  // Keep up with the URL if you jump straight to another kanji's writing page.
+  useEffect(() => {
+    if (single && routeChar && routeChar !== current) {
+      setCurrent(routeChar);
+      setRevealed(false);
+      setRound((r) => r + 1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeChar]);
 
   const updateSettings = (patch: Partial<Settings>) => {
     const updated = { ...settings, ...patch };
@@ -67,6 +75,7 @@ export default function Write() {
   const pickNext = () => {
     setRevealed(false);
     setRound((r) => r + 1);
+    if (single) return; // single mode keeps the same kanji (round bump remounts)
     if (pool.length > 1) {
       let next = current;
       while (next === current) {
@@ -76,8 +85,20 @@ export default function Write() {
     } else if (pool.length === 1) {
       setCurrent(pool[0].character);
     }
-    // pool empty: keep the focused kanji; the round bump remounts the writer
   };
+
+  // Bad /kanji/:char/write URL.
+  if (single && !kanjiData.some((k) => k.character === routeChar)) {
+    return (
+      <div className="page page-center">
+        <EmptyState
+          title="Kanji not found"
+          message="That character isn't in the kanji list."
+          actions={[{ to: "/kanji", label: "Browse kanji" }]}
+        />
+      </div>
+    );
+  }
 
   const obj = kanjiData.find((k) => k.character === current);
   const readings = obj ? [...obj.kun, ...obj.on].slice(0, 3) : [];
@@ -92,6 +113,12 @@ export default function Write() {
 
   return (
     <div className="page page-center">
+      {single && (
+        <Link to={`/kanji/${current}`} className="write-back">
+          ← Back to {current}
+        </Link>
+      )}
+
       {current && (
         <div className="write-prompt">
           <strong>Write:</strong> {obj ? obj.meanings.join(", ") : current}
@@ -129,28 +156,30 @@ export default function Write() {
         )}
       </div>
 
-      <div className="write-toggles">
-        <span className="write-toggle-label">Practising:</span>
-        <div className="write-modes">
-          {(["both", "learning", "known"] as const).map((p) => (
-            <button
-              key={p}
-              className={`write-toggle${writePool === p ? " active" : ""}`}
-              onClick={() => changePool(p)}
-            >
-              {p === "both" ? "Both" : p === "learning" ? "Learning" : "Known"}
-            </button>
-          ))}
+      {!single && (
+        <div className="write-toggles">
+          <span className="write-toggle-label">Practising:</span>
+          <div className="write-modes">
+            {(["both", "learning", "known"] as const).map((p) => (
+              <button
+                key={p}
+                className={`write-toggle${writePool === p ? " active" : ""}`}
+                onClick={() => changePool(p)}
+              >
+                {p === "both" ? "Both" : p === "learning" ? "Learning" : "Known"}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {!current ? (
         <EmptyState
           title="Nothing to write yet"
           message={emptyMessage}
           actions={[
-            { to: "/kanji-list", label: "Browse kanji" },
-            { to: "/learn", label: "Browse by set" },
+            { to: "/kanji", label: "Browse kanji" },
+            { to: "/sets", label: "Browse sets" },
           ]}
         />
       ) : writeMode === "screen" ? (
@@ -185,7 +214,7 @@ export default function Write() {
       {current && (
         <div className="write-actions">
           <button className="write-action" onClick={pickNext}>
-            {revealed ? "Next" : "Skip"}
+            {single ? "Again" : revealed ? "Next" : "Skip"}
           </button>
         </div>
       )}

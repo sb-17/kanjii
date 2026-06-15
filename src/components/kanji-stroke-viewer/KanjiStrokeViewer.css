@@ -13,15 +13,21 @@
 .kanji-stroke-container {
     display: flex;
     overflow-x: auto;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: #1c1c1c;
     box-sizing: border-box;
     max-width: 100%;
 }
 
 .kanji-frame {
     flex: 0 0 auto;
-    max-width: 120px;
+    width: 100px;
     height: auto;
-    border: 1px solid #888;
+    border-right: 1px solid var(--border);
     box-sizing: border-box;
+}
+
+.kanji-frame:last-child {
+    border-right: none;
 }
