@@ -1,28 +1,31 @@
 .set-card {
     max-width: 800px;
     width: 100%;
-    background-color: #555555;
-    margin-bottom: 0.75rem;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    margin-bottom: var(--space-3);
     text-align: center;
     box-sizing: border-box;
-    border-radius: 8px;
+    border-radius: var(--radius);
+    transition: border-color 0.2s ease;
 }
 
 .set-title {
     font-size: clamp(1rem, 5vw, 1.5rem);
+    font-weight: 600;
     color: white;
-    padding-top: 0.25rem;
+    padding-top: var(--space-2);
 }
 
 .kanji-list {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.25rem;
-    padding-bottom: 0.25rem;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2) var(--space-2);
 }
 
 .kanji {
-    padding: 0.25rem 0.25rem;
+    padding: var(--space-1);
     font-size: clamp(1rem, 5vw, 1.5rem);
 }

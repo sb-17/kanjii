@@ -1,25 +1,15 @@
-.learn-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 0.75rem;
-    margin-left: 0.75rem;
-    margin-right: 0.75rem;
-    width: 800px;
-}
-
 .learn-progress {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0.5rem 0;
+    padding: var(--space-2) 0 var(--space-4);
     text-align: center;
-    gap: 1rem;
+    gap: var(--space-4);
 }
 
 .sets-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 1rem;
+    width: 100%;
 }

@@ -1,60 +1,47 @@
-.settings-page {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1.5rem;
-}
-
-.settings-title {
-    color: white;
-    font-size: 1.6rem;
-    margin-bottom: 1rem;
-}
-
 .settings-card {
-    border-radius: 12px;
-    padding: 1.2rem;
-    background: var(--card-bg, #555555);
-    margin-bottom: 1rem;
+    padding: var(--space-5);
+    margin-bottom: var(--space-4);
 }
 
 .settings-card strong {
     color: white;
+    font-size: var(--text-md);
 }
 
 .settings-description {
-    font-size: 0.9rem;
-    color: white;
-    margin-bottom: 1rem;
-    line-height: 1.4;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin: var(--space-2) 0 var(--space-4);
+    line-height: 1.6;
 }
 
 .settings-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: var(--space-3);
     flex-wrap: wrap;
 }
 
 .settings-button,
 .settings-import {
-    background: #484848;
-    padding: 0.6rem 0.9rem;
-    border-radius: 8px;
+    background: var(--surface-strong);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius);
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: var(--text-sm);
     color: white;
     border: none;
-    outline: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     text-decoration: none;
     font-weight: 500;
+    transition: background 0.2s ease;
 }
 
 .settings-button:hover,
 .settings-import:hover {
-    background: #3c3c3c;
+    background: var(--surface-strong-hover);
     color: white;
 }
 

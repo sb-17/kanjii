@@ -1,21 +1,7 @@
-.card-panel {
-    display: flex;
-    padding: 1rem;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-    box-sizing: border-box;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
 .flashcard-container {
     background-color: transparent;
     width: 100%;
-    max-width: 500px;
-    height: 300px;
+    height: clamp(300px, 40vh, 360px);
     perspective: 1000px;
     cursor: pointer;
     margin-bottom: 2rem;
@@ -46,8 +32,8 @@
     align-items: center;
     padding: 2rem;
     box-sizing: border-box;
-    border-radius: 8px;
-    border: 1px solid #484848;
+    border-radius: var(--radius);
+    border: 1px solid var(--surface-strong);
     background-color: #1e1e1e;
     color: #fff;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -64,11 +50,11 @@
 
 .card-label {
     position: absolute;
-    top: 1rem;
-    font-size: 0.8rem;
+    top: var(--space-4);
+    font-size: var(--text-xs);
     text-transform: uppercase;
     letter-spacing: 0.1rem;
-    color: #888;
+    color: var(--text-faint);
 }
 
 .card-text {
@@ -86,40 +72,39 @@
 
 .japanese-reading {
     font-size: clamp(1.2rem, 3vw, 1.8rem);
-    color: #aaa;
+    color: var(--text-muted);
     margin: 0;
 }
 
 .tap-hint {
     position: absolute;
-    bottom: 1rem;
-    font-size: 0.8rem;
-    color: #555;
+    bottom: var(--space-4);
+    font-size: var(--text-xs);
+    color: var(--text-faint);
     transition: color 0.2s;
 }
 
 .flashcard-container:hover .tap-hint {
-    color: #888;
+    color: var(--text-muted);
 }
 
 .card-actions {
     display: flex;
     justify-content: center;
     width: 100%;
-    max-width: 500px;
 }
 
 .practice-submit-button {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    background: #484848;
+    background: var(--surface-strong);
     color: #fff;
     text-decoration: none;
     width: 100%;
-    padding: 1rem;
+    padding: var(--space-4);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius);
     font-size: clamp(1rem, 2.5vw, 1.2rem);
     font-weight: bold;
     cursor: pointer;
@@ -127,16 +112,10 @@
 }
 
 .practice-submit-button:hover {
-    background: #3c3c3c;
+    background: var(--surface-strong-hover);
     color: white;
 }
 
 .practice-submit-button:focus {
     outline: none;
-}
-
-.no-vocab-message {
-    color: #888;
-    text-align: center;
-    font-size: 1.2rem;
 }

@@ -5,6 +5,7 @@ import type { Vocab } from "../types/vocabType";
 import type { Question } from "../types/questionType";
 import type { KanjiProgress } from "../types/kanjiProgress";
 import { loadKanjiProgress, isKnownOrLearning } from "../storage/kanjiProgress";
+import EmptyState from "../components/empty-state/EmptyState";
 
 export default function Cards() {
   const [progress] = useState<KanjiProgress>(loadKanjiProgress());
@@ -45,14 +46,21 @@ export default function Cards() {
 
   if (!question) {
     return (
-      <div className="card-panel">
-        <p className="no-vocab-message">No vocabulary cards available.</p>
+      <div className="page page-center">
+        <EmptyState
+          title="No vocabulary to review yet"
+          message="Cards are generated from vocabulary whose kanji are all marked Learning or Known. Mark some kanji as Learning or Known to start building your card deck."
+          actions={[
+            { to: "/kanji-list", label: "Browse kanji" },
+            { to: "/learn", label: "Browse by set" },
+          ]}
+        />
       </div>
     );
   }
 
   return (
-    <div className="card-panel">
+    <div className="page page-center">
       <div className={`flashcard-container ${isFlipped ? "flipped" : ""}`} onClick={handleFlip}>
         <div className="flashcard-inner">
           

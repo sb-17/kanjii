@@ -2,8 +2,8 @@ import "../styles/About.css";
 
 export default function About() {
   return (
-    <div className="about-page">
-      <h1 className="about-title">About</h1>
+    <div className="page">
+      <h1 className="page-title">About</h1>
 
       <p className="about-text">
         Hi! My name is Šimon and I developed this app. I have been learning Japanese since July 2025. 

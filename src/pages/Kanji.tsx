@@ -60,7 +60,7 @@ export default function Kanji() {
   });
 
   return (
-    <div className="kanji-panel">
+    <div className="page">
       <div className="kanji-header">
         <div className="kanji-char">{kanjiObj.character}</div>
 

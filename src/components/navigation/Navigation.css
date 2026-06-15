@@ -1,34 +1,103 @@
-.navigation {
+.nav-toggle {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: 30;
+    width: 40px;
+    height: 40px;
     display: flex;
-    padding-bottom: env(safe-area-inset-bottom);
-    background-color: #555555;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.nav-toggle:hover {
+    background-color: var(--surface-strong-hover);
+}
+
+.nav-toggle span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    border-radius: 1px;
+    background-color: white;
+}
+
+.nav-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 15;
+}
+
+.side-nav {
+    flex-shrink: 0;
+    width: 220px;
+    height: 100vh;
+    background-color: var(--surface-strong);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding-top: 4rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+    transition: margin-left 0.2s ease;
+}
+
+.side-nav.closed {
+    margin-left: -220px;
 }
 
 .navButton {
-    display: inline-flex;
-    justify-content: center;
+    display: flex;
     align-items: center;
-    width: 33.33%;
-    height: 100%;
-    min-height: 56px;
-    color: white;
+    padding: var(--space-3) var(--space-5);
+    color: var(--text-muted);
     text-decoration: none;
-    background: #484848;
-    cursor: pointer;
-    border: none;
-    font-size: clamp(0.65rem, 2.5vw, 1rem);
-    min-width: 0;
+    font-size: var(--text-base);
+    font-weight: 500;
+    box-shadow: inset 3px 0 0 transparent;
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .navButton:hover {
-    background: #3c3c3c;
-    color: white;
+    background-color: var(--surface-strong-hover);
+    color: #ffffff;
 }
 
-.navButton:focus {
-    outline: none;
+.navButton.active {
+    background-color: var(--surface-strong-hover);
+    color: #ffffff;
+    box-shadow: inset 3px 0 0 var(--accent);
+}
+
+@media (max-width: 899px) {
+    .nav-backdrop {
+        display: block;
+    }
+
+    .side-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 20;
+        margin-left: 0;
+        transform: translateX(-100%);
+    }
+
+    .side-nav.open {
+        transform: translateX(0);
+    }
+}
+
+@media (min-width: 900px) {
+    .nav-backdrop {
+        display: none;
+    }
 }

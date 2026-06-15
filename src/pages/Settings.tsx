@@ -58,10 +58,10 @@ export default function Settings() {
   };
 
   return (
-    <div className="settings-page">
-      <h1 className="settings-title">Settings</h1>
+    <div className="page">
+      <h1 className="page-title">Settings</h1>
 
-      <div className="settings-card">
+      <div className="settings-card surface-card">
         <strong>Progress & Data</strong>
 
         <p className="settings-description">
@@ -86,7 +86,7 @@ export default function Settings() {
           </label>
         </div>
       </div>
-      <div className="settings-card">
+      <div className="settings-card surface-card">
         <strong>Practice</strong>
 
         <p className="settings-description">

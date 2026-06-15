@@ -1,11 +1,12 @@
 .kanji-card {
   max-width: 800px;
   width: 100%;
-  background-color: #555555;
-  margin-bottom: 0.75rem;
-  padding: 0.5rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   box-sizing: border-box;
-  border-radius: 8px;
+  border-radius: var(--radius);
   display: block;
 }
 
@@ -36,10 +37,10 @@
 .kanji-card-status-select {
     background: #222;
     color: #eee;
-    border: 1px solid #444;
-    border-radius: 6px;
-    padding: 0.35rem 0.6rem;
-    font-size: 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
     width: 100%;
     cursor: pointer;
 }
@@ -50,5 +51,5 @@
 
 .kanji-card-status-select:focus {
     outline: none;
-    border-color: #777;
+    border-color: var(--accent);
 }

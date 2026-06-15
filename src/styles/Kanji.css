@@ -1,20 +1,11 @@
-.kanji-panel {
-    padding: 1rem;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-    box-sizing: border-box;
-}
-
 .kanji-header {
     display: flex;
     flex-wrap: wrap;
-    column-gap: 2rem;
-    row-gap: 0.5rem;
+    column-gap: var(--space-6);
+    row-gap: var(--space-2);
     align-items: space-between;
     justify-content: center;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
 }
 
 .kanji-char {
@@ -33,17 +24,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
 }
 
 .kanji-meanings {
     font-size: clamp(0.8rem, 4vw, 1.5rem);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .kanji-readings-frequency-strokes {
     font-size: clamp(0.8rem, 4vw, 1rem);
-    color: #ddd;
+    color: var(--text-muted);
 }
 
 .kanji-readings-frequency-strokes strong {
@@ -54,8 +45,8 @@
 .kanji-status-section {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
-    margin-bottom: 1rem;
+    gap: var(--space-1);
+    margin-bottom: var(--space-4);
 }
 
 @media (max-width: 620px) {
@@ -77,10 +68,10 @@
 .kanji-status-select {
     background: #222;
     color: #eee;
-    border: 1px solid #444;
-    border-radius: 6px;
-    padding: 0.35rem 0.6rem;
-    font-size: 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
     width: 100%;
     cursor: pointer;
 }
@@ -91,17 +82,17 @@
 
 .kanji-status-select:focus {
     outline: none;
-    border-color: #777;
+    border-color: var(--accent);
 }
 
 .kanji-stroke-section {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
 }
 
 .kanji-vocab-section {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: var(--space-4);
 }
 
 .kanji-vocab-section strong {

@@ -3,7 +3,6 @@ import { useState } from "react";
 import KanjiCard from "../components/kanji-card/KanjiCard";
 import sets from "../data/sets.json";
 import kanji from "../data/kanji.json";
-import "../styles/SetDetail.css";
 import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgress";
 import { loadKanjiProgress, updateKanjiStatus } from "../storage/kanjiProgress";
 
@@ -24,7 +23,7 @@ export default function SetDetail() {
   };
 
   return (
-    <div className="kanji-container">
+    <div className="page page-center">
       {set.kanji.map((k, i) => (
         <KanjiCard
           key={`${set.id}-${i}`}

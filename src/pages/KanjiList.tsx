@@ -6,7 +6,11 @@ import kanji from "../data/kanji.json";
 import "../styles/KanjiList.css";
 import type { Kanji } from "../types/kanjiType";
 import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgress";
-import { loadKanjiProgress, updateKanjiStatus } from "../storage/kanjiProgress";
+import {
+  loadKanjiProgress,
+  updateKanjiStatus,
+  getStatusCounts,
+} from "../storage/kanjiProgress";
 
 export default function KanjiList() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -80,20 +84,10 @@ export default function KanjiList() {
     setProgress(updatedProgress);
   };
 
-  const statusCounts: Record<KanjiStatus, number> = {
-    new: 0,
-    learning: 0,
-    known: 0,
-  };
-
-  Object.values(progress).forEach((status) => {
-    if (statusCounts[status] !== undefined) {
-      statusCounts[status]++;
-    }
-  });
+  const statusCounts = getStatusCounts(progress);
 
   return (
-    <div className="kanji-list-container">
+    <div className="page page-center">
       <div className="kanji-list-header">
         <input
           type="text"

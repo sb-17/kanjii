@@ -1,19 +1,8 @@
-.practice-panel {
-    display: flex;
-    padding: 1rem;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-    box-sizing: border-box;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
 .practice-question-container {
     font-size: clamp(1.5rem, 4vw, 2rem);
     margin-bottom: 1rem;
+    width: 100%;
+    text-align: center;
 }
 
 .practice-question-container strong {
@@ -26,18 +15,32 @@
 }
 
 .practice-answer-input {
-    color: #fff;
+    color: var(--text);
     width: 100%;
     height: 100%;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--space-2);
     font-size: clamp(0.8rem, 4vw, 1.5rem);
-    padding: 0.5rem;
+    padding: var(--space-3);
+    background-color: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.practice-answer-input::placeholder {
+    color: var(--text-faint);
+}
+
+.practice-answer-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(77, 166, 255, 0.25);
 }
 
 .practice-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--space-2);
     width: 100%;
 }
 
@@ -45,22 +48,39 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    background: #484848;
+    background: var(--surface-strong);
     color: #fff;
     text-decoration: none;
     flex: 1;
-    padding: 1.25rem 1rem;
+    padding: var(--space-5) var(--space-4);
     font-size: clamp(1rem, 3vw, 1.25rem);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius);
     cursor: pointer;
 }
 
 .practice-submit-button:hover, .practice-skip-button:hover {
-    background: #3c3c3c;
+    background: var(--surface-strong-hover);
     color: white;
 }
 
 .practice-submit-button:focus, .practice-skip-button:focus {
     outline: none;
+}
+
+.kanji-answer-link {
+    margin-top: 1rem;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    font-size: clamp(2rem, 8vw, 3rem);
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--accent);
+    transition: color 0.2s ease;
+}
+
+.kanji-answer-link:hover {
+    color: var(--accent-hover);
+    border-bottom-style: solid;
 }
