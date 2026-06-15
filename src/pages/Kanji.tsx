@@ -4,29 +4,17 @@ import kanji from "../data/kanji.json";
 import vocab from "../data/vocab.json";
 import "../styles/Kanji.css";
 import type { KanjiStatus, KanjiProgress } from "../types/kanjiProgress";
+import type { Kanji } from "../types/kanjiType";
 import { loadKanjiProgress, updateKanjiStatus } from "../storage/kanjiProgress";
+import { isVocabAvailable, knownRatio } from "../lib/vocab";
 import KanjiStrokeViewer from "../components/kanji-stroke-viewer/KanjiStrokeViewer";
-import type { Vocab } from "../types/vocabType";
-
-function isKnownOrLearning(status: KanjiStatus | undefined) {
-  return status === "known" || status === "learning";
-}
-
-function knownRatio(vocab: Vocab, progress: KanjiProgress) {
-  const total = vocab.kanji.length;
-  const knownCount = vocab.kanji.filter((k) =>
-    isKnownOrLearning(progress[k]),
-  ).length;
-
-  return knownCount / total;
-}
 
 export default function Kanji() {
   const { char } = useParams<{ char: string }>();
   const [progress, setProgress] = useState<KanjiProgress>(loadKanjiProgress());
 
   // load kanji data
-  const kanjiObj = kanji.find((k) => k.character === char);
+  const kanjiObj = (kanji as Kanji[]).find((k) => k.character === char);
 
   if (!kanjiObj) {
     return <div>Kanji not found</div>;
@@ -51,7 +39,7 @@ export default function Kanji() {
     });
 
   const fullyKnownVocab = filteredVocab.filter((v) =>
-    v.kanji.every((k) => isKnownOrLearning(progress[k])),
+    isVocabAvailable(v, progress),
   );
 
   const mostlyKnownVocab = filteredVocab.filter((v) => {

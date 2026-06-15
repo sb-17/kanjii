@@ -1,7 +1,8 @@
 export type Kanji = {
   character: string;
   meanings: string[];
-  kun?: string[];
-  on?: string[];
-  frequency: number;
+  kun: string[];
+  on: string[];
+  strokes: number;
+  frequency?: number;
 };

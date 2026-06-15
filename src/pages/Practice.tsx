@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import kanji from "../data/kanji.json";
 import vocab from "../data/vocab.json";
@@ -7,7 +7,8 @@ import type { Kanji } from "../types/kanjiType";
 import type { Vocab } from "../types/vocabType";
 import type { Question } from "../types/questionType";
 import type { KanjiProgress, KanjiStatus } from "../types/kanjiProgress";
-import { loadKanjiProgress, isKnownOrLearning } from "../storage/kanjiProgress";
+import { loadKanjiProgress } from "../storage/kanjiProgress";
+import { isVocabAvailable } from "../lib/vocab";
 import { loadSettings } from "../storage/settings";
 import type { Settings } from "../types/settingsType";
 import EmptyState from "../components/empty-state/EmptyState";
@@ -27,55 +28,63 @@ export default function Practice() {
   const [answerKanji, setAnswerKanji] = useState<string>("");
   const [settings] = useState<Settings>(loadSettings());
 
-  var count = 0;
-  if (settings.kanjiKnown) count++;
-  if (settings.kanjiLearning) count++;
-  if (settings.vocab) count += 2;
+  // Weight per question type, derived only from settings.
+  const probabilities = useMemo(() => {
+    let count = 0;
+    if (settings.kanjiKnown) count++;
+    if (settings.kanjiLearning) count++;
+    if (settings.vocab) count += 2;
 
-  const probabilities = [0, 0, 0, 0] as number[];
-  if (settings.kanjiKnown) probabilities[0] = 1 / count;
-  if (settings.kanjiLearning) probabilities[1] = 1 / count;
-  if (settings.vocab) {
-    probabilities[2] = 1 / count;
-    probabilities[3] = 1 / count;
-  }
+    const p = [0, 0, 0, 0];
+    if (settings.kanjiKnown) p[0] = 1 / count;
+    if (settings.kanjiLearning) p[1] = 1 / count;
+    if (settings.vocab) {
+      p[2] = 1 / count;
+      p[3] = 1 / count;
+    }
+    return p;
+  }, [settings]);
 
-  const kanjiData = kanji as Kanji[];
-  const vocabData = vocab as Vocab[];
+  // Question pools depend only on progress/settings — memoized so typing an
+  // answer (which re-renders on every keystroke) doesn't re-filter all kanji.
+  const kanjiQuestions = useMemo(
+    () =>
+      (kanji as Kanji[])
+        .filter((k) => {
+          const status: KanjiStatus = progress[k.character] || "new";
+          if (settings.kanjiKnown && settings.kanjiLearning)
+            return status === "learning" || status === "known";
+          if (settings.kanjiKnown) return status === "known";
+          if (settings.kanjiLearning) return status === "learning";
+          return false;
+        })
+        .map((k) => ({ jp: k.character, en: k.meanings, reading: "" })),
+    [progress, settings],
+  );
 
-  // filter kanji and vocab
-  const kanjiQuestions = kanjiData
-    .filter((k) => {
-      const status: KanjiStatus = progress[k.character] || "new";
-      if (settings.kanjiKnown && settings.kanjiLearning) return status === "learning" || status === "known";
-      if (settings.kanjiKnown) return status === "known";
-      if (settings.kanjiLearning) return status === "learning";
-      return false;
-    })
-    .map((k) => {
-      return {
-        jp: k.character,
-        en: k.meanings,
-        reading: "",
-      };
-    });
-
-  const vocabQuestions = vocabData
-    .filter((v) => v.kanji.every((k) => isKnownOrLearning(progress[k])))
-    .map((v) => {
-      return {
-        jp: v.word,
-        en: v.meanings,
-        reading: v.reading,
-      };
-    });
+  const vocabQuestions = useMemo(
+    () =>
+      (vocab as Vocab[])
+        .filter((v) => isVocabAvailable(v, progress))
+        .map((v) => ({ jp: v.word, en: v.meanings, reading: v.reading })),
+    [progress],
+  );
 
   const poolFor = (type: QuestionType) =>
     type === "kanji known" || type === "kanji learning" ? kanjiQuestions : vocabQuestions;
 
   // a question type is only available if it's enabled in settings and its pool has questions
-  const availableTypes = QUESTION_TYPES.filter(
-    (type, i) => probabilities[i] > 0 && poolFor(type).length > 0,
+  const availableTypes = useMemo(
+    () =>
+      QUESTION_TYPES.filter((type, i) => {
+        if (probabilities[i] <= 0) return false;
+        const pool =
+          type === "kanji known" || type === "kanji learning"
+            ? kanjiQuestions
+            : vocabQuestions;
+        return pool.length > 0;
+      }),
+    [probabilities, kanjiQuestions, vocabQuestions],
   );
 
   const hasContent = availableTypes.length > 0;

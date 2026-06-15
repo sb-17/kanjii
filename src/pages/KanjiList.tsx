@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import * as wanakana from "wanakana";
 import KanjiCard from "../components/kanji-card/KanjiCard";
@@ -32,42 +32,47 @@ export default function KanjiList() {
     initialStatusFilter,
   );
 
-  const kanjiData = kanji as Kanji[];
+  // Build the search index once: flatten each kanji's character, meanings, and
+  // romaji-converted readings into a single lowercased string, sorted by
+  // frequency. This keeps the expensive wanakana romaji conversion out of the
+  // per-keystroke filter (it used to run over all ~2,136 kanji on every render).
+  const searchIndex = useMemo(
+    () =>
+      (kanji as Kanji[])
+        .map((k) => ({
+          kanji: k,
+          text: [
+            k.character,
+            ...k.meanings,
+            ...k.kun.map((r) => wanakana.toRomaji(r)),
+            ...k.on.map((r) => wanakana.toRomaji(r)),
+          ]
+            .join(" ")
+            .toLowerCase(),
+        }))
+        .sort((a, b) => {
+          const af = a.kanji.frequency;
+          const bf = b.kanji.frequency;
+          if (af == null && bf == null) return 0;
+          if (af == null) return 1;
+          if (bf == null) return -1;
+          return af - bf;
+        }),
+    [],
+  );
 
-  const filteredKanji = kanjiData
-    .filter((k: Kanji) => {
-      const term = searchTerm.toLowerCase();
-
-      const characterMatch = k.character.toLowerCase().includes(term);
-
-      const wordMatch = term.includes(k.character.toLowerCase());
-
-      const meaningMatch = k.meanings?.some((m: string) =>
-        m.toLowerCase().includes(term),
-      );
-
-      const kunReadingMatch = k.kun?.some((r: string) =>
-        wanakana.toRomaji(r).toLowerCase().includes(term),
-      );
-
-      const onReadingMatch = k.on?.some((r: string) =>
-        wanakana.toRomaji(r).toLowerCase().includes(term),
-      );
-
+  const filteredKanji = useMemo(() => {
+    const term = searchTerm.toLowerCase();
+    return searchIndex.filter(({ kanji: k, text }) => {
+      const textMatch =
+        !term ||
+        text.includes(term) ||
+        term.includes(k.character.toLowerCase());
       const statusMatch =
         !statusFilter || progress[k.character] === statusFilter;
-
-      return (
-        (characterMatch || wordMatch || meaningMatch || kunReadingMatch || onReadingMatch) &&
-        statusMatch
-      );
-    })
-    .sort((a, b) => {
-      if (a.frequency == null && b.frequency == null) return 0;
-      if (a.frequency == null) return 1;
-      if (b.frequency == null) return -1;
-      return a.frequency - b.frequency;
+      return textMatch && statusMatch;
     });
+  }, [searchIndex, searchTerm, statusFilter, progress]);
 
   const updateFilter = (key: string, value: string | number | null) => {
     const newParams = new URLSearchParams(searchParams);
@@ -122,29 +127,33 @@ export default function KanjiList() {
       </div>
 
       <div className="kanji-list-progress">
-        <strong
+        <button
+          type="button"
+          className={`kanji-list-filter${statusFilter === "learning" ? " active" : ""}`}
+          aria-pressed={statusFilter === "learning"}
           onClick={() => {
             const newFilter = statusFilter === "learning" ? null : "learning";
             setStatusFilter(newFilter);
             updateFilter("status", newFilter);
           }}
-          style={{ cursor: "pointer" }}
         >
           🔁 Learning {statusCounts.learning}
-        </strong>
-        <strong
+        </button>
+        <button
+          type="button"
+          className={`kanji-list-filter${statusFilter === "known" ? " active" : ""}`}
+          aria-pressed={statusFilter === "known"}
           onClick={() => {
             const newFilter = statusFilter === "known" ? null : "known";
             setStatusFilter(newFilter);
             updateFilter("status", newFilter);
           }}
-          style={{ cursor: "pointer" }}
         >
-          ✅ Known: {statusCounts.known}
-        </strong>
+          ✅ Known {statusCounts.known}
+        </button>
       </div>
 
-      {filteredKanji.slice(0, numberOfKanjiShown).map((k, i) => (
+      {filteredKanji.slice(0, numberOfKanjiShown).map(({ kanji: k }, i) => (
         <KanjiCard
           key={`${k.character}-${i}`}
           kanji={{

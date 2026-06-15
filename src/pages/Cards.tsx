@@ -1,31 +1,29 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import vocab from "../data/vocab.json";
 import "../styles/Cards.css";
 import type { Vocab } from "../types/vocabType";
 import type { Question } from "../types/questionType";
 import type { KanjiProgress } from "../types/kanjiProgress";
-import { loadKanjiProgress, isKnownOrLearning } from "../storage/kanjiProgress";
+import { loadKanjiProgress } from "../storage/kanjiProgress";
+import { isVocabAvailable } from "../lib/vocab";
 import EmptyState from "../components/empty-state/EmptyState";
 
 export default function Cards() {
   const [progress] = useState<KanjiProgress>(loadKanjiProgress());
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
 
-  const vocabData = vocab as Vocab[];
-
-  // Filter vocab
-  const vocabQuestions = vocabData
-    .filter((v) => v.kanji.every((k) => isKnownOrLearning(progress[k])))
-    .map((v) => {
-      return {
-        jp: v.word,
-        en: v.meanings,
-        reading: v.reading,
-      };
-    });
+  // Available vocab depends only on progress — memoized so flipping a card
+  // (which re-renders) doesn't re-filter the whole vocab list each time.
+  const vocabQuestions = useMemo(
+    () =>
+      (vocab as Vocab[])
+        .filter((v) => isVocabAvailable(v, progress))
+        .map((v) => ({ jp: v.word, en: v.meanings, reading: v.reading })),
+    [progress],
+  );
 
   const [question, setQuestion] = useState<Question>(() => {
-    let max = vocabQuestions.length;
+    const max = vocabQuestions.length;
     const randIndex = Math.floor(Math.random() * max);
     return vocabQuestions[randIndex];
   });

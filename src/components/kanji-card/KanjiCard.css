@@ -20,8 +20,23 @@
 .kanji-card-row-left {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   width: 80%;
+  /* reset the global button styling — this is an inline navigation target */
+  background: transparent;
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--space-1) var(--space-2);
+  margin: calc(var(--space-1) * -1) calc(var(--space-2) * -1);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.kanji-card-row-left:hover {
+  background: var(--surface-strong);
 }
 
 .kanji {

@@ -20,14 +20,15 @@ export default function KanjiCard({
   return (
     <div className="kanji-card">
       <div className="kanji-card-row">
-        <div
+        <button
+          type="button"
           className="kanji-card-row-left"
           onClick={handleClick}
-          style={{ cursor: "pointer" }}
+          aria-label={`View ${kanji.character} (${kanji.meanings.join(", ")})`}
         >
           <div className="kanji">{kanji.character}</div>
           <div className="kanji-meanings">{kanji.meanings.join(", ")}</div>
-        </div>
+        </button>
 
         <div className="kanji-card-row-right">
           <select

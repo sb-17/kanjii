@@ -31,7 +31,6 @@ export default function Settings() {
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result as string) as KanjiProgress;
-        console.log(data);
         saveKanjiProgress(data);
         alert("Progress imported successfully! Reloading…");
         window.location.reload();
@@ -93,13 +92,19 @@ export default function Settings() {
           Select what you want to practice.
         </p>
 
-        <div className="settings-actions">
-          <input type="checkbox" id="kanjiKnown" name="settings-checkbox-kanji-known" checked={practiceSettings.kanjiKnown} onChange={handlePracticeChange} />
-          <label>Known kanji</label>
-          <input type="checkbox" id="kanjiLearning" name="settings-checkbox-kanji-learning" checked={practiceSettings.kanjiLearning} onChange={handlePracticeChange} />
-          <label>Learning kanji</label>
-          <input type="checkbox" id="vocab" name="settings-checkbox-vocab" checked={practiceSettings.vocab} onChange={handlePracticeChange} />
-          <label>Vocabulary</label>
+        <div className="settings-checkboxes">
+          <label className="settings-checkbox">
+            <input type="checkbox" id="kanjiKnown" checked={practiceSettings.kanjiKnown} onChange={handlePracticeChange} />
+            <span>Known kanji</span>
+          </label>
+          <label className="settings-checkbox">
+            <input type="checkbox" id="kanjiLearning" checked={practiceSettings.kanjiLearning} onChange={handlePracticeChange} />
+            <span>Learning kanji</span>
+          </label>
+          <label className="settings-checkbox">
+            <input type="checkbox" id="vocab" checked={practiceSettings.vocab} onChange={handlePracticeChange} />
+            <span>Vocabulary</span>
+          </label>
         </div>
       </div>
     </div>

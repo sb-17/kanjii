@@ -42,3 +42,24 @@
     text-align: center;
     gap: var(--space-4);
 }
+
+.kanji-list-filter {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.kanji-list-filter:hover {
+    background: var(--surface-strong);
+}
+
+.kanji-list-filter.active {
+    border-color: var(--accent);
+    color: var(--accent);
+}
