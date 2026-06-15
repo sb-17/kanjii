@@ -9,7 +9,8 @@ const pages = [
   { id: "kanji-list", label: "All kanji", path: "/kanji-list" },
   { id: "learn", label: "Learn", path: "/learn" },
   { id: "cards", label: "Cards", path: "/cards" },
-  { id: "practice", label: "Practice", path: "/practice" },
+  { id: "practice", label: "Vocabulary", path: "/practice" },
+  { id: "write", label: "Write", path: "/write" },
   { id: "settings", label: "Settings", path: "/settings" },
   { id: "about", label: "About", path: "/about" },
 ];

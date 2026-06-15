@@ -1,5 +1,9 @@
+export type WriteMode = "screen" | "paper";
+
+export type WritePool = "both" | "learning" | "known";
+
 export type Settings = {
-  kanjiKnown: boolean;
-  kanjiLearning: boolean;
-  vocab: boolean;
+  writeMode: WriteMode;
+  guide: boolean;
+  writePool: WritePool;
 };

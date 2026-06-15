@@ -1,0 +1,109 @@
+.write-prompt {
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
+    text-align: center;
+    margin-bottom: var(--space-4);
+}
+
+.write-prompt strong {
+    color: #ffffff;
+}
+
+.write-reading {
+    color: var(--text-muted);
+}
+
+.write-toggles {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-5);
+    margin-bottom: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.write-modes {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.write-toggle {
+    background: var(--surface-strong);
+    color: var(--text-muted);
+    border: none;
+    padding: var(--space-2) var(--space-5);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.write-toggle.active {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+.write-toggle-label {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+.write-guide {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text);
+    font-size: var(--text-sm);
+    cursor: pointer;
+}
+
+.write-guide input {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.write-paper {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.write-paper-hint {
+    color: var(--text-muted);
+    font-size: var(--text-base);
+}
+
+.write-answer {
+    font-size: clamp(3rem, 12vw, 5rem);
+    color: #ffffff;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.write-paper-actions,
+.write-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.write-action {
+    background: var(--surface-strong);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius);
+    padding: var(--space-3) var(--space-5);
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.write-action:hover {
+    background: var(--surface-strong-hover);
+}

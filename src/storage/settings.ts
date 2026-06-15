@@ -2,12 +2,14 @@ import type { Settings } from "../types/settingsType";
 
 const STORAGE_KEY = "kanjii:settings";
 
+const DEFAULTS: Settings = { writeMode: "screen", guide: true, writePool: "both" };
+
 export function loadSettings(): Settings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : { kanjiKnown: true, kanjiLearning: true, vocab: true };
+    return raw ? { ...DEFAULTS, ...JSON.parse(raw) } : { ...DEFAULTS };
   } catch {
-    return { kanjiKnown: true, kanjiLearning: true, vocab: true };
+    return { ...DEFAULTS };
   }
 }
 

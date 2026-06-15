@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./KanjiStrokeViewer.css";
+import { loadKanjiStrokes, strokeStartPoint } from "../../lib/kanjiVg";
 
 type KanjiStrokeViewerProps = {
   kanji: string;
@@ -9,25 +10,14 @@ export default function KanjiStrokeViewer({ kanji }: KanjiStrokeViewerProps) {
   const [frames, setFrames] = useState<string[][]>([]);
 
   useEffect(() => {
-    async function loadSVG() {
-      try {
-        const fileName = kanjiToSvgName(kanji);
-        const res = await fetch(`/kanjii/kanjiVG/${fileName}`);
-        if (!res.ok) {
-          console.error("SVG not found:", fileName);
-          return;
-        }
-        const svgText = await res.text();
-
-        const paths = getStrokePaths(svgText);
-        const newFrames = paths.map((_, i) => paths.slice(0, i + 1));
-        setFrames(newFrames);
-      } catch (err) {
-        console.error("Error loading SVG:", err);
-      }
-    }
-
-    loadSVG();
+    let active = true;
+    loadKanjiStrokes(kanji).then((paths) => {
+      if (!active) return;
+      setFrames(paths.map((_, i) => paths.slice(0, i + 1)));
+    });
+    return () => {
+      active = false;
+    };
   }, [kanji]);
 
   return (
@@ -61,7 +51,7 @@ export default function KanjiStrokeViewer({ kanji }: KanjiStrokeViewerProps) {
 
             {frame.map((d, j) => {
               const isLast = j === frame.length - 1;
-              const start = getStrokeStartPoint(d);
+              const start = strokeStartPoint(d);
 
               return (
                 <g key={j}>
@@ -77,40 +67,4 @@ export default function KanjiStrokeViewer({ kanji }: KanjiStrokeViewerProps) {
       </div>
     </div>
   );
-}
-
-function getStrokePaths(svgText: string): string[] {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(svgText, "image/svg+xml");
-
-  const groups = Array.from(doc.getElementsByTagName("g"));
-  const strokeGroup = groups.find((g) => g.id && g.id.includes("StrokePaths"));
-  if (!strokeGroup) {
-    console.warn("No StrokePaths group found");
-    return [];
-  }
-
-  const pathElements = strokeGroup.getElementsByTagName("path");
-  const paths = Array.from(pathElements)
-    .map((p) => p.getAttribute("d"))
-    .filter(Boolean) as string[];
-
-  return paths;
-}
-
-function getStrokeStartPoint(d: string): { x: number; y: number } | null {
-  const match = d.match(/M\s*([\d.]+)[ ,]([\d.]+)/);
-  if (!match) return null;
-
-  return {
-    x: parseFloat(match[1]),
-    y: parseFloat(match[2]),
-  };
-}
-
-function kanjiToSvgName(kanji: string) {
-  const codePoint = kanji.codePointAt(0);
-  if (!codePoint) throw new Error("Invalid kanji");
-
-  return codePoint.toString(16).padStart(5, "0") + ".svg";
 }

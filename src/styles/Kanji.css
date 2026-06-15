@@ -89,6 +89,26 @@
     margin-bottom: var(--space-4);
 }
 
+.kanji-write-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    background: var(--surface-strong);
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.kanji-write-link:hover {
+    background: var(--surface-strong-hover);
+    color: #ffffff;
+}
+
 .kanji-vocab-section {
     display: flex;
     flex-wrap: wrap;
@@ -118,8 +138,8 @@
 }
 
 .kanji-vocab-word {
-    font-size: var(--text-md);
-    font-weight: 600;
+    font-size: var(--text-lg);
+    font-weight: 400;
     color: #fff;
 }
 

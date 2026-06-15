@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import kanji from "../data/kanji.json";
 import vocab from "../data/vocab.json";
 import "../styles/Kanji.css";
@@ -98,6 +98,12 @@ export default function Kanji() {
 
       <div className="kanji-stroke-section">
         <KanjiStrokeViewer kanji={kanjiObj.character} />
+        <Link
+          to={`/write?kanji=${encodeURIComponent(kanjiObj.character)}`}
+          className="kanji-write-link"
+        >
+          ✏️ Practice writing
+        </Link>
       </div>
 
       <div className="kanji-vocab-section">

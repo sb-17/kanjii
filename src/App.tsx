@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Learn from "./pages/Learn";
 import Cards from "./pages/Cards";
 import Practice from "./pages/Practice";
+import Write from "./pages/Write";
 import SetDetail from "./pages/SetDetail";
 import Kanji from "./pages/Kanji";
 import KanjiList from "./pages/KanjiList";
@@ -51,6 +52,7 @@ export default function App() {
             <Route path="/kanji/:char" element={<Kanji />} />
             <Route path="/cards" element={<Cards />} />
             <Route path="/practice" element={<Practice />} />
+            <Route path="/write" element={<Write />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
             </Routes>

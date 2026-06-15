@@ -89,20 +89,3 @@
     font-size: var(--text-md);
     color: var(--text);
 }
-
-.kanji-answer-link {
-    margin: var(--space-4) auto 0;
-    display: block;
-    width: fit-content;
-    text-align: center;
-    font-size: clamp(2rem, 8vw, 3rem);
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 1px dashed var(--accent);
-    transition: color 0.2s ease;
-}
-
-.kanji-answer-link:hover {
-    color: var(--accent-hover);
-    border-bottom-style: solid;
-}

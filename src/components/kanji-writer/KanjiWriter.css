@@ -1,0 +1,107 @@
+.kanji-writer {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+}
+
+.kanji-writer-canvas {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #1e1e1e;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    touch-action: none;
+    display: block;
+    cursor: crosshair;
+}
+
+.kw-grid {
+    stroke: var(--border);
+    stroke-width: 0.5;
+}
+
+.kw-template {
+    fill: none;
+    stroke: #888;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.4;
+}
+
+.kw-template.current {
+    stroke: var(--accent);
+    opacity: 0.6;
+}
+
+.kw-startdot {
+    fill: var(--accent);
+}
+
+.kw-ink {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.kw-live {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.kw-live.miss {
+    stroke: var(--error);
+}
+
+.kanji-writer-status {
+    text-align: center;
+    margin-top: var(--space-3);
+    font-size: var(--text-md);
+    font-weight: 600;
+    min-height: 1.6em;
+}
+
+.kw-done {
+    color: var(--success);
+}
+
+.kw-miss {
+    color: var(--error);
+}
+
+.kw-progress {
+    color: var(--text-muted);
+}
+
+.kanji-writer-actions {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: center;
+    margin-top: var(--space-2);
+}
+
+.kw-button {
+    background: var(--surface-strong);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.kw-button:hover {
+    background: var(--surface-strong-hover);
+}
+
+.kw-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}

@@ -1,13 +1,9 @@
 import "../styles/Settings.css";
-import { useState } from "react";
-import { loadSettings, saveSettings } from "../storage/settings";
 import type { KanjiProgress } from "../types/kanjiProgress";
-import type { Settings } from "../types/settingsType";
 import { useProgress } from "../context/ProgressContext";
 
 export default function Settings() {
   const { progress, replaceProgress } = useProgress();
-  const [practiceSettings, setPracticeSettings] = useState<Settings>(loadSettings());
 
   const handleExport = () => {
     const blob = new Blob([JSON.stringify(progress, null, 2)], {
@@ -41,20 +37,6 @@ export default function Settings() {
     reader.readAsText(file);
   };
 
-  const handlePracticeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, checked } = e.target;
-
-    const settings = loadSettings();
-
-    const updatedSettings: Settings = {
-        ...settings,
-        [id]: checked,
-    };
-
-    setPracticeSettings(updatedSettings);
-    saveSettings(updatedSettings);
-  };
-
   return (
     <div className="page">
       <h1 className="page-title">Settings</h1>
@@ -81,28 +63,6 @@ export default function Settings() {
               onChange={handleImport}
               hidden
             />
-          </label>
-        </div>
-      </div>
-      <div className="settings-card surface-card">
-        <strong>Practice</strong>
-
-        <p className="settings-description">
-          Select what you want to practice.
-        </p>
-
-        <div className="settings-checkboxes">
-          <label className="settings-checkbox">
-            <input type="checkbox" id="kanjiKnown" checked={practiceSettings.kanjiKnown} onChange={handlePracticeChange} />
-            <span>Known kanji</span>
-          </label>
-          <label className="settings-checkbox">
-            <input type="checkbox" id="kanjiLearning" checked={practiceSettings.kanjiLearning} onChange={handlePracticeChange} />
-            <span>Learning kanji</span>
-          </label>
-          <label className="settings-checkbox">
-            <input type="checkbox" id="vocab" checked={practiceSettings.vocab} onChange={handlePracticeChange} />
-            <span>Vocabulary</span>
           </label>
         </div>
       </div>

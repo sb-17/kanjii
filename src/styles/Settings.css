@@ -21,28 +21,6 @@
     flex-wrap: wrap;
 }
 
-.settings-checkboxes {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-}
-
-.settings-checkbox {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    cursor: pointer;
-    font-size: var(--text-base);
-    color: var(--text);
-}
-
-.settings-checkbox input {
-    width: 1.1rem;
-    height: 1.1rem;
-    accent-color: var(--accent);
-    cursor: pointer;
-}
-
 .settings-button,
 .settings-import {
     background: var(--surface-strong);
