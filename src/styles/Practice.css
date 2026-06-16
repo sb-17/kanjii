@@ -113,3 +113,10 @@
     color: var(--text-muted);
     font-style: italic;
 }
+
+.practice-caughtup {
+    margin: 0 0 var(--space-3);
+    text-align: center;
+    font-size: var(--text-sm);
+    color: var(--success);
+}

@@ -13,6 +13,7 @@ import Kanji from "./pages/Kanji";
 import KanjiList from "./pages/KanjiList";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
+import Support from "./pages/Support";
 import { ProgressProvider } from "./context/ProgressContext";
 import "./App.css";
 
@@ -60,6 +61,7 @@ export default function App() {
             <Route path="/words" element={<MyWords />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
+            <Route path="/support" element={<Support />} />
             {/* redirects from the old paths */}
             <Route path="/kanji-list" element={<Navigate to="/kanji" replace />} />
             <Route path="/learn" element={<Navigate to="/sets" replace />} />

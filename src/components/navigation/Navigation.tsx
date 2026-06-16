@@ -31,6 +31,7 @@ const navGroups: NavGroup[] = [
     items: [
       { id: "settings", label: "Settings", path: "/settings" },
       { id: "about", label: "About", path: "/about" },
+      { id: "support", label: "Support me", path: "/support" },
     ],
   },
 ];

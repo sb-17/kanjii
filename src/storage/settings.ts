@@ -3,7 +3,12 @@ import { readWithMigration, writeValue } from "./db";
 
 const STORAGE_KEY = "kanjii:settings";
 
-const DEFAULTS: Settings = { writeMode: "screen", guide: true, writePool: "both" };
+const DEFAULTS: Settings = {
+  writeMode: "screen",
+  guide: true,
+  writePool: "both",
+  practiceScope: "smart",
+};
 
 // In-memory source of truth, hydrated once at startup (see hydrateSettings).
 let cache: Settings = { ...DEFAULTS };

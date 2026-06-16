@@ -7,4 +7,6 @@ export type Vocab = {
   context?: string;
   // Optional: epoch ms when the word was first added (used for "recently added").
   addedAt?: number;
+  // Optional spaced-repetition state (Leitner box, when next due, last reviewed).
+  srs?: { box: number; due: number; reviewed: number };
 };

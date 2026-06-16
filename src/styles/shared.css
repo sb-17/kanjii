@@ -12,6 +12,44 @@
     align-items: center;
 }
 
+/* reusable segmented control (Practice/Cards scope tabs, etc.) */
+.scope-tabs {
+    display: inline-flex;
+    align-self: center;
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: var(--space-5);
+}
+
+.scope-tab {
+    background: var(--surface-strong);
+    color: var(--text-muted);
+    border: none;
+    border-radius: 0;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.scope-tab:not(:last-child) {
+    border-right: 1px solid var(--border);
+}
+
+.scope-tab:hover:not(.active) {
+    background: var(--surface-strong-hover);
+    color: #ffffff;
+}
+
+.scope-tab.active {
+    background: var(--accent);
+    color: #ffffff;
+}
+
 .page-title {
     font-size: var(--text-xl);
     font-weight: 700;

@@ -54,6 +54,8 @@ export function mergeVocab(
     const context =
       typeof r.context === "string" && r.context.trim() ? r.context.trim() : undefined;
     const importedAddedAt = typeof r.addedAt === "number" ? r.addedAt : undefined;
+    const importedSrs =
+      r.srs && typeof r.srs === "object" ? (r.srs as Vocab["srs"]) : undefined;
 
     const key = `${word}|${reading}`;
     const existing = map.get(key);
@@ -67,6 +69,8 @@ export function mergeVocab(
       context: context ?? existing?.context,
       // keep the original add time; fall back to the imported one
       addedAt: existing?.addedAt ?? importedAddedAt,
+      // keep existing review progress; otherwise take the imported state
+      srs: existing?.srs ?? importedSrs,
     });
   }
 
