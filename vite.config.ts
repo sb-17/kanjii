@@ -1,6 +1,28 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { copyFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+// GitHub Pages has no SPA rewrite, so deep links / refreshes on client routes
+// (e.g. /kanjii/kanji) would 404. Serving a 404.html that's a copy of index.html
+// lets the app boot and React Router resolve the route. Runs after the bundle is
+// written so it picks up the current hashed asset names.
+const spaFallback = () => ({
+  name: "spa-404-fallback",
+  // writeBundle runs after index.html is on disk; order/sequential keep it from
+  // racing the other plugins' close hooks.
+  writeBundle: {
+    order: "post" as const,
+    sequential: true,
+    handler() {
+      copyFileSync(
+        resolve(__dirname, "docs/index.html"),
+        resolve(__dirname, "docs/404.html"),
+      );
+    },
+  },
+});
 
 export default defineConfig({
   base: "/kanjii/",
@@ -42,6 +64,7 @@ export default defineConfig({
         ],
       },
     }),
+    spaFallback(),
   ],
   build: {
     outDir: "docs",

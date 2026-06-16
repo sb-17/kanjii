@@ -40,7 +40,7 @@ function AnalyticsTracker() {
 export default function App() {
   return (
     <ProgressProvider>
-      <Router basename="/kanjii">
+      <Router basename={import.meta.env.BASE_URL}>
         <AnalyticsTracker />
 
         <div className="app-container">
