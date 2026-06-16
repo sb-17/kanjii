@@ -89,3 +89,27 @@
     font-size: var(--text-md);
     color: var(--text);
 }
+
+.practice-context-toggle {
+    display: block;
+    margin: var(--space-3) auto 0;
+    background: none;
+    border: none;
+    color: var(--text-faint);
+    font-size: var(--text-sm);
+    cursor: pointer;
+}
+
+.practice-context-toggle:hover {
+    color: var(--accent);
+}
+
+.practice-context {
+    margin: var(--space-2) auto 0;
+    max-width: 480px;
+    text-align: center;
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--text-muted);
+    font-style: italic;
+}

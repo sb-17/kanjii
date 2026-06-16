@@ -18,7 +18,12 @@ export default function Cards() {
     () =>
       userVocab
         .filter((v) => isVocabAvailable(v, progress))
-        .map((v) => ({ jp: v.word, en: v.meanings, reading: v.reading })),
+        .map((v) => ({
+          jp: v.word,
+          en: v.meanings,
+          reading: v.reading,
+          context: v.context,
+        })),
     [progress, userVocab],
   );
 
@@ -88,6 +93,9 @@ export default function Cards() {
             <span className="card-label">Japanese</span>
             <h1 className="japanese-word">{question.jp}</h1>
             <p className="japanese-reading">（{question.reading}）</p>
+            {question.context && (
+              <p className="card-context">{question.context}</p>
+            )}
             <span className="tap-hint">Tap to flip back</span>
           </div>
 

@@ -20,6 +20,7 @@
   --accent-hover: #80bfff;
   --success: #5fd07a;
   --error: #ff6b6b;
+  --warning: #e6b566;
 
   /* ---- Typography scale ---- */
   --text-xs: 0.8rem;

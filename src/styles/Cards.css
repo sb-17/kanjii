@@ -76,6 +76,21 @@
     margin: 0;
 }
 
+.card-context {
+    margin: var(--space-3) 0 0;
+    max-width: 90%;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 .tap-hint {
     position: absolute;
     bottom: var(--space-4);

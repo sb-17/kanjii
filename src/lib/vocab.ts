@@ -51,10 +51,23 @@ export function mergeVocab(
       Array.isArray(r.kanji) && r.kanji.length
         ? (r.kanji as unknown[]).map(String)
         : extractKanji(word);
+    const context =
+      typeof r.context === "string" && r.context.trim() ? r.context.trim() : undefined;
+    const importedAddedAt = typeof r.addedAt === "number" ? r.addedAt : undefined;
 
-    const entry: Vocab = { word, reading, meanings, kanji };
-    if (!map.has(keyOf(entry))) added++;
-    map.set(keyOf(entry), entry);
+    const key = `${word}|${reading}`;
+    const existing = map.get(key);
+    if (!existing) added++;
+    map.set(key, {
+      word,
+      reading,
+      meanings,
+      kanji,
+      // keep an existing context unless the import provides one
+      context: context ?? existing?.context,
+      // keep the original add time; fall back to the imported one
+      addedAt: existing?.addedAt ?? importedAddedAt,
+    });
   }
 
   return { merged: [...map.values()], added };

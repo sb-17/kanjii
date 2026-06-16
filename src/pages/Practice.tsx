@@ -14,6 +14,7 @@ export default function Practice() {
   const [answer, setAnswer] = useState<string>("");
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [revealed, setRevealed] = useState<boolean>(false);
+  const [showContext, setShowContext] = useState<boolean>(false);
 
   const userVocab = loadUserVocab();
 
@@ -23,7 +24,12 @@ export default function Practice() {
     () =>
       userVocab
         .filter((v) => isVocabAvailable(v, progress))
-        .map((v) => ({ jp: v.word, en: v.meanings, reading: v.reading })),
+        .map((v) => ({
+          jp: v.word,
+          en: v.meanings,
+          reading: v.reading,
+          context: v.context,
+        })),
     [progress, userVocab],
   );
 
@@ -42,6 +48,7 @@ export default function Practice() {
     setAnswer("");
     setFeedback(null);
     setRevealed(false);
+    setShowContext(false);
   };
 
   const handleSubmit = () => {
@@ -144,6 +151,19 @@ export default function Practice() {
               ? `${question.jp} (${question.reading})`
               : question.en.join(", ")}
           </p>
+        )}
+
+        {question.context && (
+          <button
+            type="button"
+            className="practice-context-toggle"
+            onClick={() => setShowContext((s) => !s)}
+          >
+            {showContext ? "Hide context" : "Show context"}
+          </button>
+        )}
+        {showContext && question.context && (
+          <p className="practice-context">{question.context}</p>
         )}
       </div>
     </div>

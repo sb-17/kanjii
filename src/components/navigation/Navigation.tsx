@@ -15,6 +15,7 @@ const navGroups: NavGroup[] = [
       { id: "kanji", label: "All kanji", path: "/kanji" },
       { id: "sets", label: "Sets", path: "/sets" },
       { id: "write", label: "Write", path: "/write" },
+      { id: "print", label: "Print", path: "/print" },
     ],
   },
   {
