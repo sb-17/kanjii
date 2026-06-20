@@ -31,6 +31,25 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "apple-touch-icon.png"],
+      workbox: {
+        // 6,700+ KanjiVG stroke files (~44 MB) are too many to precache, so they
+        // are fetched on demand. Cache each one the first time it's requested so
+        // writing/stroke practice for any kanji you've opened works offline too.
+        runtimeCaching: [
+          {
+            urlPattern: /\/kanjiVG\/.*\.svg$/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "kanjivg-strokes",
+              expiration: {
+                maxEntries: 7000,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
+      },
       manifest: {
         name: "Kanjii",
         short_name: "Kanjii",
