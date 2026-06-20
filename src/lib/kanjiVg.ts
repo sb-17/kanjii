@@ -47,6 +47,36 @@ export async function loadKanjiStrokes(kanji: string): Promise<string[]> {
   }
 }
 
+// Warm the service-worker runtime cache for a set of kanji so their stroke data
+// is available offline without opening each one first. Fetches in small batches
+// to avoid a request storm; skips ones already loaded this session; failures are
+// ignored (offline / missing file just leaves that entry unwarmed). The SW's
+// CacheFirst rule stores each response, so the page-side fetch only needs to
+// complete — it doesn't parse here, to keep boot light.
+const prefetched = new Set<string>();
+
+export async function prefetchKanjiStrokes(kanji: string[]): Promise<void> {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return;
+
+  const targets = kanji.filter(
+    (k) => !strokeCache.has(k) && !prefetched.has(k),
+  );
+
+  const BATCH = 6;
+  for (let i = 0; i < targets.length; i += BATCH) {
+    await Promise.all(
+      targets.slice(i, i + BATCH).map(async (k) => {
+        prefetched.add(k);
+        try {
+          await fetch(`/kanjii/kanjiVG/${kanjiToSvgName(k)}`);
+        } catch {
+          prefetched.delete(k); // let a later attempt retry
+        }
+      }),
+    );
+  }
+}
+
 // The start point (the `M x y`) of a stroke path's `d`, for drawing order dots.
 export function strokeStartPoint(d: string): { x: number; y: number } | null {
   const match = d.match(/M\s*([\d.]+)[ ,]([\d.]+)/);
