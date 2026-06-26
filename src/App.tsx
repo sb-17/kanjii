@@ -14,6 +14,7 @@ import KanjiList from "./pages/KanjiList";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
 import Support from "./pages/Support";
+import Analytics from "./pages/Analytics";
 import { ProgressProvider } from "./context/ProgressContext";
 import "./App.css";
 
@@ -54,6 +55,7 @@ export default function App() {
             <Suspense fallback={<div className="page">Loading…</div>}>
             <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/analytics" element={<Analytics />} />
             <Route path="/kanji" element={<KanjiList />} />
             <Route path="/map" element={<KanjiMap />} />
             <Route path="/kanji/:char" element={<Kanji />} />

@@ -8,7 +8,12 @@ type NavItem = { id: string; label: string; path: string; end?: boolean };
 type NavGroup = { title?: string; items: NavItem[] };
 
 const navGroups: NavGroup[] = [
-  { items: [{ id: "home", label: "Home", path: "/", end: true }] },
+  {
+    items: [
+      { id: "home", label: "Home", path: "/", end: true },
+      { id: "analytics", label: "Analytics", path: "/analytics" },
+    ],
+  },
   {
     title: "Kanji",
     items: [
