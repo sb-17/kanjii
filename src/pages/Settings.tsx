@@ -1,11 +1,25 @@
+import { useState } from "react";
 import "../styles/Settings.css";
 import type { KanjiProgress } from "../types/kanjiProgress";
 import { useProgress } from "../context/ProgressContext";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
 import { mergeVocab } from "../lib/vocab";
+import { getThemePref, setThemePref, type ThemePref } from "../storage/theme";
+
+const THEMES: { id: ThemePref; label: string }[] = [
+  { id: "system", label: "System" },
+  { id: "light", label: "Light" },
+  { id: "dark", label: "Dark" },
+];
 
 export default function Settings() {
   const { progress, replaceProgress } = useProgress();
+  const [theme, setTheme] = useState<ThemePref>(getThemePref);
+
+  const changeTheme = (next: ThemePref) => {
+    setTheme(next);
+    setThemePref(next);
+  };
 
   const handleExport = () => {
     const blob = new Blob([JSON.stringify(progress, null, 2)], {
@@ -78,6 +92,26 @@ export default function Settings() {
   return (
     <div className="page">
       <h1 className="page-title">Settings</h1>
+
+      <div className="settings-card surface-card">
+        <strong>Appearance</strong>
+
+        <p className="settings-description">
+          Choose a light or dark look, or follow your device's system setting.
+        </p>
+
+        <div className="scope-tabs">
+          {THEMES.map((t) => (
+            <button
+              key={t.id}
+              className={`scope-tab${theme === t.id ? " active" : ""}`}
+              onClick={() => changeTheme(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="settings-card surface-card">
         <strong>Kanji progress</strong>

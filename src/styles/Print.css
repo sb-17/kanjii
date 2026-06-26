@@ -46,7 +46,7 @@
 
 .print-source-btn.active {
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
 }
 
 .print-select,
@@ -87,7 +87,7 @@
 .print-button {
     align-self: flex-start;
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     border: none;
     border-radius: var(--radius);
     padding: var(--space-3) var(--space-5);
@@ -135,7 +135,7 @@
 }
 
 .print-pick-btn:hover {
-    color: #fff;
+    color: var(--text-strong);
 }
 
 .print-chips {
@@ -163,7 +163,7 @@
 
 .print-chip.active {
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     border-color: var(--accent);
 }
 

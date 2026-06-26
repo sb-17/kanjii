@@ -17,7 +17,7 @@
 }
 
 .write-prompt strong {
-    color: #ffffff;
+    color: var(--text-strong);
 }
 
 .write-reading {
@@ -59,12 +59,12 @@
 
 .write-toggle:not(.active):hover {
     background: var(--surface-strong-hover);
-    color: #ffffff;
+    color: var(--text-strong);
 }
 
 .write-toggle.active {
     background: var(--accent);
-    color: #ffffff;
+    color: var(--on-accent);
 }
 
 .write-toggle-label {
@@ -102,7 +102,7 @@
 
 .write-answer {
     font-size: clamp(3rem, 12vw, 5rem);
-    color: #ffffff;
+    color: var(--text-strong);
     text-align: center;
     line-height: 1.1;
 }
@@ -117,7 +117,7 @@
 
 .write-action {
     background: var(--surface-strong);
-    color: #ffffff;
+    color: var(--text-strong);
     border: none;
     border-radius: var(--radius);
     padding: var(--space-3) var(--space-6);

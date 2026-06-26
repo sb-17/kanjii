@@ -81,12 +81,13 @@
   stroke-width: 2;
 }
 .kanji-graph-edge.edge-radical {
-  stroke: rgba(255, 255, 255, 0.18);
+  stroke: var(--text-faint);
+  opacity: 0.5;
 }
 
 /* ---- Nodes ---- */
 .kanji-graph-label {
-  fill: #fff;
+  fill: var(--text-strong);
   font-family: "Sawarabi Mincho", system-ui, serif;
   user-select: none;
   pointer-events: none;
@@ -147,13 +148,13 @@
   stroke: var(--accent);
 }
 .kanji-graph-node.connector-phon .kanji-graph-label {
-  fill: #cfe6ff;
+  fill: var(--accent);
 }
 .kanji-graph-node.connector-reading .kanji-graph-disc {
   stroke: var(--warning);
 }
 .kanji-graph-node.connector-reading .kanji-graph-label {
-  fill: #f0d6a8;
+  fill: var(--warning);
 }
 
 .kanji-graph-empty {

@@ -11,11 +11,17 @@ import { hydrateSettings } from "./storage/settings";
 import { hydrateUserVocab } from "./storage/userVocab";
 import { requestPersistence } from "./storage/db";
 import { prefetchKanjiStrokes } from "./lib/kanjiVg";
+import { applyTheme, initThemeSync } from "./storage/theme";
 import { registerSW } from "virtual:pwa-register";
 
 // Hydrate local data (IndexedDB) into the in-memory caches before the first
 // render, so the rest of the app can keep reading storage synchronously.
 async function boot() {
+  // The inline script in index.html already set the theme before paint; re-apply
+  // (in case storage changed) and keep it in sync with the OS for "system".
+  applyTheme();
+  initThemeSync();
+
   await Promise.all([hydrateProgress(), hydrateSettings(), hydrateUserVocab()]);
   void requestPersistence();
 

@@ -34,7 +34,7 @@
 .kanji-meanings {
     font-size: clamp(1.1rem, 4vw, 1.5rem);
     font-weight: 600;
-    color: #fff;
+    color: var(--text-strong);
 }
 
 .kanji-readings-frequency-strokes {
@@ -46,7 +46,7 @@
 }
 
 .kanji-readings-frequency-strokes strong {
-    color: #fff;
+    color: var(--text-strong);
 }
 
 .kanji-controls {
@@ -63,8 +63,8 @@
 }
 
 .kanji-status-select {
-    background: #222;
-    color: #eee;
+    background: var(--surface-strong);
+    color: var(--text);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: var(--space-2) var(--space-3);
@@ -74,7 +74,7 @@
 }
 
 .kanji-status-select:hover {
-    background: #2a2a2a;
+    background: var(--surface-strong-hover);
 }
 
 .kanji-status-select:focus {
@@ -90,7 +90,7 @@
     width: 100%;
     box-sizing: border-box;
     background: var(--surface-strong);
-    color: #ffffff;
+    color: var(--text-strong);
     text-decoration: none;
     border-radius: var(--radius);
     padding: var(--space-2) var(--space-4);
@@ -101,7 +101,7 @@
 
 .kanji-write-link:hover {
     background: var(--surface-strong-hover);
-    color: #ffffff;
+    color: var(--text-strong);
 }
 
 .kanji-strokes {
@@ -137,7 +137,7 @@
     display: block;
     font-size: var(--text-md);
     font-weight: 700;
-    color: #fff;
+    color: var(--text-strong);
     margin-bottom: var(--space-3);
 }
 
@@ -153,7 +153,7 @@
 .kanji-vocab-word {
     font-size: var(--text-lg);
     font-weight: 400;
-    color: #fff;
+    color: var(--text-strong);
 }
 
 .kanji-vocab-reading {

@@ -7,7 +7,7 @@
 
 .kanji-stroke-section strong {
     font-size: clamp(0.8rem, 4vw, 1rem);
-    color: #fff;
+    color: var(--text-strong);
 }
 
 .kanji-stroke-container {
@@ -15,7 +15,7 @@
     overflow-x: auto;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    background-color: #1c1c1c;
+    background-color: var(--surface-sunken);
     box-sizing: border-box;
     max-width: 100%;
 }
@@ -26,6 +26,7 @@
     height: auto;
     border-right: 1px solid var(--border);
     box-sizing: border-box;
+    color: var(--text-strong); /* stroke paths use currentColor */
 }
 
 .kanji-frame:last-child {

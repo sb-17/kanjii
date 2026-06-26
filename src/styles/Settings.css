@@ -4,7 +4,7 @@
 }
 
 .settings-card strong {
-    color: white;
+    color: var(--text-strong);
     font-size: var(--text-md);
 }
 
@@ -28,7 +28,7 @@
     border-radius: var(--radius);
     cursor: pointer;
     font-size: var(--text-sm);
-    color: white;
+    color: var(--text-strong);
     border: none;
     display: inline-flex;
     align-items: center;
@@ -42,7 +42,7 @@
 .settings-button:hover,
 .settings-import:hover {
     background: var(--surface-strong-hover);
-    color: white;
+    color: var(--text-strong);
 }
 
 .settings-import input {

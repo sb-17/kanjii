@@ -7,11 +7,14 @@
 
   color-scheme: dark;
 
-  /* ---- Color ---- */
+  /* ---- Color (dark, default) ---- */
   --bg: #242424;
+  --surface-sunken: #1c1c1c; /* canvases, flashcards, inset wells */
   --text: rgba(255, 255, 255, 0.92);
+  --text-strong: #ffffff; /* strongest foreground on a surface */
   --text-muted: #b3b3b3;
   --text-faint: #8a8a8a;
+  --on-accent: #ffffff; /* text/icons on accent or status-colored fills */
   --surface: #555555;
   --surface-strong: #484848;
   --surface-strong-hover: #3c3c3c;
@@ -53,6 +56,32 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ---- Light theme ---- */
+/* The boot script in index.html resolves the saved preference (system/light/
+   dark) to an effective theme and sets data-theme on <html> before first paint,
+   so there's no flash. Only the neutral tokens flip; accent/status hues are
+   nudged darker for contrast on a light background. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f6f7f9;
+  --surface-sunken: #eceef1;
+  --text: #1f2329;
+  --text-strong: #0e1116;
+  --text-muted: #5b626c;
+  --text-faint: #888f99;
+  --on-accent: #ffffff;
+  --surface: #e7e9ec;
+  --surface-strong: #dfe2e6;
+  --surface-strong-hover: #d2d6db;
+  --border: rgba(0, 0, 0, 0.12);
+  --accent: #1f7ae0;
+  --accent-hover: #1763c4;
+  --success: #2e9e51;
+  --error: #d93b3b;
+  --warning: #b07a1e;
 }
 
 a {

@@ -41,17 +41,17 @@
 
 .kanji {
   font-size: clamp(1rem, 5vw, 1.5rem);
-  color: white;
+  color: var(--text-strong);
 }
 
 .kanji-meanings {
   font-size: clamp(1rem, 5vw, 1.5rem);
-  color: white;
+  color: var(--text-strong);
 }
 
 .kanji-card-status-select {
-    background: #222;
-    color: #eee;
+    background: var(--surface-strong);
+    color: var(--text);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: var(--space-2) var(--space-3);
@@ -61,7 +61,7 @@
 }
 
 .kanji-card-status-select:hover {
-    background: #2a2a2a;
+    background: var(--surface-strong-hover);
 }
 
 .kanji-card-status-select:focus {

@@ -6,6 +6,20 @@
       name="viewport"
       content="initial-scale=1, viewport-fit=cover, width=device-width"
     />
+    <!-- Apply the saved theme before first paint to avoid a flash. -->
+    <script>
+      (function () {
+        try {
+          var p = localStorage.getItem("kanjii:theme") || "dark";
+          var light =
+            p === "light" ||
+            (p === "system" &&
+              window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: light)").matches);
+          document.documentElement.dataset.theme = light ? "light" : "dark";
+        } catch (e) {}
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/kanjii/favicon.svg" />
     <link rel="apple-touch-icon" href="/kanjii/apple-touch-icon.png" />
     <meta name="theme-color" content="#242424" />
@@ -29,8 +43,8 @@
       data-goatcounter="https://kanjii.goatcounter.com/count"
       async src="//gc.zgo.at/count.js">
     </script>
-    <script type="module" crossorigin src="/kanjii/assets/index-CAumJSm0.js"></script>
-    <link rel="stylesheet" crossorigin href="/kanjii/assets/index-BPsRgNHp.css">
+    <script type="module" crossorigin src="/kanjii/assets/index-BeiUIVzG.js"></script>
+    <link rel="stylesheet" crossorigin href="/kanjii/assets/index-iYELShFP.css">
   <link rel="manifest" href="/kanjii/manifest.webmanifest"></head>
   <body>
     <div id="root"></div>

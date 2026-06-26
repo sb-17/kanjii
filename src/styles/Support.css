@@ -54,7 +54,7 @@ a.support-card:active {
 .support-card-title {
     font-size: var(--text-md);
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-strong);
 }
 
 .support-card-desc {

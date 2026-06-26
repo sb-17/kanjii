@@ -55,7 +55,7 @@ export default function KanjiStrokeViewer({ kanji }: KanjiStrokeViewerProps) {
 
               return (
                 <g key={j}>
-                  <path d={d} stroke="white" strokeWidth={3} fill="none" />
+                  <path d={d} stroke="currentColor" strokeWidth={3} fill="none" />
                   {isLast && start && (
                     <circle cx={start.x} cy={start.y} r={4} fill="red" />
                   )}

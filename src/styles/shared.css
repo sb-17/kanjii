@@ -42,12 +42,12 @@
 
 .scope-tab:hover:not(.active) {
     background: var(--surface-strong-hover);
-    color: #ffffff;
+    color: var(--text-strong);
 }
 
 .scope-tab.active {
     background: var(--accent);
-    color: #ffffff;
+    color: var(--on-accent);
 }
 
 .page-title {
@@ -56,7 +56,7 @@
     letter-spacing: -0.02em;
     line-height: 1.2;
     margin: 0 0 var(--space-5);
-    color: #ffffff;
+    color: var(--text-strong);
 }
 
 .surface-card {
@@ -76,7 +76,7 @@
     font-size: var(--text-lg);
     font-weight: 600;
     letter-spacing: -0.01em;
-    color: #ffffff;
+    color: var(--text-strong);
     margin: 0 0 var(--space-3);
 }
 
@@ -100,7 +100,7 @@
     align-items: center;
     justify-content: center;
     background: var(--surface-strong);
-    color: #fff;
+    color: var(--text-strong);
     text-decoration: none;
     border-radius: var(--radius);
     padding: var(--space-3) var(--space-5);

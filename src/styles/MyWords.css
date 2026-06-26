@@ -7,7 +7,7 @@
 }
 
 .mw-form strong {
-    color: #fff;
+    color: var(--text-strong);
 }
 
 .mw-fields {
@@ -71,7 +71,7 @@
     justify-content: center;
     gap: var(--space-2);
     background: var(--surface-strong);
-    color: #fff;
+    color: var(--text-strong);
     border: none;
     border-radius: var(--radius);
     padding: var(--space-2) var(--space-4);
@@ -87,6 +87,7 @@
 
 .mw-button-primary {
     background: var(--accent);
+    color: var(--on-accent);
 }
 
 .mw-button-primary:hover {
@@ -155,7 +156,7 @@
 
 .mw-word {
     font-size: var(--text-lg);
-    color: #fff;
+    color: var(--text-strong);
 }
 
 .mw-reading {
@@ -187,7 +188,7 @@
 
 .mw-icon-button:hover {
     background: var(--surface-strong);
-    color: #fff;
+    color: var(--text-strong);
 }
 
 .mw-delete:hover {

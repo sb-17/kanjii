@@ -19,7 +19,7 @@
     display: block;
     font-size: var(--text-xl);
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-strong);
     line-height: 1.1;
     margin-bottom: var(--space-1);
 }
@@ -36,7 +36,7 @@
     flex: 1 1 140px;
     text-align: center;
     background-color: var(--surface-strong);
-    color: white;
+    color: var(--text-strong);
     text-decoration: none;
     padding: var(--space-5) var(--space-3);
     font-size: var(--text-md);

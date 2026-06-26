@@ -33,18 +33,18 @@
     padding: 2rem;
     box-sizing: border-box;
     border-radius: var(--radius);
-    border: 1px solid var(--surface-strong);
-    background-color: #1e1e1e;
-    color: #fff;
+    border: 1px solid var(--border);
+    background-color: var(--surface-sunken);
+    color: var(--text-strong);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .flashcard-front {
-    background-color: #1a1a1a;
+    background-color: var(--surface-sunken);
 }
 
 .flashcard-back {
-    background-color: #242424;
+    background-color: var(--surface);
     transform: rotateY(180deg);
 }
 
@@ -67,7 +67,7 @@
 .japanese-word {
     font-size: clamp(2.5rem, 6vw, 3.5rem);
     margin: 0 0 0.5rem 0;
-    color: #fff;
+    color: var(--text-strong);
 }
 
 .japanese-reading {
@@ -114,7 +114,7 @@
     justify-content: center;
     align-items: center;
     background: var(--surface-strong);
-    color: #fff;
+    color: var(--text-strong);
     text-decoration: none;
     width: 100%;
     padding: var(--space-4);
@@ -128,7 +128,7 @@
 
 .practice-submit-button:hover {
     background: var(--surface-strong-hover);
-    color: white;
+    color: var(--text-strong);
 }
 
 .practice-submit-button:focus {

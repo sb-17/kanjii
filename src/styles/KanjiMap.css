@@ -144,7 +144,7 @@
   cursor: pointer;
 }
 .map-panel-close:hover {
-  color: #fff;
+  color: var(--text-strong);
 }
 
 .map-panel-glyph {
