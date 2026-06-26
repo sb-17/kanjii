@@ -1,0 +1,174 @@
+.kanji-graph {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  /* Capture all touch gestures here (the div always hit-tests, even over empty
+     SVG background) so pan/pinch never fall through to the page. */
+  touch-action: none;
+  overscroll-behavior: contain;
+  cursor: grab;
+}
+.kanji-graph:active {
+  cursor: grabbing;
+}
+
+.kanji-graph-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+.kanji-graph-svg * {
+  touch-action: none;
+}
+
+/* Zoom controls */
+.kanji-graph-zoom {
+  position: absolute;
+  right: var(--space-3);
+  bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.kanji-graph-zoom button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  line-height: 1;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+.kanji-graph-zoom button:hover {
+  background: var(--surface-strong-hover);
+}
+
+/* Cross-fade + slight scale-up whenever the scene is re-keyed (recenter). */
+.kanji-graph-scene {
+  animation: kanji-graph-in 0.28s ease;
+  transform-origin: center;
+}
+
+@keyframes kanji-graph-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ---- Edges ---- */
+.kanji-graph-edge {
+  stroke: var(--border);
+  stroke-width: 1.5;
+}
+.kanji-graph-edge.edge-phon {
+  stroke: rgba(77, 166, 255, 0.55);
+  stroke-width: 2;
+}
+.kanji-graph-edge.edge-reading {
+  stroke: rgba(230, 181, 102, 0.5);
+  stroke-width: 2;
+}
+.kanji-graph-edge.edge-radical {
+  stroke: rgba(255, 255, 255, 0.18);
+}
+
+/* ---- Nodes ---- */
+.kanji-graph-label {
+  fill: #fff;
+  font-family: "Sawarabi Mincho", system-ui, serif;
+  user-select: none;
+  pointer-events: none;
+}
+
+.kanji-graph-disc {
+  fill: var(--surface-strong);
+  stroke: var(--border);
+  stroke-width: 2;
+  transition: stroke 0.15s ease, fill 0.15s ease;
+}
+
+.kanji-graph-node.is-interactive {
+  cursor: pointer;
+}
+.kanji-graph-node.is-interactive:hover .kanji-graph-disc {
+  fill: var(--surface-strong-hover);
+}
+.kanji-graph-node:focus {
+  outline: none;
+}
+.kanji-graph-node.is-interactive:focus-visible .kanji-graph-disc {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+/* Status coloring (kanji + center nodes) */
+.kanji-graph-node.status-known .kanji-graph-disc {
+  stroke: var(--success);
+  fill: rgba(95, 208, 122, 0.16);
+}
+.kanji-graph-node.status-learning .kanji-graph-disc {
+  stroke: var(--warning);
+  fill: rgba(230, 181, 102, 0.16);
+}
+.kanji-graph-node.status-new .kanji-graph-disc {
+  stroke: var(--border);
+  fill: var(--surface-strong);
+}
+
+/* Focal kanji */
+.kanji-graph-focus-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  opacity: 0.6;
+}
+
+/* Connector nodes (shared component / reading) */
+.kanji-graph-node.node-connector .kanji-graph-disc {
+  fill: var(--surface);
+  stroke-dasharray: 4 3;
+}
+.kanji-graph-node.node-connector .kanji-graph-label {
+  fill: var(--text-muted);
+}
+.kanji-graph-node.connector-phon .kanji-graph-disc {
+  stroke: var(--accent);
+}
+.kanji-graph-node.connector-phon .kanji-graph-label {
+  fill: #cfe6ff;
+}
+.kanji-graph-node.connector-reading .kanji-graph-disc {
+  stroke: var(--warning);
+}
+.kanji-graph-node.connector-reading .kanji-graph-label {
+  fill: #f0d6a8;
+}
+
+.kanji-graph-empty {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-5);
+  transform: translateX(-50%);
+  margin: 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-4);
+  max-width: 90%;
+}

@@ -99,6 +99,12 @@ export default function Kanji() {
           >
             ✏️ Practice writing
           </Link>
+          <Link
+            to={`/map?focus=${encodeURIComponent(kanjiObj.character)}`}
+            className="kanji-write-link"
+          >
+            🕸 Connections
+          </Link>
         </div>
       </div>
 

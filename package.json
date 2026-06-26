@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:graph": "node scripts/build-kanji-graph.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

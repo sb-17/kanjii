@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navigation from "./components/navigation/Navigation";
 import Home from "./pages/Home";
@@ -16,6 +16,10 @@ import About from "./pages/About";
 import Support from "./pages/Support";
 import { ProgressProvider } from "./context/ProgressContext";
 import "./App.css";
+
+// Code-split the connection map: it pulls in the precomputed graph data, which
+// only this page needs, so it stays out of the initial bundle.
+const KanjiMap = lazy(() => import("./pages/KanjiMap"));
 
 function AnalyticsTracker() {
   const location = useLocation();
@@ -47,9 +51,11 @@ export default function App() {
           <Navigation />
 
           <main className="app-content">
+            <Suspense fallback={<div className="page">Loading…</div>}>
             <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/kanji" element={<KanjiList />} />
+            <Route path="/map" element={<KanjiMap />} />
             <Route path="/kanji/:char" element={<Kanji />} />
             <Route path="/kanji/:char/write" element={<Write />} />
             <Route path="/sets" element={<Learn />} />
@@ -67,6 +73,7 @@ export default function App() {
             <Route path="/learn" element={<Navigate to="/sets" replace />} />
             <Route path="/my-words" element={<Navigate to="/words" replace />} />
             </Routes>
+            </Suspense>
           </main>
         </div>
       </Router>
