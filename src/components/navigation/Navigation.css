@@ -103,8 +103,17 @@
         top: 0;
         left: 0;
         z-index: 20;
-        margin-left: 0;
+        /* Slide with transform (GPU-composited) instead of margin-left, which
+           triggers layout + a full repaint every frame and janks on phones. */
         transform: translateX(-100%);
+        transition: transform 0.2s ease;
+        will-change: transform;
+    }
+
+    /* neutralize the desktop margin-left collapse so only transform animates */
+    .side-nav.closed,
+    .side-nav.open {
+        margin-left: 0;
     }
 
     .side-nav.open {

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import "../styles/Analytics.css";
 import { useProgress } from "../context/ProgressContext";
 import { loadUserVocab } from "../storage/userVocab";
+import { loadEvents } from "../storage/events";
 import {
   statusBreakdown,
   frequencyBands,
@@ -10,6 +11,8 @@ import {
   srsStats,
   vocabTotals,
   vocabGrowth,
+  knownPerWeek,
+  reviewsPerDay,
 } from "../lib/analytics";
 
 export default function Analytics() {
@@ -22,10 +25,15 @@ export default function Analytics() {
   const srs = useMemo(() => srsStats(vocab, progress), [vocab, progress]);
   const totals = useMemo(() => vocabTotals(vocab, progress), [vocab, progress]);
   const growth = useMemo(() => vocabGrowth(vocab, 8), [vocab]);
+  const events = loadEvents();
+  const known = useMemo(() => knownPerWeek(events, 8), [events]);
+  const reviews = useMemo(() => reviewsPerDay(events, 14), [events]);
 
   const pct = (n: number) => (status.total ? Math.round((n / status.total) * 100) : 0);
   const boxMax = Math.max(srs.unstudied, ...srs.boxes, 1);
   const growthMax = Math.max(...growth.buckets.map((b) => b.count), 1);
+  const knownMax = Math.max(1, ...known.buckets.map((b) => Math.abs(b.net)));
+  const reviewMax = Math.max(1, ...reviews.buckets.map((b) => b.count));
 
   return (
     <div className="page">
@@ -176,6 +184,7 @@ export default function Analytics() {
               <div className="growth-bars">
                 {growth.buckets.map((b, i) => (
                   <div className="growth-col" key={i} title={`${b.count} added`}>
+                    <span className="growth-count">{b.count > 0 ? b.count : ""}</span>
                     <span
                       className="growth-fill"
                       style={{ height: `${(b.count / growthMax) * 100}%` }}
@@ -192,6 +201,72 @@ export default function Analytics() {
                 </p>
               )}
             </>
+          )}
+        </section>
+
+        {/* ---- Trends (from the event log; only from when tracking began) ---- */}
+        <section className="stat-card surface-card">
+          <h2 className="stat-card-title">Kanji → Known / week</h2>
+          {!known.hasData ? (
+            <p className="stat-note">
+              Your weekly net change shows here as you mark kanji Known (changing
+              one back counts as a dip).
+            </p>
+          ) : (
+            <>
+              <div className="signed-bars">
+                {known.buckets.map((b, i) => (
+                  <div className="signed-col" key={i}>
+                    <span className="signed-top">
+                      {b.net > 0 && <span className="signed-val">+{b.net}</span>}
+                      {b.net > 0 && (
+                        <span
+                          className="signed-fill pos"
+                          style={{ height: `${(Math.abs(b.net) / knownMax) * 100}%` }}
+                        />
+                      )}
+                    </span>
+                    <span className="signed-bottom">
+                      {b.net < 0 && (
+                        <span
+                          className="signed-fill neg"
+                          style={{ height: `${(Math.abs(b.net) / knownMax) * 100}%` }}
+                        />
+                      )}
+                      {b.net < 0 && <span className="signed-val">{b.net}</span>}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="signed-labels">
+                {known.buckets.map((b, i) => (
+                  <span key={i}>{b.label}</span>
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+
+        <section className="stat-card surface-card">
+          <h2 className="stat-card-title">Reviews / day</h2>
+          {reviews.total === 0 ? (
+            <p className="stat-note">
+              Your daily practice reviews show here.{" "}
+              <Link to="/practice">Practice →</Link>
+            </p>
+          ) : (
+            <div className="growth-bars">
+              {reviews.buckets.map((b, i) => (
+                <div className="growth-col" key={i} title={`${b.count} reviews`}>
+                  <span className="growth-count">{b.count > 0 ? b.count : ""}</span>
+                  <span
+                    className="growth-fill"
+                    style={{ height: `${(b.count / reviewMax) * 100}%` }}
+                  />
+                  <span className="growth-label">{b.label}</span>
+                </div>
+              ))}
+            </div>
           )}
         </section>
       </div>

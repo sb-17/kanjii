@@ -9,6 +9,7 @@ import {
 } from "./storage/kanjiProgress";
 import { hydrateSettings } from "./storage/settings";
 import { hydrateUserVocab } from "./storage/userVocab";
+import { hydrateEvents } from "./storage/events";
 import { requestPersistence } from "./storage/db";
 import { prefetchKanjiStrokes } from "./lib/kanjiVg";
 import { applyTheme, initThemeSync } from "./storage/theme";
@@ -22,7 +23,12 @@ async function boot() {
   applyTheme();
   initThemeSync();
 
-  await Promise.all([hydrateProgress(), hydrateSettings(), hydrateUserVocab()]);
+  await Promise.all([
+    hydrateProgress(),
+    hydrateSettings(),
+    hydrateUserVocab(),
+    hydrateEvents(),
+  ]);
   void requestPersistence();
 
   createRoot(document.getElementById("root")!).render(

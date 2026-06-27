@@ -5,6 +5,7 @@ import type { PracticeScope, Settings } from "../types/settingsType";
 import { isVocabAvailable } from "../lib/vocab";
 import { scopeVocab, pickWord, applyReview, isDue } from "../lib/srs";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
+import { logReview } from "../storage/events";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { useProgress } from "../context/ProgressContext";
 import EmptyState from "../components/empty-state/EmptyState";
@@ -92,6 +93,7 @@ export default function Practice() {
     const next = vocab.map((v) => (keyOf(v) === keyOf(current) ? { ...v, srs } : v));
     setVocab(next);
     saveUserVocab(next);
+    logReview(current.word, correct);
     setCurrent({ ...current, srs });
     setGraded(true);
     return next;

@@ -6,6 +6,7 @@ import {
   updateKanjiStatus,
   saveKanjiProgress,
 } from "../storage/kanjiProgress";
+import { logKanjiStatus } from "../storage/events";
 
 type ProgressContextValue = {
   progress: KanjiProgress;
@@ -22,7 +23,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const [progress, setProgress] = useState<KanjiProgress>(loadKanjiProgress);
 
   const setStatus = useCallback((character: string, status: KanjiStatus) => {
-    setProgress((prev) => updateKanjiStatus(prev, character, status));
+    // Read the prior status from the cache (always current) before updating, so
+    // we log the real transition for analytics — net math handles reverts.
+    const prev = loadKanjiProgress()[character] ?? "new";
+    if (prev !== status) logKanjiStatus(character, prev, status);
+    setProgress((p) => updateKanjiStatus(p, character, status));
   }, []);
 
   const replaceProgress = useCallback((next: KanjiProgress) => {

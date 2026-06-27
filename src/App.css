@@ -16,6 +16,7 @@
   overflow-x: hidden;
   scrollbar-gutter: stable;
   box-sizing: border-box;
-  padding-top: 4rem;
+  /* just enough to clear the fixed hamburger (top 12px + 40px tall = 52px) */
+  padding-top: 2.75rem;
   padding-bottom: env(safe-area-inset-bottom);
 }

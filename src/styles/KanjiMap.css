@@ -1,6 +1,6 @@
 .kanji-map {
-  height: calc(100vh - 4rem);
-  height: calc(100dvh - 4rem);
+  height: calc(100vh - 2.75rem);
+  height: calc(100dvh - 2.75rem);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -210,7 +210,8 @@
 @media (max-width: 879px) {
   .map-controls {
     gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
+    /* keep enough top padding to clear the fixed hamburger button */
+    padding: var(--space-3) var(--space-3) var(--space-2);
   }
   .map-panel-toggle {
     padding: var(--space-2) var(--space-3);

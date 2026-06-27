@@ -9,6 +9,7 @@ import type { Vocab } from "../types/vocabType";
 import { isKnownOrLearning } from "../storage/kanjiProgress";
 import { isVocabAvailable } from "./vocab";
 import { MAX_BOX } from "./srs";
+import type { AppEvent } from "../storage/events";
 
 const KANJI = kanjiData as Kanji[];
 export const TOTAL_KANJI = KANJI.length;
@@ -157,4 +158,71 @@ export function vocabGrowth(
   }
 
   return { buckets, older, untracked };
+}
+
+// ---- Trends (from the event log) ----
+
+export type SignedWeek = { label: string; net: number };
+
+// Net change in the Known set per week — derived from raw transitions, so a
+// revert (Known → Learning) subtracts and shows as a downward bar.
+export function knownPerWeek(
+  events: AppEvent[],
+  weeks = 8,
+  now = Date.now(),
+): { buckets: SignedWeek[]; hasData: boolean } {
+  const buckets: SignedWeek[] = [];
+  for (let j = 0; j < weeks; j++) {
+    const weeksAgo = weeks - 1 - j;
+    buckets.push({ label: weeksAgo === 0 ? "now" : `${weeksAgo}w`, net: 0 });
+  }
+
+  let hasData = false;
+  for (const e of events) {
+    if (e.k !== "kanji") continue;
+    const delta = (e.to === "known" ? 1 : 0) - (e.f === "known" ? 1 : 0);
+    if (delta === 0) continue;
+    const ageWeeks = Math.floor((now - e.t) / WEEK_MS);
+    if (ageWeeks < 0) {
+      buckets[weeks - 1].net += delta;
+      hasData = true;
+    } else if (ageWeeks < weeks) {
+      buckets[weeks - 1 - ageWeeks].net += delta;
+      hasData = true;
+    }
+  }
+  return { buckets, hasData };
+}
+
+export type DayCount = { label: string; count: number };
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Practice reviews per day over the last `days` days.
+export function reviewsPerDay(
+  events: AppEvent[],
+  days = 14,
+  now = Date.now(),
+): { buckets: DayCount[]; total: number } {
+  const midnight = new Date(now);
+  midnight.setHours(0, 0, 0, 0);
+  const startMs = midnight.getTime() - (days - 1) * DAY_MS;
+
+  const buckets: DayCount[] = [];
+  for (let j = 0; j < days; j++) {
+    const d = new Date(startMs + j * DAY_MS);
+    buckets.push({ label: `${d.getDate()}`, count: 0 });
+  }
+
+  let total = 0;
+  for (const e of events) {
+    if (e.k !== "review" || e.t < startMs) continue;
+    const d = new Date(e.t);
+    d.setHours(0, 0, 0, 0);
+    const idx = Math.round((d.getTime() - startMs) / DAY_MS);
+    if (idx >= 0 && idx < days) {
+      buckets[idx].count++;
+      total++;
+    }
+  }
+  return { buckets, total };
 }
