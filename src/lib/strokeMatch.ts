@@ -12,6 +12,8 @@ export type MatchThresholds = {
   minLenRatio: number; // user stroke must be at least this fraction of template length
   dotLen: number; // template strokes shorter than this are treated as dots
   dotRadius: number; // a tap within this of a dot counts
+  chordMin: number; // below this the template's chord is too short to give a direction
+  minChordCos: number; // user and template chords must agree to at least this cosine
 };
 
 // Tuned on a real touchscreen (2026-06-15).
@@ -21,6 +23,8 @@ export const DEFAULT_THRESHOLDS: MatchThresholds = {
   minLenRatio: 0.35,
   dotLen: 8,
   dotRadius: 18,
+  chordMin: 8,
+  minChordCos: 0,
 };
 
 function dist(a: Point, b: Point): number {
@@ -31,6 +35,14 @@ function pathLength(points: Point[]): number {
   let total = 0;
   for (let i = 1; i < points.length; i++) total += dist(points[i - 1], points[i]);
   return total;
+}
+
+// Start -> end vector. Its direction is what tells a stroke apart from the same
+// stroke drawn backwards.
+function chord(points: Point[]): Point {
+  const a = points[0];
+  const b = points[points.length - 1];
+  return { x: b.x - a.x, y: b.y - a.y };
 }
 
 // Sample a stroke path's `d` into evenly-spaced points using the DOM path API.
@@ -105,6 +117,24 @@ export function matchStroke(
     dist(user[user.length - 1], template[template.length - 1]) > thresholds.startEndMax
   ) {
     return { ok: false, reason: "endpoints" };
+  }
+
+  // Reject strokes drawn backwards. On a long stroke the endpoint check already
+  // catches this — a reversed start lands near the template's end, well outside
+  // startEndMax. On a short one it doesn't: both endpoints stay inside the
+  // tolerance and the mean distance stays under half the stroke length, so a
+  // reversed tick sails through. That's exactly the short strokes in 心 / 火,
+  // where direction is the thing learners actually get wrong.
+  //
+  // Skipped when the template's chord is too short to carry a direction (tight
+  // hooks that curve back on themselves).
+  const tc = chord(template);
+  const tcLen = Math.hypot(tc.x, tc.y);
+  if (tcLen >= thresholds.chordMin) {
+    const uc = chord(user);
+    const ucLen = Math.hypot(uc.x, uc.y);
+    const cos = ucLen === 0 ? -1 : (tc.x * uc.x + tc.y * uc.y) / (tcLen * ucLen);
+    if (cos < thresholds.minChordCos) return { ok: false, reason: "direction" };
   }
 
   let sum = 0;

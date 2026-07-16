@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import "../styles/Print.css";
 import kanji from "../data/kanji.json";
 import sets from "../data/sets.json";
@@ -35,9 +35,17 @@ export default function Print() {
   // Tracking the *included* set (starting empty) means no select-then-deselect
   // flash on load / when switching source.
   const [included, setIncluded] = useState<Set<string>>(new Set());
-  useEffect(() => {
+
+  // Clear the picks when the source changes. Done during render rather than in an
+  // effect: an effect renders the new source's chars against the old selection
+  // first, then re-renders empty. Adjusting here means that intermediate state is
+  // never shown. (React's "adjusting state when a prop changes" pattern.)
+  const [lastKey, setLastKey] = useState(`${source}|${setId}`);
+  const sourceKey = `${source}|${setId}`;
+  if (sourceKey !== lastKey) {
+    setLastKey(sourceKey);
     setIncluded(new Set());
-  }, [source, setId]);
+  }
 
   const toggleChar = (c: string) =>
     setIncluded((prev) => {

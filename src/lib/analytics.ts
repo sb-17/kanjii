@@ -101,13 +101,17 @@ export function srsStats(
   let dueToday = 0;
   let available = 0;
 
+  // Locked words are excluded throughout: this backs the "Review queue" card, and
+  // a word you can't review isn't in the queue. Counting them in the box
+  // distribution while leaving them out of the due/unstudied totals made the two
+  // halves of the same card disagree.
   for (const v of vocab) {
-    const avail = isVocabAvailable(v, progress);
-    if (avail) available++;
+    if (!isVocabAvailable(v, progress)) continue;
+    available++;
     if (v.srs) {
       boxes[Math.min(Math.max(v.srs.box, 0), MAX_BOX)]++;
-      if (avail && v.srs.due <= cutoff) dueToday++;
-    } else if (avail) {
+      if (v.srs.due <= cutoff) dueToday++;
+    } else {
       unstudied++;
     }
   }

@@ -3,15 +3,30 @@ import "./KanjiWriter.css";
 import { loadKanjiStrokes, strokeStartPoint } from "../../lib/kanjiVg";
 import { matchStroke, type Point } from "../../lib/strokeMatch";
 
+// How the attempt went, for skill tracking. Misses and hints are counted across
+// a Clear on purpose — restarting after three failed strokes is still evidence
+// you didn't know it.
+export type WriteResult = {
+  strokes: number; // template stroke count
+  misses: number; // strokes rejected before completing
+  hints: number; // hints used
+  ms: number; // first stroke -> completion
+};
+
 type Props = {
   kanji: string;
   guide: boolean;
-  onComplete: () => void;
+  onComplete: (result: WriteResult) => void;
 };
 
 export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const pointsRef = useRef<Point[]>([]);
+
+  // Attempt tally — refs, since none of it should trigger a re-render.
+  const missesRef = useRef(0);
+  const hintsRef = useRef(0);
+  const startedAtRef = useRef<number | null>(null);
 
   const [strokes, setStrokes] = useState<string[]>([]);
   const [current, setCurrent] = useState(0);
@@ -21,6 +36,17 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
   const [miss, setMiss] = useState(false);
   const [hint, setHint] = useState(false);
   const [done, setDone] = useState(false);
+
+  // Deferred UI beats (the "Correct!" pause, the hint flash) must not outlive the
+  // component — otherwise finishing a kanji and navigating away still advances.
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const later = (fn: () => void, ms: number) => {
+    timersRef.current.push(setTimeout(fn, ms));
+  };
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => timers.forEach(clearTimeout);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -58,6 +84,7 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
     if (done || strokes.length === 0) return;
     e.preventDefault();
     svgRef.current?.setPointerCapture(e.pointerId);
+    startedAtRef.current ??= Date.now();
     setDrawing(true);
     setMiss(false);
     pointsRef.current = [toSvg(e)];
@@ -90,9 +117,16 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
       setCurrent(next);
       if (next >= strokes.length) {
         setDone(true);
-        setTimeout(onComplete, 700);
+        const result: WriteResult = {
+          strokes: strokes.length,
+          misses: missesRef.current,
+          hints: hintsRef.current,
+          ms: Date.now() - (startedAtRef.current ?? Date.now()),
+        };
+        later(() => onComplete(result), 700);
       }
     } else {
+      missesRef.current++;
       setMiss(true);
     }
   };
@@ -108,8 +142,9 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
   };
 
   const handleHint = () => {
+    hintsRef.current++;
     setHint(true);
-    setTimeout(() => setHint(false), 900);
+    later(() => setHint(false), 900);
   };
 
   const poly = (pts: Point[]) => pts.map((p) => `${p.x},${p.y}`).join(" ");

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import "../styles/Settings.css";
-import type { KanjiProgress } from "../types/kanjiProgress";
 import { useProgress } from "../context/ProgressContext";
+import { parseProgress } from "../storage/kanjiProgress";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
+import { loadSettings, saveSettings } from "../storage/settings";
 import { mergeVocab } from "../lib/vocab";
 import { getThemePref, setThemePref, type ThemePref } from "../storage/theme";
 
@@ -12,70 +13,89 @@ const THEMES: { id: ThemePref; label: string }[] = [
   { id: "dark", label: "Dark" },
 ];
 
+function downloadJson(data: unknown, filename: string) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  // Revoking synchronously cancels the download in some browsers — let the click
+  // be handled first.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+// Read a picked file as text, clearing the input first so re-picking the same
+// file still fires a change event.
+function readFile(
+  input: HTMLInputElement,
+  onText: (text: string) => void,
+): void {
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => onText(reader.result as string);
+  reader.readAsText(file);
+}
+
 export default function Settings() {
   const { progress, replaceProgress } = useProgress();
   const [theme, setTheme] = useState<ThemePref>(getThemePref);
+  const [romajiInput, setRomajiInput] = useState(
+    () => loadSettings().romajiInput,
+  );
 
   const changeTheme = (next: ThemePref) => {
     setTheme(next);
     setThemePref(next);
   };
 
-  const handleExport = () => {
-    const blob = new Blob([JSON.stringify(progress, null, 2)], {
-      type: "application/json",
-    });
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "kanjii-progress.json";
-    a.click();
-
-    URL.revokeObjectURL(url);
+  const changeRomajiInput = (next: boolean) => {
+    setRomajiInput(next);
+    saveSettings({ ...loadSettings(), romajiInput: next });
   };
+
+  const handleExport = () => downloadJson(progress, "kanjii-progress.json");
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
+    readFile(e.target, (text) => {
+      let data;
       try {
-        const data = JSON.parse(reader.result as string) as KanjiProgress;
-        replaceProgress(data);
-        alert("Progress imported successfully!");
-      } catch {
-        alert("Invalid file. Please select a valid progress export.");
+        data = parseProgress(JSON.parse(text));
+      } catch (err) {
+        alert(
+          "This doesn't look like a kanji progress export.\n\n" +
+            `${(err as Error).message}\n\n` +
+            "Your progress has not been changed.",
+        );
+        return;
       }
-    };
 
-    reader.readAsText(file);
-  };
+      const tracked = Object.keys(progress).length;
+      const ok = confirm(
+        `Import ${Object.keys(data).length} kanji statuses?\n\n` +
+          `This replaces your current progress (${tracked} kanji tracked) and cannot be undone.`,
+      );
+      if (!ok) return;
 
-  const handleVocabExport = () => {
-    const blob = new Blob([JSON.stringify(loadUserVocab(), null, 2)], {
-      type: "application/json",
+      replaceProgress(data);
+      alert("Progress imported successfully!");
     });
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "kanjii-vocab.json";
-    a.click();
-
-    URL.revokeObjectURL(url);
   };
+
+  const handleVocabExport = () =>
+    downloadJson(loadUserVocab(), "kanjii-vocab.json");
 
   const handleVocabImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
+    readFile(e.target, (text) => {
       try {
-        const data = JSON.parse(reader.result as string);
-        const { merged, added } = mergeVocab(loadUserVocab(), data);
+        const { merged, added } = mergeVocab(loadUserVocab(), JSON.parse(text));
         saveUserVocab(merged);
         alert(
           `Imported — ${added} new word${added === 1 ? "" : "s"}. You now have ${merged.length}.`,
@@ -83,10 +103,7 @@ export default function Settings() {
       } catch {
         alert("Invalid file. Expected a vocab JSON array.");
       }
-    };
-
-    reader.readAsText(file);
-    e.target.value = "";
+    });
   };
 
   return (
@@ -111,6 +128,26 @@ export default function Settings() {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="settings-card surface-card">
+        <strong>Practice</strong>
+
+        <p className="settings-description">
+          With romaji input on, English → Japanese answers convert as you type
+          (nihon → にほん), so your keyboard can stay on English for both
+          directions. The reading counts as a correct answer. Turn it off to type
+          Japanese with your device's own IME.
+        </p>
+
+        <label className="settings-checkbox">
+          <input
+            type="checkbox"
+            checked={romajiInput}
+            onChange={(e) => changeRomajiInput(e.target.checked)}
+          />
+          <span>Romaji input in Practice</span>
+        </label>
       </div>
 
       <div className="settings-card surface-card">

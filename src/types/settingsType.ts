@@ -9,4 +9,7 @@ export type Settings = {
   guide: boolean;
   writePool: WritePool;
   practiceScope: PracticeScope;
+  // Practice: convert romaji to kana as you type, so English → Japanese answers
+  // don't need the phone's IME. Off = type Japanese with a real IME.
+  romajiInput: boolean;
 };

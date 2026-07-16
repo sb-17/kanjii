@@ -8,6 +8,7 @@ const DEFAULTS: Settings = {
   guide: true,
   writePool: "both",
   practiceScope: "smart",
+  romajiInput: true,
 };
 
 // In-memory source of truth, hydrated once at startup (see hydrateSettings).

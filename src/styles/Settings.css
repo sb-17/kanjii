@@ -48,3 +48,19 @@
 .settings-import input {
     display: none;
 }
+
+.settings-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text);
+    font-size: var(--text-sm);
+    cursor: pointer;
+}
+
+.settings-checkbox input {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--accent);
+    cursor: pointer;
+}

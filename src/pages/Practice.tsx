@@ -4,10 +4,17 @@ import type { Vocab } from "../types/vocabType";
 import type { PracticeScope, Settings } from "../types/settingsType";
 import { isVocabAvailable } from "../lib/vocab";
 import { scopeVocab, pickWord, applyReview, isDue } from "../lib/srs";
+import {
+  japaneseMatches,
+  meaningMatches,
+  toKanaTyping,
+  finalizeKana,
+} from "../lib/answer";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
 import { logReview } from "../storage/events";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { useProgress } from "../context/ProgressContext";
+import { useNow } from "../lib/useNow";
 import EmptyState from "../components/empty-state/EmptyState";
 
 // "etj" = English -> Japanese, "jte" = Japanese -> English
@@ -25,6 +32,7 @@ const SCOPES: { id: PracticeScope; label: string }[] = [
 
 export default function Practice() {
   const { progress } = useProgress();
+  const now = useNow();
   const [settings, setSettings] = useState<Settings>(loadSettings());
   const scope = settings.practiceScope;
 
@@ -46,6 +54,10 @@ export default function Practice() {
   const [showContext, setShowContext] = useState(false);
   const [graded, setGraded] = useState(false);
 
+  // Only English → Japanese needs kana; the other direction is answered in
+  // English, so with this on the phone can stay on its Latin keyboard for both.
+  const romaji = settings.romajiInput && direction === "etj";
+
   const available = useMemo(
     () => vocab.filter((v) => isVocabAvailable(v, progress)),
     [vocab, progress],
@@ -53,14 +65,14 @@ export default function Practice() {
   const caughtUp =
     scope === "smart" &&
     available.length > 0 &&
-    !available.some((v) => isDue(v, Date.now()));
+    !available.some((v) => isDue(v, now));
 
   // Move to the next word, picked from the latest vocab + current scope.
   const advance = (source: Vocab[]) => {
     const pool = scopeVocab(
       source.filter((v) => isVocabAvailable(v, progress)),
       scope,
-      Date.now(),
+      now,
     );
     setCurrent(pickWord(pool, scope, current ? keyOf(current) : undefined));
     setDirection(randDir());
@@ -75,7 +87,7 @@ export default function Practice() {
     const updated = { ...settings, practiceScope: next };
     setSettings(updated);
     saveSettings(updated);
-    const pool = scopeVocab(available, next, Date.now());
+    const pool = scopeVocab(available, next, now);
     setCurrent(pickWord(pool, next, current ? keyOf(current) : undefined));
     setDirection(randDir());
     setAnswer("");
@@ -101,11 +113,17 @@ export default function Practice() {
 
   const handleSubmit = () => {
     if (!current) return;
-    const guess = answer.trim().toLowerCase();
+    // An empty submit is a mis-tap, not a miss — grading it would knock the word
+    // back to box 0 with no way to undo.
+    const raw = answer.trim();
+    if (!raw) return;
+
+    // Resolve any trailing romaji consonant left by IME-mode typing ("にほn").
+    const guess = romaji ? finalizeKana(raw) : raw;
     const correct =
       direction === "etj"
-        ? guess === current.word.toLowerCase()
-        : current.meanings.some((m) => m.toLowerCase() === guess);
+        ? japaneseMatches(guess, current.word, current.reading)
+        : meaningMatches(guess, current.meanings);
 
     if (correct) {
       const next = graded ? vocab : grade(true);
@@ -114,6 +132,7 @@ export default function Practice() {
       setTimeout(() => advance(next), 700);
     } else {
       if (!graded) grade(false);
+      setAnswer(guess); // show the finalized kana alongside "try again"
       setFeedback("wrong");
     }
   };
@@ -193,7 +212,8 @@ export default function Practice() {
             <textarea
               value={answer}
               onChange={(e) => {
-                setAnswer(e.target.value);
+                const raw = e.target.value;
+                setAnswer(romaji ? toKanaTyping(raw) : raw);
                 if (feedback === "wrong") setFeedback(null);
               }}
               onKeyDown={(e) => {
@@ -203,7 +223,17 @@ export default function Practice() {
                 }
               }}
               className="practice-answer-input"
-              placeholder="Type your answer here"
+              placeholder={
+                romaji
+                  ? "Type romaji — nihon → にほん"
+                  : "Type your answer here"
+              }
+              // Mobile autocorrect mangles romaji before it can be converted.
+              autoCapitalize="off"
+              autoCorrect="off"
+              autoComplete="off"
+              spellCheck={false}
+              lang={direction === "etj" && !romaji ? "ja" : undefined}
             />
 
             <div className="practice-actions">

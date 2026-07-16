@@ -38,6 +38,32 @@ export function isKnownOrLearning(status: KanjiStatus | undefined) {
   return status === "known" || status === "learning";
 }
 
+const STATUSES: string[] = ["new", "learning", "known"];
+
+// Validate parsed JSON as a progress map, throwing a user-readable reason if it
+// isn't one. Importing *replaces* everything, and the Settings page offers two
+// similar-looking JSON imports — so picking the vocab file by mistake must fail
+// loudly here rather than silently wipe every kanji status.
+export function parseProgress(raw: unknown): KanjiProgress {
+  if (raw == null || typeof raw !== "object" || Array.isArray(raw)) {
+    throw new Error("Expected an object of kanji → status.");
+  }
+
+  const entries = Object.entries(raw as Record<string, unknown>);
+  if (entries.length === 0) {
+    throw new Error("The file contains no kanji progress.");
+  }
+
+  const out: KanjiProgress = {};
+  for (const [char, status] of entries) {
+    if (typeof status !== "string" || !STATUSES.includes(status)) {
+      throw new Error(`"${char}" has an invalid status.`);
+    }
+    out[char] = status as KanjiStatus;
+  }
+  return out;
+}
+
 export function getStatusCounts(progress: KanjiProgress): Record<KanjiStatus, number> {
   const counts: Record<KanjiStatus, number> = {
     new: 0,

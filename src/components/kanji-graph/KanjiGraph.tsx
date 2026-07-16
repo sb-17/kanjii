@@ -46,15 +46,20 @@ export default function KanjiGraph({ center, mode, progress, onSelect }: Props) 
   const hasNeighbors = layout.nodes.length > 1;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const baseVB = useRef<ViewBox>(parseViewBox(layout.viewBox));
-  const [vb, setVb] = useState<ViewBox>(baseVB.current);
+
+  // The fit-to-view box for the current neighborhood. Purely derived from the
+  // layout, so it's a memo rather than a ref kept in sync by hand.
+  const baseVB = useMemo(() => parseViewBox(layout.viewBox), [layout.viewBox]);
+  const [vb, setVb] = useState<ViewBox>(baseVB);
 
   // Reset the view whenever the neighborhood changes (recenter / mode switch).
-  useEffect(() => {
-    const fresh = parseViewBox(layout.viewBox);
-    baseVB.current = fresh;
-    setVb(fresh);
-  }, [layout.viewBox]);
+  // Adjusted during render rather than in an effect so the new graph never paints
+  // for a frame under the previous viewBox.
+  const [lastViewBox, setLastViewBox] = useState(layout.viewBox);
+  if (layout.viewBox !== lastViewBox) {
+    setLastViewBox(layout.viewBox);
+    setVb(baseVB);
+  }
 
   // ---- Pan / zoom plumbing (all on the container div so touches anywhere —
   // including empty background — pan the map instead of scrolling the page) ----
@@ -71,13 +76,16 @@ export default function KanjiGraph({ center, mode, progress, onSelect }: Props) 
       const fy = (clientY - rect.top) / rect.height;
       const sx = x + fx * w;
       const sy = y + fy * h;
-      const baseW = baseVB.current[2];
+      const baseW = baseVB[2];
       let nw = w / factor;
       nw = clamp(nw, baseW * MIN_ZOOM, baseW * MAX_ZOOM);
       const nh = nw * (h / w);
       return [sx - fx * nw, sy - fy * nh, nw, nh];
     });
-  }, []);
+    // Zoom limits are relative to the current neighborhood's fit box, so this has
+    // to be rebuilt when that changes — otherwise recentering leaves you clamping
+    // against the previous graph's dimensions.
+  }, [baseVB]);
 
   const panBy = useCallback((dxPx: number, dyPx: number) => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -253,7 +261,7 @@ export default function KanjiGraph({ center, mode, progress, onSelect }: Props) 
         </button>
         <button
           type="button"
-          onClick={() => setVb(baseVB.current)}
+          onClick={() => setVb(baseVB)}
           aria-label="Reset view"
           title="Reset view"
         >

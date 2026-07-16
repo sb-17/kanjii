@@ -48,11 +48,22 @@ export default function MyWords() {
     // The entry we're updating (when editing, or re-adding an existing key).
     const prev = list.find((v) => keyOf(v) === (editKey ?? key));
 
-    const entry: Vocab = { ...base, addedAt: prev?.addedAt ?? Date.now() };
+    const entry: Vocab = {
+      ...base,
+      addedAt: prev?.addedAt ?? Date.now(),
+      // Carry review progress across an edit — fixing a typo or adding a note
+      // must not reset the word's Leitner box.
+      srs: prev?.srs,
+    };
 
     let next: Vocab[];
     if (editKey) {
-      next = list.map((v) => (keyOf(v) === editKey ? entry : v));
+      // Renaming a word onto another one's word+reading would leave two entries
+      // sharing a key — which then grade together and collide as React keys. The
+      // edited entry wins; the one it landed on is absorbed.
+      next = list
+        .filter((v) => keyOf(v) === editKey || keyOf(v) !== key)
+        .map((v) => (keyOf(v) === editKey ? entry : v));
     } else if (prev) {
       next = list.map((v) => (keyOf(v) === key ? entry : v));
     } else {

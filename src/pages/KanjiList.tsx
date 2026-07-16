@@ -9,11 +9,13 @@ import type { KanjiStatus } from "../types/kanjiProgress";
 import { getStatusCounts } from "../storage/kanjiProgress";
 import { useProgress } from "../context/ProgressContext";
 
+const DEFAULT_SHOWN = 100;
+
 export default function KanjiList() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const initialSearchTerm = searchParams.get("q") || "";
-  const initialNumberShown = Number(searchParams.get("n") ?? 100);
+  const initialCountInput = searchParams.get("n") ?? String(DEFAULT_SHOWN);
   const initialStatusFilter =
     searchParams.get("status") === "new" ||
     searchParams.get("status") === "learning" ||
@@ -23,11 +25,18 @@ export default function KanjiList() {
 
   const { progress, setStatus } = useProgress();
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
-  const [numberOfKanjiShown, setNumberOfKanjiShown] =
-    useState(initialNumberShown);
+  // Held as text so the field can be cleared to retype. `Number("")` is 0, which
+  // as a count would blank the list mid-edit — fall back to the default instead.
+  const [countInput, setCountInput] = useState(initialCountInput);
   const [statusFilter, setStatusFilter] = useState<KanjiStatus | null>(
     initialStatusFilter,
   );
+
+  const parsedCount = Math.floor(Number(countInput));
+  const numberOfKanjiShown =
+    countInput.trim() !== "" && Number.isFinite(parsedCount) && parsedCount > 0
+      ? parsedCount
+      : DEFAULT_SHOWN;
 
   // Build the search index once: flatten each kanji's character, meanings, and
   // romaji-converted readings into a single lowercased string, sorted by
@@ -102,11 +111,10 @@ export default function KanjiList() {
           <input
             type="number"
             placeholder=""
-            value={numberOfKanjiShown}
+            value={countInput}
             onChange={(e) => {
-              const val = Number(e.target.value);
-              setNumberOfKanjiShown(val);
-              updateFilter("n", val);
+              setCountInput(e.target.value);
+              updateFilter("n", e.target.value);
             }}
             className="kanji-list-count-input"
             id="kanji-list-count-input"

@@ -3,12 +3,29 @@ import { useParams, Link } from "react-router-dom";
 import kanji from "../data/kanji.json";
 import "../styles/Write.css";
 import type { Kanji } from "../types/kanjiType";
+import type { KanjiProgress } from "../types/kanjiProgress";
 import { useProgress } from "../context/ProgressContext";
 import { loadSettings, saveSettings } from "../storage/settings";
 import type { Settings, WritePool } from "../types/settingsType";
-import KanjiWriter from "../components/kanji-writer/KanjiWriter";
+import KanjiWriter, {
+  type WriteResult,
+} from "../components/kanji-writer/KanjiWriter";
 import KanjiStrokeViewer from "../components/kanji-stroke-viewer/KanjiStrokeViewer";
 import EmptyState from "../components/empty-state/EmptyState";
+import { logWrite } from "../storage/events";
+
+const kanjiData = kanji as Kanji[];
+
+// Kanji to practice in session mode, filtered by the selected status pool. At
+// module scope so it's a stable dependency for the memo below.
+function computePool(p: WritePool, progress: KanjiProgress): Kanji[] {
+  return kanjiData.filter((k) => {
+    const status = progress[k.character];
+    if (p === "learning") return status === "learning";
+    if (p === "known") return status === "known";
+    return status === "learning" || status === "known";
+  });
+}
 
 export default function Write() {
   const { progress } = useProgress();
@@ -19,18 +36,10 @@ export default function Write() {
   const [settings, setSettings] = useState<Settings>(loadSettings());
   const { writeMode, guide, writePool } = settings;
 
-  const kanjiData = kanji as Kanji[];
-
-  // Kanji to practice in session mode, filtered by the selected status pool.
-  const computePool = (p: WritePool) =>
-    kanjiData.filter((k) => {
-      const status = progress[k.character];
-      if (p === "learning") return status === "learning";
-      if (p === "known") return status === "known";
-      return status === "learning" || status === "known";
-    });
-
-  const pool = useMemo(() => computePool(writePool), [progress, writePool]);
+  const pool = useMemo(
+    () => computePool(writePool, progress),
+    [writePool, progress],
+  );
 
   const [current, setCurrent] = useState<string>(() => {
     if (single) return routeChar!;
@@ -61,7 +70,7 @@ export default function Write() {
   const changePool = (p: WritePool) => {
     updateSettings({ writePool: p });
     setRevealed(false);
-    const nextPool = computePool(p);
+    const nextPool = computePool(p, progress);
     // Keep the current kanji if it still matches; otherwise move to a new one.
     if (nextPool.some((k) => k.character === current)) return;
     setRound((r) => r + 1);
@@ -103,8 +112,21 @@ export default function Write() {
   const obj = kanjiData.find((k) => k.character === current);
   const readings = obj ? [...obj.kun, ...obj.on].slice(0, 3) : [];
 
-  // The writer already shows "Correct!" briefly before calling this.
-  const handleComplete = () => pickNext();
+  // The writer already shows "Correct!" briefly before calling this. Record how
+  // the attempt went before advancing — writing from memory and tracing the
+  // template are different evidence, and this log is the only place that
+  // difference is kept.
+  const handleComplete = (r: WriteResult) => {
+    logWrite({
+      c: current,
+      n: r.strokes,
+      m: r.misses,
+      h: r.hints,
+      g: guide,
+      ms: r.ms,
+    });
+    pickNext();
+  };
 
   const emptyMessage =
     writePool === "both"

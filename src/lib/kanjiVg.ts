@@ -1,5 +1,9 @@
 // Shared helpers for loading and parsing KanjiVG stroke data
-// (files live in public/kanjiVG/<codepoint>.svg, served under the /kanjii base).
+// (files live in public/kanjiVG/<codepoint>.svg, served under the app's base).
+
+// Vite normalizes BASE_URL with a trailing slash. Same source of truth as the
+// router's basename (see App.tsx) — don't hardcode the deploy path here.
+const STROKE_DIR = `${import.meta.env.BASE_URL}kanjiVG/`;
 
 // "山" -> "05c71.svg"
 export function kanjiToSvgName(kanji: string): string {
@@ -33,7 +37,7 @@ export async function loadKanjiStrokes(kanji: string): Promise<string[]> {
 
   const fileName = kanjiToSvgName(kanji);
   try {
-    const res = await fetch(`/kanjii/kanjiVG/${fileName}`);
+    const res = await fetch(`${STROKE_DIR}${fileName}`);
     if (!res.ok) {
       console.error("KanjiVG not found:", fileName);
       return [];
@@ -68,7 +72,7 @@ export async function prefetchKanjiStrokes(kanji: string[]): Promise<void> {
       targets.slice(i, i + BATCH).map(async (k) => {
         prefetched.add(k);
         try {
-          await fetch(`/kanjii/kanjiVG/${kanjiToSvgName(k)}`);
+          await fetch(`${STROKE_DIR}${kanjiToSvgName(k)}`);
         } catch {
           prefetched.delete(k); // let a later attempt retry
         }

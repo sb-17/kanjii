@@ -42,6 +42,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Exporting a hook beside a component costs this file fast refresh (editing it
+// full-reloads instead of hot-swapping). Splitting the hook out would fix that at
+// the price of re-pointing 13 imports — not worth it for a file that changes
+// about never. Revisit if this file starts moving.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useProgress(): ProgressContextValue {
   const ctx = useContext(ProgressContext);
   if (!ctx) {

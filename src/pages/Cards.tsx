@@ -7,6 +7,7 @@ import { scopeVocab } from "../lib/srs";
 import { loadUserVocab } from "../storage/userVocab";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { useProgress } from "../context/ProgressContext";
+import { useNow } from "../lib/useNow";
 import EmptyState from "../components/empty-state/EmptyState";
 
 const SCOPES: { id: PracticeScope; label: string }[] = [
@@ -40,6 +41,7 @@ const pickQuestion = (pool: Question[], exceptJp?: string): Question | undefined
 
 export default function Cards() {
   const { progress } = useProgress();
+  const now = useNow();
   const [settings, setSettings] = useState<Settings>(loadSettings());
   const scope = settings.practiceScope;
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
@@ -51,8 +53,8 @@ export default function Cards() {
     [progress, userVocab],
   );
   const pool = useMemo(
-    () => scopeVocab(available, scope, Date.now()).map(toQuestion),
-    [available, scope],
+    () => scopeVocab(available, scope, now).map(toQuestion),
+    [available, scope, now],
   );
 
   const [question, setQuestion] = useState<Question | undefined>(() => {
@@ -76,7 +78,7 @@ export default function Cards() {
     setSettings(updated);
     saveSettings(updated);
     setIsFlipped(false);
-    const nextPool = scopeVocab(available, next, Date.now()).map(toQuestion);
+    const nextPool = scopeVocab(available, next, now).map(toQuestion);
     setQuestion(pickQuestion(nextPool, question?.jp));
   };
 
