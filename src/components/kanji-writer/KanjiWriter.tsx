@@ -1,7 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./KanjiWriter.css";
 import { loadKanjiStrokes, strokeStartPoint } from "../../lib/kanjiVg";
-import { matchStroke, type Point } from "../../lib/strokeMatch";
+import {
+  buildTemplate,
+  findMatchingStroke,
+  matchStroke,
+  type Point,
+} from "../../lib/strokeMatch";
+
+// Why a stroke was rejected, in the only terms worth showing the learner.
+type MissKind = "shape" | "order";
 
 // How the attempt went, for skill tracking. Misses and hints are counted across
 // a Clear on purpose — restarting after three failed strokes is still evidence
@@ -33,9 +41,12 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
   const [accepted, setAccepted] = useState<Point[][]>([]);
   const [points, setPoints] = useState<Point[]>([]);
   const [drawing, setDrawing] = useState(false);
-  const [miss, setMiss] = useState(false);
+  const [miss, setMiss] = useState<MissKind | null>(null);
   const [hint, setHint] = useState(false);
   const [done, setDone] = useState(false);
+
+  // Sample each stroke once per kanji rather than once per attempt.
+  const templates = useMemo(() => strokes.map(buildTemplate), [strokes]);
 
   // Deferred UI beats (the "Correct!" pause, the hint flash) must not outlive the
   // component — otherwise finishing a kanji and navigating away still advances.
@@ -86,7 +97,7 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
     svgRef.current?.setPointerCapture(e.pointerId);
     startedAtRef.current ??= Date.now();
     setDrawing(true);
-    setMiss(false);
+    setMiss(null);
     pointsRef.current = [toSvg(e)];
     setPoints(pointsRef.current);
   };
@@ -109,13 +120,13 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
     setPoints([]);
     if (userPts.length === 0) return;
 
-    const res = matchStroke(userPts, strokes[current]);
+    const res = matchStroke(userPts, templates[current]);
     if (res.ok) {
       setAccepted((prev) => [...prev, userPts]);
       setHint(false);
       const next = current + 1;
       setCurrent(next);
-      if (next >= strokes.length) {
+      if (next >= templates.length) {
         setDone(true);
         const result: WriteResult = {
           strokes: strokes.length,
@@ -127,7 +138,11 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
       }
     } else {
       missesRef.current++;
-      setMiss(true);
+      // A well-drawn stroke in the wrong place is usually a *different* stroke of
+      // this kanji. Naming that is much more useful than "try again", since
+      // stroke order is the thing being taught.
+      const other = findMatchingStroke(userPts, templates, current);
+      setMiss(other === -1 ? "shape" : "order");
     }
   };
 
@@ -136,7 +151,7 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
     setAccepted([]);
     setCurrent(0);
     setPoints([]);
-    setMiss(false);
+    setMiss(null);
     setHint(false);
     setDone(false);
   };
@@ -202,6 +217,8 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
       <div className="kanji-writer-status">
         {done ? (
           <span className="kw-done">✓ Correct!</span>
+        ) : miss === "order" ? (
+          <span className="kw-miss">✗ Right shape — wrong order</span>
         ) : miss ? (
           <span className="kw-miss">✗ Try again</span>
         ) : (

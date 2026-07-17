@@ -6,6 +6,7 @@ import kanjiData from "../data/kanji.json";
 import type { Kanji } from "../types/kanjiType";
 import type { KanjiProgress } from "../types/kanjiProgress";
 import type { Vocab } from "../types/vocabType";
+import type { KanjiSkillMap } from "../types/kanjiSkill";
 import { isKnownOrLearning } from "../storage/kanjiProgress";
 import { isVocabAvailable } from "./vocab";
 import { MAX_BOX } from "./srs";
@@ -119,6 +120,42 @@ export function srsStats(
   return { boxes, unstudied, dueToday, available };
 }
 
+// ---- Handwriting skill (mirrors srsStats, keyed by kanji) ----
+
+export type WritingStats = {
+  boxes: number[]; // counts in skill boxes 0..MAX_BOX
+  unpracticed: number; // learning/known kanji never written from memory
+  practiced: number; // learning/known kanji with a skill record
+  dueToday: number; // practiced kanji whose review is due by end of today
+};
+
+export function writingStats(
+  skill: KanjiSkillMap,
+  progress: KanjiProgress,
+  now = Date.now(),
+): WritingStats {
+  const boxes = new Array(MAX_BOX + 1).fill(0) as number[];
+  const cutoff = endOfToday(now);
+  let unpracticed = 0;
+  let practiced = 0;
+  let dueToday = 0;
+
+  // Only the writable set — kanji you're actually studying.
+  for (const k of KANJI) {
+    if (!isKnownOrLearning(progress[k.character])) continue;
+    const s = skill[k.character];
+    if (s) {
+      boxes[Math.min(Math.max(s.box, 0), MAX_BOX)]++;
+      practiced++;
+      if (s.due <= cutoff) dueToday++;
+    } else {
+      unpracticed++;
+    }
+  }
+
+  return { boxes, unpracticed, practiced, dueToday };
+}
+
 export type VocabTotals = { total: number; unlocked: number; locked: number };
 
 export function vocabTotals(vocab: Vocab[], progress: KanjiProgress): VocabTotals {
@@ -201,11 +238,12 @@ export function knownPerWeek(
 export type DayCount = { label: string; count: number };
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Practice reviews per day over the last `days` days.
-export function reviewsPerDay(
+// Count events of one kind per day over the last `days` days.
+function eventsPerDay(
   events: AppEvent[],
-  days = 14,
-  now = Date.now(),
+  kind: AppEvent["k"],
+  days: number,
+  now: number,
 ): { buckets: DayCount[]; total: number } {
   const midnight = new Date(now);
   midnight.setHours(0, 0, 0, 0);
@@ -219,7 +257,7 @@ export function reviewsPerDay(
 
   let total = 0;
   for (const e of events) {
-    if (e.k !== "review" || e.t < startMs) continue;
+    if (e.k !== kind || e.t < startMs) continue;
     const d = new Date(e.t);
     d.setHours(0, 0, 0, 0);
     const idx = Math.round((d.getTime() - startMs) / DAY_MS);
@@ -229,4 +267,14 @@ export function reviewsPerDay(
     }
   }
   return { buckets, total };
+}
+
+// Practice reviews per day over the last `days` days.
+export function reviewsPerDay(events: AppEvent[], days = 14, now = Date.now()) {
+  return eventsPerDay(events, "review", days, now);
+}
+
+// Handwriting practice completions per day over the last `days` days.
+export function writesPerDay(events: AppEvent[], days = 14, now = Date.now()) {
+  return eventsPerDay(events, "write", days, now);
 }

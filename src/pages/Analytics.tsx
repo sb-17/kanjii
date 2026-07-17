@@ -4,15 +4,18 @@ import "../styles/Analytics.css";
 import { useProgress } from "../context/ProgressContext";
 import { loadUserVocab } from "../storage/userVocab";
 import { loadEvents } from "../storage/events";
+import { loadKanjiSkill } from "../storage/kanjiSkill";
 import {
   statusBreakdown,
   frequencyBands,
   mostFrequentNew,
   srsStats,
+  writingStats,
   vocabTotals,
   vocabGrowth,
   knownPerWeek,
   reviewsPerDay,
+  writesPerDay,
 } from "../lib/analytics";
 
 export default function Analytics() {
@@ -23,17 +26,22 @@ export default function Analytics() {
   const bands = useMemo(() => frequencyBands(progress), [progress]);
   const nextUp = useMemo(() => mostFrequentNew(progress, 12), [progress]);
   const srs = useMemo(() => srsStats(vocab, progress), [vocab, progress]);
+  const skill = loadKanjiSkill();
+  const writing = useMemo(() => writingStats(skill, progress), [skill, progress]);
   const totals = useMemo(() => vocabTotals(vocab, progress), [vocab, progress]);
   const growth = useMemo(() => vocabGrowth(vocab, 8), [vocab]);
   const events = loadEvents();
   const known = useMemo(() => knownPerWeek(events, 8), [events]);
   const reviews = useMemo(() => reviewsPerDay(events, 14), [events]);
+  const writes = useMemo(() => writesPerDay(events, 14), [events]);
 
   const pct = (n: number) => (status.total ? Math.round((n / status.total) * 100) : 0);
   const boxMax = Math.max(srs.unstudied, ...srs.boxes, 1);
+  const writeBoxMax = Math.max(writing.unpracticed, ...writing.boxes, 1);
   const growthMax = Math.max(...growth.buckets.map((b) => b.count), 1);
   const knownMax = Math.max(1, ...known.buckets.map((b) => Math.abs(b.net)));
   const reviewMax = Math.max(1, ...reviews.buckets.map((b) => b.count));
+  const writeMax = Math.max(1, ...writes.buckets.map((b) => b.count));
 
   return (
     <div className="page">
@@ -156,6 +164,58 @@ export default function Analytics() {
           )}
         </section>
 
+        {/* ---- Handwriting skill ---- */}
+        <section className="stat-card surface-card">
+          <h2 className="stat-card-title">Handwriting</h2>
+          {writing.practiced === 0 && writing.unpracticed === 0 ? (
+            <p className="stat-note">
+              Mark kanji Learning or Known, then practise writing them to build a
+              skill level. <Link to="/write">Write →</Link>
+            </p>
+          ) : (
+            <>
+              <div className="stat-duo">
+                <div>
+                  <span className="stat-big">{writing.dueToday}</span>
+                  <span className="stat-sub">due today</span>
+                </div>
+                <div>
+                  <span className="stat-big">{writing.unpracticed}</span>
+                  <span className="stat-sub">not yet written</span>
+                </div>
+              </div>
+
+              <h3 className="stat-subheading">Skill boxes</h3>
+              <div className="box-bars">
+                <div className="box-col">
+                  <span
+                    className="box-fill"
+                    style={{ height: `${(writing.unpracticed / writeBoxMax) * 100}%` }}
+                  />
+                  <span className="box-count">{writing.unpracticed}</span>
+                  <span className="box-label">new</span>
+                </div>
+                {writing.boxes.map((c, i) => (
+                  <div className="box-col" key={i}>
+                    <span
+                      className="box-fill"
+                      style={{ height: `${(c / writeBoxMax) * 100}%` }}
+                    />
+                    <span className="box-count">{c}</span>
+                    <span className="box-label">{i}</span>
+                  </div>
+                ))}
+              </div>
+
+              {writing.dueToday > 0 && (
+                <Link className="stat-cta" to="/write">
+                  Practise writing →
+                </Link>
+              )}
+            </>
+          )}
+        </section>
+
         {/* ---- Vocabulary ---- */}
         <section className="stat-card surface-card">
           <h2 className="stat-card-title">Vocabulary</h2>
@@ -262,6 +322,29 @@ export default function Analytics() {
                   <span
                     className="growth-fill"
                     style={{ height: `${(b.count / reviewMax) * 100}%` }}
+                  />
+                  <span className="growth-label">{b.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="stat-card surface-card">
+          <h2 className="stat-card-title">Writes / day</h2>
+          {writes.total === 0 ? (
+            <p className="stat-note">
+              Your daily handwriting practice shows here.{" "}
+              <Link to="/write">Write →</Link>
+            </p>
+          ) : (
+            <div className="growth-bars">
+              {writes.buckets.map((b, i) => (
+                <div className="growth-col" key={i} title={`${b.count} writes`}>
+                  <span className="growth-count">{b.count > 0 ? b.count : ""}</span>
+                  <span
+                    className="growth-fill"
+                    style={{ height: `${(b.count / writeMax) * 100}%` }}
                   />
                   <span className="growth-label">{b.label}</span>
                 </div>

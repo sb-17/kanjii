@@ -134,3 +134,67 @@
 .write-action:active {
     transform: translateY(1px);
 }
+
+.write-action-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
+.write-action-primary:hover {
+    background: var(--accent);
+    filter: brightness(1.08);
+}
+
+.write-promote-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+}
+
+.write-promote-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.write-promote-modal {
+    position: relative;
+    width: 100%;
+    max-width: 340px;
+    padding: var(--space-5);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    animation: write-promote-in 0.15s ease-out;
+}
+
+@keyframes write-promote-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
+.write-promote-text {
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.write-promote-char {
+    font-weight: 700;
+    color: var(--text-strong);
+}
+
+.write-promote-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3);
+}

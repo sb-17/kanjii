@@ -1,6 +1,8 @@
 export type WriteMode = "screen" | "paper";
 
-export type WritePool = "both" | "learning" | "known";
+// "due" is a skill-SRS filter, not a status one: learning/known kanji whose
+// handwriting review has come due (unwritten kanji count as due).
+export type WritePool = "due" | "both" | "learning" | "known";
 
 export type PracticeScope = "smart" | "recent" | "all" | "new";
 

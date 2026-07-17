@@ -10,6 +10,7 @@ import {
 import { hydrateSettings } from "./storage/settings";
 import { hydrateUserVocab } from "./storage/userVocab";
 import { hydrateEvents, initEventFlush } from "./storage/events";
+import { hydrateKanjiSkill } from "./storage/kanjiSkill";
 import { requestPersistence } from "./storage/db";
 import { prefetchKanjiStrokes } from "./lib/kanjiVg";
 import { applyTheme, initThemeSync } from "./storage/theme";
@@ -28,6 +29,7 @@ async function boot() {
     hydrateSettings(),
     hydrateUserVocab(),
     hydrateEvents(),
+    hydrateKanjiSkill(),
   ]);
   void requestPersistence();
   initEventFlush();
