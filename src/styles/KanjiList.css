@@ -8,6 +8,11 @@
     margin-bottom: var(--space-4);
 }
 
+.kanji-list-search-wrap {
+    width: 100%;
+    max-width: 400px;
+}
+
 .kanji-list-search-bar {
     width: 100%;
     max-width: 400px;

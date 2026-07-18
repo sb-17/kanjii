@@ -3,6 +3,7 @@ import "../styles/MyWords.css";
 import type { Vocab } from "../types/vocabType";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
 import { extractKanji } from "../lib/vocab";
+import ClearableField from "../components/clearable-field/ClearableField";
 
 const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
 
@@ -127,31 +128,44 @@ export default function MyWords() {
       <form className="mw-form surface-card" onSubmit={handleSubmit}>
         <strong>{editKey ? "Edit word" : "Add a word"}</strong>
         <div className="mw-fields">
-          <input
-            className="mw-input"
-            placeholder="Word (e.g. 日本)"
-            value={word}
-            onChange={(e) => setWord(e.target.value)}
-          />
-          <input
-            className="mw-input"
-            placeholder="Reading (e.g. にほん)"
-            value={reading}
-            onChange={(e) => setReading(e.target.value)}
-          />
-          <input
-            className="mw-input"
-            placeholder="Meanings, comma-separated (e.g. Japan)"
-            value={meanings}
-            onChange={(e) => setMeanings(e.target.value)}
-          />
-          <textarea
-            className="mw-input mw-context"
-            rows={2}
-            placeholder="Context / notes (optional)"
-            value={context}
-            onChange={(e) => setContext(e.target.value)}
-          />
+          <ClearableField show={word.length > 0} onClear={() => setWord("")} label="Clear word">
+            <input
+              className="mw-input"
+              placeholder="Word (e.g. 日本)"
+              value={word}
+              onChange={(e) => setWord(e.target.value)}
+            />
+          </ClearableField>
+          <ClearableField show={reading.length > 0} onClear={() => setReading("")} label="Clear reading">
+            <input
+              className="mw-input"
+              placeholder="Reading (e.g. にほん)"
+              value={reading}
+              onChange={(e) => setReading(e.target.value)}
+            />
+          </ClearableField>
+          <ClearableField show={meanings.length > 0} onClear={() => setMeanings("")} label="Clear meanings">
+            <input
+              className="mw-input"
+              placeholder="Meanings, comma-separated (e.g. Japan)"
+              value={meanings}
+              onChange={(e) => setMeanings(e.target.value)}
+            />
+          </ClearableField>
+          <ClearableField
+            show={context.length > 0}
+            onClear={() => setContext("")}
+            align="top"
+            label="Clear context"
+          >
+            <textarea
+              className="mw-input mw-context"
+              rows={2}
+              placeholder="Context / notes (optional)"
+              value={context}
+              onChange={(e) => setContext(e.target.value)}
+            />
+          </ClearableField>
         </div>
 
         {word.trim() && (
@@ -185,12 +199,19 @@ export default function MyWords() {
       </form>
 
       <div className="mw-list-header">
-        <input
-          className="mw-search"
-          placeholder="Search your words…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <ClearableField
+          className="mw-search-wrap"
+          show={search.length > 0}
+          onClear={() => setSearch("")}
+          label="Clear search"
+        >
+          <input
+            className="mw-search"
+            placeholder="Search your words…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </ClearableField>
         <span className="mw-count">{list.length} words</span>
       </div>
 

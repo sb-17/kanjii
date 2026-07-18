@@ -19,7 +19,7 @@ const navGroups: NavGroup[] = [
     items: [
       { id: "kanji", label: "All kanji", path: "/kanji" },
       { id: "map", label: "Map", path: "/map" },
-      { id: "sets", label: "Sets", path: "/sets" },
+      // Sets hidden from nav for now (route still works via deep link).
       { id: "write", label: "Write", path: "/write" },
       { id: "print", label: "Print", path: "/print" },
     ],

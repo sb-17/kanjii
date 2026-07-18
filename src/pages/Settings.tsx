@@ -50,6 +50,9 @@ export default function Settings() {
   const [romajiInput, setRomajiInput] = useState(
     () => loadSettings().romajiInput,
   );
+  const [partialAvailability, setPartialAvailability] = useState(
+    () => loadSettings().partialAvailability,
+  );
 
   const changeTheme = (next: ThemePref) => {
     setTheme(next);
@@ -59,6 +62,11 @@ export default function Settings() {
   const changeRomajiInput = (next: boolean) => {
     setRomajiInput(next);
     saveSettings({ ...loadSettings(), romajiInput: next });
+  };
+
+  const changePartialAvailability = (next: boolean) => {
+    setPartialAvailability(next);
+    saveSettings({ ...loadSettings(), partialAvailability: next });
   };
 
   const handleExport = () => downloadJson(progress, "kanjii-progress.json");
@@ -147,6 +155,26 @@ export default function Settings() {
             onChange={(e) => changeRomajiInput(e.target.checked)}
           />
           <span>Romaji input in Practice</span>
+        </label>
+      </div>
+
+      <div className="settings-card surface-card">
+        <strong>Word availability</strong>
+
+        <p className="settings-description">
+          A word normally unlocks for Cards and Practice only once every kanji in
+          it is marked Learning or Known. Turn this on to unlock a word as soon as
+          most (at least half) of its kanji are started — so one unfamiliar kanji
+          doesn't hide a word you deliberately added.
+        </p>
+
+        <label className="settings-checkbox">
+          <input
+            type="checkbox"
+            checked={partialAvailability}
+            onChange={(e) => changePartialAvailability(e.target.checked)}
+          />
+          <span>Unlock words when ≥50% of their kanji are started</span>
         </label>
       </div>
 

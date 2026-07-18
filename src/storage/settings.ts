@@ -9,6 +9,7 @@ const DEFAULTS: Settings = {
   writePool: "both",
   practiceScope: "smart",
   romajiInput: true,
+  partialAvailability: false,
 };
 
 // In-memory source of truth, hydrated once at startup (see hydrateSettings).

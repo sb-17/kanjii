@@ -16,6 +16,7 @@ import { loadSettings, saveSettings } from "../storage/settings";
 import { useProgress } from "../context/ProgressContext";
 import { useNow } from "../lib/useNow";
 import EmptyState from "../components/empty-state/EmptyState";
+import ClearableField from "../components/clearable-field/ClearableField";
 
 // "etj" = English -> Japanese, "jte" = Japanese -> English
 type Direction = "etj" | "jte";
@@ -225,42 +226,52 @@ export default function Practice() {
           )}
 
           <div className="practice-answer-container">
-            <textarea
-              value={answer}
-              onChange={(e) => {
-                const raw = e.target.value;
-                setAnswer(romaji ? toKanaTyping(raw) : raw);
+            <ClearableField
+              show={answer.length > 0}
+              onClear={() => {
+                setAnswer("");
                 if (feedback === "wrong") setFeedback(null);
               }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit();
+              align="top"
+              label="Clear answer"
+            >
+              <textarea
+                value={answer}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  setAnswer(romaji ? toKanaTyping(raw) : raw);
+                  if (feedback === "wrong") setFeedback(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit();
+                  }
+                }}
+                className="practice-answer-input"
+                placeholder={
+                  romaji
+                    ? "Type romaji — nihon → にほん"
+                    : "Type your answer here"
                 }
-              }}
-              className="practice-answer-input"
-              placeholder={
-                romaji
-                  ? "Type romaji — nihon → にほん"
-                  : "Type your answer here"
-              }
-              // Mobile autocorrect mangles romaji before it can be converted.
-              autoCapitalize="off"
-              autoCorrect="off"
-              autoComplete="off"
-              spellCheck={false}
-              lang={direction === "etj" && !romaji ? "ja" : undefined}
-            />
+                // Mobile autocorrect mangles romaji before it can be converted.
+                autoCapitalize="off"
+                autoCorrect="off"
+                autoComplete="off"
+                spellCheck={false}
+                lang={direction === "etj" && !romaji ? "ja" : undefined}
+              />
+            </ClearableField>
 
             <div className="practice-actions">
-              <button onClick={handleSubmit} className="practice-submit-button">
-                Submit
+              <button onClick={handleSkip} className="practice-skip-button">
+                Skip
               </button>
               <button onClick={handleReveal} className="practice-skip-button">
                 Show answer
               </button>
-              <button onClick={handleSkip} className="practice-skip-button">
-                Skip
+              <button onClick={handleSubmit} className="practice-submit-button">
+                Submit
               </button>
             </div>
 

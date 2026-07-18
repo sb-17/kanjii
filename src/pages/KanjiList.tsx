@@ -8,6 +8,7 @@ import type { Kanji } from "../types/kanjiType";
 import type { KanjiStatus } from "../types/kanjiProgress";
 import { getStatusCounts } from "../storage/kanjiProgress";
 import { useProgress } from "../context/ProgressContext";
+import ClearableField from "../components/clearable-field/ClearableField";
 
 const DEFAULT_SHOWN = 100;
 
@@ -95,17 +96,27 @@ export default function KanjiList() {
   return (
     <div className="page page-center">
       <div className="kanji-list-header">
-        <input
-          type="text"
-          id="kanji-list-search-bar"
-          placeholder="Search by character, meaning, or reading..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            updateFilter("q", e.target.value);
+        <ClearableField
+          className="kanji-list-search-wrap"
+          show={searchTerm.length > 0}
+          onClear={() => {
+            setSearchTerm("");
+            updateFilter("q", "");
           }}
-          className="kanji-list-search-bar"
-        />
+          label="Clear search"
+        >
+          <input
+            type="text"
+            id="kanji-list-search-bar"
+            placeholder="Search by character, meaning, or reading..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              updateFilter("q", e.target.value);
+            }}
+            className="kanji-list-search-bar"
+          />
+        </ClearableField>
         <div className="kanji-list-count">
           Showing
           <input

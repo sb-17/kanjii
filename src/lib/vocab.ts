@@ -1,6 +1,11 @@
 import type { Vocab, VocabSrs, SrsBox } from "../types/vocabType";
 import type { KanjiProgress } from "../types/kanjiProgress";
 import { isKnownOrLearning } from "../storage/kanjiProgress";
+import { loadSettings } from "../storage/settings";
+
+// The share of a word's kanji that must be Learning/Known for it to be
+// practiceable when the "partial availability" setting is on.
+export const PARTIAL_AVAILABILITY_RATIO = 0.5;
 
 function isSrsBox(x: unknown): x is SrsBox {
   if (!x || typeof x !== "object") return false;
@@ -32,10 +37,21 @@ export function normalizeVocabList(list: Vocab[]): Vocab[] {
   );
 }
 
-// A vocab word is "available" for cards/practice when every kanji it uses is
-// marked learning or known.
-export function isVocabAvailable(vocab: Vocab, progress: KanjiProgress): boolean {
-  return vocab.kanji.every((k) => isKnownOrLearning(progress[k]));
+// A vocab word is "available" for cards/practice when enough of its kanji are
+// marked learning or known. Strict by default (every kanji); with the partial-
+// availability setting on, ≥50% is enough — so one unfamiliar kanji doesn't hide
+// a word you deliberately added. Kana-only words are always available.
+// Pass `minRatio` to override the setting (e.g. in tests).
+export function isVocabAvailable(
+  vocab: Vocab,
+  progress: KanjiProgress,
+  minRatio?: number,
+): boolean {
+  if (vocab.kanji.length === 0) return true;
+  const threshold =
+    minRatio ??
+    (loadSettings().partialAvailability ? PARTIAL_AVAILABILITY_RATIO : 1);
+  return knownRatio(vocab, progress) >= threshold;
 }
 
 // Fraction (0..1) of a word's kanji that are known or learning.

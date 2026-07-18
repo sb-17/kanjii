@@ -1,0 +1,48 @@
+.clearable-field {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+/* Reserve room on the right so text never slides under the ✕ (kept even when the
+   button is hidden, so nothing shifts as it appears/disappears). border-box so the
+   extra padding doesn't push a width:100% field past its wrapper. */
+.clearable-field > input,
+.clearable-field > textarea {
+    box-sizing: border-box;
+    padding-right: 2.25rem;
+}
+
+.clearable-clear {
+    position: absolute;
+    right: var(--space-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--surface-strong);
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.clearable-clear:hover {
+    background: var(--surface-strong-hover);
+    color: var(--text-strong);
+}
+
+.clearable-clear-center {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* For textareas, sit just inside the top-right corner. */
+.clearable-clear-top {
+    top: var(--space-2);
+}
