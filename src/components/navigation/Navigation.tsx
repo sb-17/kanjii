@@ -18,8 +18,8 @@ const navGroups: NavGroup[] = [
     title: "Kanji",
     items: [
       { id: "kanji", label: "All kanji", path: "/kanji" },
-      { id: "map", label: "Map", path: "/map" },
-      // Sets hidden from nav for now (route still works via deep link).
+      // Map & Sets hidden from nav for now — both still reachable: Map via the
+      // "Connections" link on each kanji page, Sets via deep link.
       { id: "write", label: "Write", path: "/write" },
       { id: "print", label: "Print", path: "/print" },
     ],

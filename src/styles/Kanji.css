@@ -172,3 +172,80 @@
     font-style: italic;
     margin: 0;
 }
+
+/* Related kanji (from the connection graph), below the vocab lists. */
+.kanji-related {
+    margin-top: var(--space-6);
+}
+
+.kanji-related-heading {
+    display: block;
+    font-size: var(--text-md);
+    font-weight: 700;
+    color: var(--text-strong);
+    margin-bottom: var(--space-2);
+}
+
+.kanji-related-kind {
+    display: block;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    margin: var(--space-4) 0 var(--space-2);
+}
+
+.kanji-related-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+.kanji-related-label {
+    flex: 0 0 auto;
+    min-width: 2.75rem;
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.kanji-related-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.kanji-related-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.4rem;
+    height: 2.4rem;
+    padding: 0 var(--space-2);
+    box-sizing: border-box;
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-lg);
+    font-family: "Sawarabi Mincho", serif;
+    color: var(--text-strong);
+    text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.kanji-related-chip:hover {
+    background: var(--surface-strong-hover);
+    border-color: var(--accent);
+}
+
+/* Tint the border by your status for that neighbour (new = default border). */
+.kanji-related-chip.status-learning {
+    border-color: var(--warning);
+}
+
+.kanji-related-chip.status-known {
+    border-color: var(--success);
+}

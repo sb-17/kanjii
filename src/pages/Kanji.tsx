@@ -4,6 +4,7 @@ import type { KanjiStatus } from "../types/kanjiProgress";
 import { isVocabAvailable, knownRatio } from "../lib/vocab";
 import { loadUserVocab } from "../storage/userVocab";
 import { getKanji } from "../lib/kanjiIndex";
+import { getNeighborhood, type Connector } from "../lib/kanjiGraph";
 import { useProgress } from "../context/ProgressContext";
 import KanjiStrokeViewer from "../components/kanji-stroke-viewer/KanjiStrokeViewer";
 
@@ -49,6 +50,38 @@ export default function Kanji() {
           <span className="kanji-vocab-meaning">{v.meanings.join(", ")}</span>
         </div>
       ))
+    );
+
+  // Related kanji from the connection graph: those that share this one's on-yomi
+  // (Same reading) or a component/phonetic (Similar shape). Already grouped by the
+  // shared element, frequency-sorted and capped. Cheap: the graph caches results.
+  const soundLinks = getNeighborhood(kanjiObj.character, "sounds").connectors;
+  const shapeLinks = getNeighborhood(kanjiObj.character, "shapes").connectors;
+
+  // One labelled block ("Same reading" / "Similar shape"): a row per shared
+  // element, with each neighbour a chip tinted by your status for it.
+  const renderConnectorBlock = (title: string, connectors: Connector[]) =>
+    connectors.length > 0 && (
+      <div className="kanji-related-block">
+        <span className="kanji-related-kind">{title}</span>
+        {connectors.map((c) => (
+          <div className="kanji-related-row" key={`${title}-${c.el}`}>
+            <span className="kanji-related-label">{c.el}</span>
+            <div className="kanji-related-chips">
+              {c.kanji.map((ch) => (
+                <Link
+                  key={ch}
+                  to={`/kanji/${encodeURIComponent(ch)}`}
+                  className={`kanji-related-chip status-${progress[ch] || "new"}`}
+                  title={getKanji(ch)?.meanings.join(", ")}
+                >
+                  {ch}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     );
 
   return (
@@ -132,6 +165,14 @@ export default function Kanji() {
           )}
         </div>
       </div>
+
+      {(soundLinks.length > 0 || shapeLinks.length > 0) && (
+        <div className="kanji-related">
+          <strong className="kanji-related-heading">Related kanji</strong>
+          {renderConnectorBlock("Same reading", soundLinks)}
+          {renderConnectorBlock("Similar shape", shapeLinks)}
+        </div>
+      )}
     </div>
   );
 }

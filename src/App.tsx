@@ -9,7 +9,6 @@ import Write from "./pages/Write";
 import MyWords from "./pages/MyWords";
 import Print from "./pages/Print";
 import SetDetail from "./pages/SetDetail";
-import Kanji from "./pages/Kanji";
 import KanjiList from "./pages/KanjiList";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
@@ -18,9 +17,12 @@ import Analytics from "./pages/Analytics";
 import { ProgressProvider } from "./context/ProgressContext";
 import "./App.css";
 
-// Code-split the connection map: it pulls in the precomputed graph data, which
-// only this page needs, so it stays out of the initial bundle.
+// Code-split the connection map and the kanji detail page: both pull in the
+// precomputed graph data (~116 KB), so lazy-loading keeps it off the initial
+// bundle. Rollup hoists the shared graph into its own chunk, fetched by whichever
+// of the two you open first.
 const KanjiMap = lazy(() => import("./pages/KanjiMap"));
+const Kanji = lazy(() => import("./pages/Kanji"));
 
 function AnalyticsTracker() {
   const location = useLocation();
