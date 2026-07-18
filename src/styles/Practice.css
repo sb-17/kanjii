@@ -90,23 +90,32 @@
     color: var(--text);
 }
 
-.practice-context-toggle {
-    display: block;
-    margin: var(--space-3) auto 0;
+/* Toggle + note share one centered row, so revealing the note doesn't push the
+   input and buttons down (and hiding it doesn't jump them back up). */
+.practice-note-line {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.practice-note-toggle {
+    flex-shrink: 0;
     background: none;
     border: none;
+    padding: 0;
     color: var(--text-faint);
     font-size: var(--text-sm);
     cursor: pointer;
 }
 
-.practice-context-toggle:hover {
+.practice-note-toggle:hover {
     color: var(--accent);
 }
 
-.practice-context {
-    margin: var(--space-2) auto 0;
-    max-width: 480px;
+.practice-note {
     text-align: center;
     font-size: var(--text-base);
     line-height: 1.5;

@@ -1,15 +1,11 @@
 import { useMemo, useState } from "react";
 import "../styles/Print.css";
-import kanji from "../data/kanji.json";
 import sets from "../data/sets.json";
-import type { Kanji } from "../types/kanjiType";
 import { useProgress } from "../context/ProgressContext";
 import { extractKanji } from "../lib/vocab";
+import { ALL_KANJI, getKanji } from "../lib/kanjiIndex";
 
 type Source = "set" | "learning" | "known" | "custom";
-
-const kanjiData = kanji as Kanji[];
-const kanjiByChar = new Map(kanjiData.map((k) => [k.character, k]));
 
 const MAX_ROWS = 200;
 
@@ -26,7 +22,7 @@ export default function Print() {
   const baseChars = useMemo(() => {
     if (source === "set") return sets.find((s) => s.id === setId)?.kanji ?? [];
     if (source === "custom") return [] as string[];
-    return kanjiData
+    return ALL_KANJI
       .filter((k) => progress[k.character] === source)
       .map((k) => k.character);
   }, [source, setId, progress]);
@@ -226,7 +222,7 @@ export default function Print() {
             </p>
           ) : (
             shown.map((ch, i) => {
-              const info = kanjiByChar.get(ch);
+              const info = getKanji(ch);
               const reading = info ? [...info.kun, ...info.on][0] : undefined;
               return (
                 <div className="print-row" key={`${ch}-${i}`}>

@@ -1,6 +1,36 @@
-import type { Vocab } from "../types/vocabType";
+import type { Vocab, VocabSrs, SrsBox } from "../types/vocabType";
 import type { KanjiProgress } from "../types/kanjiProgress";
 import { isKnownOrLearning } from "../storage/kanjiProgress";
+
+function isSrsBox(x: unknown): x is SrsBox {
+  if (!x || typeof x !== "object") return false;
+  const s = x as Record<string, unknown>;
+  return (
+    typeof s.box === "number" &&
+    typeof s.due === "number" &&
+    typeof s.reviewed === "number"
+  );
+}
+
+// Normalise any stored/imported srs into the per-direction shape. Legacy data
+// held one box for the word; seed *both* directions from it so no review progress
+// is lost on upgrade — they diverge from the next review on. Malformed → dropped.
+export function normalizeVocabSrs(srs: unknown): VocabSrs | undefined {
+  if (!srs || typeof srs !== "object") return undefined;
+  const s = srs as Record<string, unknown>;
+  if (isSrsBox(s)) return { etj: { ...s }, jte: { ...s } };
+  const out: VocabSrs = {};
+  if (isSrsBox(s.etj)) out.etj = { ...s.etj };
+  if (isSrsBox(s.jte)) out.jte = { ...s.jte };
+  return out.etj || out.jte ? out : undefined;
+}
+
+// Normalise every word's srs (run once at load, to migrate legacy data).
+export function normalizeVocabList(list: Vocab[]): Vocab[] {
+  return list.map((v) =>
+    v.srs ? { ...v, srs: normalizeVocabSrs(v.srs) } : v,
+  );
+}
 
 // A vocab word is "available" for cards/practice when every kanji it uses is
 // marked learning or known.
@@ -54,8 +84,7 @@ export function mergeVocab(
     const context =
       typeof r.context === "string" && r.context.trim() ? r.context.trim() : undefined;
     const importedAddedAt = typeof r.addedAt === "number" ? r.addedAt : undefined;
-    const importedSrs =
-      r.srs && typeof r.srs === "object" ? (r.srs as Vocab["srs"]) : undefined;
+    const importedSrs = normalizeVocabSrs(r.srs);
 
     const key = `${word}|${reading}`;
     const existing = map.get(key);

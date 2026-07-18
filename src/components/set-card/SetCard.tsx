@@ -13,11 +13,7 @@ export default function SetCard({
   };
 
   return (
-    <div
-      className="set-card"
-      onClick={handleClick}
-      style={{ cursor: "pointer" }}
-    >
+    <button type="button" className="set-card" onClick={handleClick}>
       <div className="set-title">{set.title}</div>
       <div className="kanji-list">
         {set.kanji.map((kanji, i) => (
@@ -26,6 +22,6 @@ export default function SetCard({
           </div>
         ))}
       </div>
-    </div>
+    </button>
   );
 }

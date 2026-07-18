@@ -47,6 +47,8 @@ export default function Analytics() {
     <div className="page">
       <h1 className="page-title">Analytics</h1>
 
+      {/* ============ Kanji ============ */}
+      <h2 className="analytics-section-title">Kanji</h2>
       <div className="analytics-grid">
         {/* ---- Kanji progress ---- */}
         <section className="stat-card surface-card">
@@ -118,52 +120,6 @@ export default function Analytics() {
           )}
         </section>
 
-        {/* ---- Review queue (SRS) ---- */}
-        <section className="stat-card surface-card">
-          <h2 className="stat-card-title">Review queue</h2>
-          {totals.total === 0 ? (
-            <p className="stat-note">
-              Add words to build a review queue.{" "}
-              <Link to="/words">My words →</Link>
-            </p>
-          ) : (
-            <>
-              <div className="stat-duo">
-                <div>
-                  <span className="stat-big">{srs.dueToday}</span>
-                  <span className="stat-sub">due today</span>
-                </div>
-                <div>
-                  <span className="stat-big">{srs.unstudied}</span>
-                  <span className="stat-sub">new to learn</span>
-                </div>
-              </div>
-
-              <h3 className="stat-subheading">Leitner boxes</h3>
-              <div className="box-bars">
-                <div className="box-col">
-                  <span className="box-fill" style={{ height: `${(srs.unstudied / boxMax) * 100}%` }} />
-                  <span className="box-count">{srs.unstudied}</span>
-                  <span className="box-label">new</span>
-                </div>
-                {srs.boxes.map((c, i) => (
-                  <div className="box-col" key={i}>
-                    <span className="box-fill" style={{ height: `${(c / boxMax) * 100}%` }} />
-                    <span className="box-count">{c}</span>
-                    <span className="box-label">{i}</span>
-                  </div>
-                ))}
-              </div>
-
-              {srs.dueToday > 0 && (
-                <Link className="stat-cta" to="/practice">
-                  Review now →
-                </Link>
-              )}
-            </>
-          )}
-        </section>
-
         {/* ---- Handwriting skill ---- */}
         <section className="stat-card surface-card">
           <h2 className="stat-card-title">Handwriting</h2>
@@ -216,7 +172,78 @@ export default function Analytics() {
           )}
         </section>
 
-        {/* ---- Vocabulary ---- */}
+        {/* ---- Kanji → Known / week (trend) ---- */}
+        <section className="stat-card surface-card">
+          <h2 className="stat-card-title">Kanji → Known / week</h2>
+          {!known.hasData ? (
+            <p className="stat-note">
+              Your weekly net change shows here as you mark kanji Known (changing
+              one back counts as a dip).
+            </p>
+          ) : (
+            <>
+              <div className="signed-bars">
+                {known.buckets.map((b, i) => (
+                  <div className="signed-col" key={i}>
+                    <span className="signed-top">
+                      {b.net > 0 && <span className="signed-val">+{b.net}</span>}
+                      {b.net > 0 && (
+                        <span
+                          className="signed-fill pos"
+                          style={{ height: `${(Math.abs(b.net) / knownMax) * 100}%` }}
+                        />
+                      )}
+                    </span>
+                    <span className="signed-bottom">
+                      {b.net < 0 && (
+                        <span
+                          className="signed-fill neg"
+                          style={{ height: `${(Math.abs(b.net) / knownMax) * 100}%` }}
+                        />
+                      )}
+                      {b.net < 0 && <span className="signed-val">{b.net}</span>}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="signed-labels">
+                {known.buckets.map((b, i) => (
+                  <span key={i}>{b.label}</span>
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+
+        {/* ---- Writes / day (trend) ---- */}
+        <section className="stat-card surface-card">
+          <h2 className="stat-card-title">Writes / day</h2>
+          {writes.total === 0 ? (
+            <p className="stat-note">
+              Your daily handwriting practice shows here.{" "}
+              <Link to="/write">Write →</Link>
+            </p>
+          ) : (
+            <div className="growth-bars">
+              {writes.buckets.map((b, i) => (
+                <div className="growth-col" key={i} title={`${b.count} writes`}>
+                  <span className="growth-count">{b.count > 0 ? b.count : ""}</span>
+                  <span
+                    className="growth-fill"
+                    style={{ height: `${(b.count / writeMax) * 100}%` }}
+                  />
+                  <span className="growth-label">{b.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* ============ Vocabulary ============ */}
+      <h2 className="analytics-section-title">Vocabulary</h2>
+      <div className="analytics-grid">
+        {/* ---- Vocabulary totals + growth ---- */}
         <section className="stat-card surface-card">
           <h2 className="stat-card-title">Vocabulary</h2>
           <div className="stat-duo">
@@ -264,49 +291,53 @@ export default function Analytics() {
           )}
         </section>
 
-        {/* ---- Trends (from the event log; only from when tracking began) ---- */}
+        {/* ---- Review queue (SRS) ---- */}
         <section className="stat-card surface-card">
-          <h2 className="stat-card-title">Kanji → Known / week</h2>
-          {!known.hasData ? (
+          <h2 className="stat-card-title">Review queue</h2>
+          {totals.total === 0 ? (
             <p className="stat-note">
-              Your weekly net change shows here as you mark kanji Known (changing
-              one back counts as a dip).
+              Add words to build a review queue.{" "}
+              <Link to="/words">My words →</Link>
             </p>
           ) : (
             <>
-              <div className="signed-bars">
-                {known.buckets.map((b, i) => (
-                  <div className="signed-col" key={i}>
-                    <span className="signed-top">
-                      {b.net > 0 && <span className="signed-val">+{b.net}</span>}
-                      {b.net > 0 && (
-                        <span
-                          className="signed-fill pos"
-                          style={{ height: `${(Math.abs(b.net) / knownMax) * 100}%` }}
-                        />
-                      )}
-                    </span>
-                    <span className="signed-bottom">
-                      {b.net < 0 && (
-                        <span
-                          className="signed-fill neg"
-                          style={{ height: `${(Math.abs(b.net) / knownMax) * 100}%` }}
-                        />
-                      )}
-                      {b.net < 0 && <span className="signed-val">{b.net}</span>}
-                    </span>
+              <div className="stat-duo">
+                <div>
+                  <span className="stat-big">{srs.dueToday}</span>
+                  <span className="stat-sub">due today</span>
+                </div>
+                <div>
+                  <span className="stat-big">{srs.unstudied}</span>
+                  <span className="stat-sub">new to learn</span>
+                </div>
+              </div>
+
+              <h3 className="stat-subheading">Leitner boxes</h3>
+              <div className="box-bars">
+                <div className="box-col">
+                  <span className="box-fill" style={{ height: `${(srs.unstudied / boxMax) * 100}%` }} />
+                  <span className="box-count">{srs.unstudied}</span>
+                  <span className="box-label">new</span>
+                </div>
+                {srs.boxes.map((c, i) => (
+                  <div className="box-col" key={i}>
+                    <span className="box-fill" style={{ height: `${(c / boxMax) * 100}%` }} />
+                    <span className="box-count">{c}</span>
+                    <span className="box-label">{i}</span>
                   </div>
                 ))}
               </div>
-              <div className="signed-labels">
-                {known.buckets.map((b, i) => (
-                  <span key={i}>{b.label}</span>
-                ))}
-              </div>
+
+              {srs.dueToday > 0 && (
+                <Link className="stat-cta" to="/practice">
+                  Review now →
+                </Link>
+              )}
             </>
           )}
         </section>
 
+        {/* ---- Reviews / day (trend) ---- */}
         <section className="stat-card surface-card">
           <h2 className="stat-card-title">Reviews / day</h2>
           {reviews.total === 0 ? (
@@ -322,29 +353,6 @@ export default function Analytics() {
                   <span
                     className="growth-fill"
                     style={{ height: `${(b.count / reviewMax) * 100}%` }}
-                  />
-                  <span className="growth-label">{b.label}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="stat-card surface-card">
-          <h2 className="stat-card-title">Writes / day</h2>
-          {writes.total === 0 ? (
-            <p className="stat-note">
-              Your daily handwriting practice shows here.{" "}
-              <Link to="/write">Write →</Link>
-            </p>
-          ) : (
-            <div className="growth-bars">
-              {writes.buckets.map((b, i) => (
-                <div className="growth-col" key={i} title={`${b.count} writes`}>
-                  <span className="growth-count">{b.count > 0 ? b.count : ""}</span>
-                  <span
-                    className="growth-fill"
-                    style={{ height: `${(b.count / writeMax) * 100}%` }}
                   />
                   <span className="growth-label">{b.label}</span>
                 </div>

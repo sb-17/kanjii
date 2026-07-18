@@ -1,10 +1,9 @@
 import { useParams, Link } from "react-router-dom";
-import kanji from "../data/kanji.json";
 import "../styles/Kanji.css";
 import type { KanjiStatus } from "../types/kanjiProgress";
-import type { Kanji } from "../types/kanjiType";
 import { isVocabAvailable, knownRatio } from "../lib/vocab";
 import { loadUserVocab } from "../storage/userVocab";
+import { getKanji } from "../lib/kanjiIndex";
 import { useProgress } from "../context/ProgressContext";
 import KanjiStrokeViewer from "../components/kanji-stroke-viewer/KanjiStrokeViewer";
 
@@ -13,7 +12,7 @@ export default function Kanji() {
   const { progress, setStatus } = useProgress();
 
   // load kanji data
-  const kanjiObj = (kanji as Kanji[]).find((k) => k.character === char);
+  const kanjiObj = getKanji(char ?? "");
 
   if (!kanjiObj) {
     return <div>Kanji not found</div>;

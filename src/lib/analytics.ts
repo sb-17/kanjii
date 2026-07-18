@@ -109,12 +109,18 @@ export function srsStats(
   for (const v of vocab) {
     if (!isVocabAvailable(v, progress)) continue;
     available++;
-    if (v.srs) {
-      boxes[Math.min(Math.max(v.srs.box, 0), MAX_BOX)]++;
-      if (v.srs.due <= cutoff) dueToday++;
-    } else {
+    const etj = v.srs?.etj;
+    const jte = v.srs?.jte;
+    if (!etj && !jte) {
       unstudied++;
+      continue;
     }
+    // Weakest link: a word is only as strong as its weaker direction, and a
+    // never-practised direction counts as box 0 (and due now). So a word tested
+    // only one way sits low in the chart until its other side catches up.
+    const effBox = Math.min(etj?.box ?? 0, jte?.box ?? 0);
+    boxes[Math.min(Math.max(effBox, 0), MAX_BOX)]++;
+    if (!etj || etj.due <= cutoff || !jte || jte.due <= cutoff) dueToday++;
   }
 
   return { boxes, unstudied, dueToday, available };

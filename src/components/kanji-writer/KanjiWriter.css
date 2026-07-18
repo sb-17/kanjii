@@ -4,6 +4,18 @@
     margin: 0 auto;
 }
 
+/* On a phone the square canvas would push the buttons below the fold, so cap it
+   by viewport height (it stays square, so this caps height too) and let the
+   other controls keep their space. */
+@media (max-width: 720px) {
+    .kanji-writer {
+        max-width: min(360px, 52vh);
+    }
+    .kanji-writer-status {
+        margin-top: var(--space-2);
+    }
+}
+
 .kanji-writer-canvas {
     width: 100%;
     aspect-ratio: 1 / 1;

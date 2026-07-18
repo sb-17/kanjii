@@ -6,8 +6,7 @@
 // "neighborhood" queries for one kanji at a time (hub-and-spoke).
 
 import graphRaw from "../data/kanjiGraph.json";
-import kanjiData from "../data/kanji.json";
-import type { Kanji } from "../types/kanjiType";
+import { ALL_KANJI, getKanji, hasKanji } from "./kanjiIndex";
 
 type GraphEntry = { c: string[]; p?: string; r?: string };
 const graph = graphRaw as Record<string, GraphEntry>;
@@ -38,10 +37,8 @@ const PER_CONNECTOR = 9;
 // is always shown because it's the strongest signal.
 const MAX_COMPONENT_GROUP = 40;
 
-const byChar = new Map((kanjiData as Kanji[]).map((k) => [k.character, k]));
-
 export function isMappableKanji(char: string): boolean {
-  return byChar.has(char);
+  return hasKanji(char);
 }
 
 // ---- Indexes (built lazily, once) ----
@@ -61,7 +58,7 @@ function buildIndexes() {
     else map.set(key, [char]);
   };
 
-  for (const k of kanjiData as Kanji[]) {
+  for (const k of ALL_KANJI) {
     const g = graph[k.character];
     if (g) {
       for (const c of g.c) add(componentIndex, c, k.character);
@@ -71,7 +68,7 @@ function buildIndexes() {
   }
 }
 
-const freqOf = (char: string) => byChar.get(char)?.frequency ?? Number.MAX_SAFE_INTEGER;
+const freqOf = (char: string) => getKanji(char)?.frequency ?? Number.MAX_SAFE_INTEGER;
 const byFrequency = (a: string, b: string) => freqOf(a) - freqOf(b);
 
 const neighborhoodCache = new Map<string, Neighborhood>();
@@ -129,7 +126,7 @@ function shapeConnectors(center: string): Connector[] {
 }
 
 function soundConnectors(center: string): Connector[] {
-  const k = byChar.get(center);
+  const k = getKanji(center);
   if (!k) return [];
 
   const seen = new Set<string>([center]);

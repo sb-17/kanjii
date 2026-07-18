@@ -10,6 +10,9 @@ export default function Learn() {
 
   return (
     <div className="page page-center">
+      <h1 className="page-title" style={{ width: "100%" }}>
+        Sets
+      </h1>
       <div className="learn-progress">
         <strong>🔁 Learning: {statusCounts.learning}</strong>
         <strong>✅ Known: {statusCounts.known}</strong>

@@ -26,13 +26,18 @@ function AnalyticsTracker() {
   const location = useLocation();
 
   useEffect(() => {
+    // Poll for the goatcounter script to load, but give up after ~5s: when it's
+    // blocked (ad blocker) or offline it never appears, and an uncapped 100ms
+    // loop would run forever.
+    let attempts = 0;
     const interval = setInterval(() => {
       if (window.goatcounter && window.goatcounter.count) {
         clearInterval(interval);
-
         window.goatcounter.count({
           path: location.pathname + location.search,
         });
+      } else if (++attempts >= 50) {
+        clearInterval(interval);
       }
     }, 100);
 

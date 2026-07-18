@@ -14,7 +14,7 @@ export default function KanjiCard({
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/kanji/${kanji.character}`);
+    navigate(`/kanji/${encodeURIComponent(kanji.character)}`);
   };
 
   return (

@@ -3,7 +3,7 @@ import "../styles/Practice.css";
 import type { Vocab } from "../types/vocabType";
 import type { PracticeScope, Settings } from "../types/settingsType";
 import { isVocabAvailable } from "../lib/vocab";
-import { scopeVocab, pickWord, applyReview, isDue } from "../lib/srs";
+import { scopeVocab, pickWord, gradeDirection, pickDirection, isDue } from "../lib/srs";
 import {
   japaneseMatches,
   meaningMatches,
@@ -21,7 +21,6 @@ import EmptyState from "../components/empty-state/EmptyState";
 type Direction = "etj" | "jte";
 
 const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
-const randDir = (): Direction => (Math.random() < 0.5 ? "etj" : "jte");
 
 const SCOPES: { id: PracticeScope; label: string }[] = [
   { id: "smart", label: "Smart" },
@@ -47,11 +46,13 @@ export default function Practice() {
       scope,
     ),
   );
-  const [direction, setDirection] = useState<Direction>(randDir);
+  const [direction, setDirection] = useState<Direction>(() =>
+    current ? pickDirection(current, Date.now()) : "etj",
+  );
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [revealed, setRevealed] = useState(false);
-  const [showContext, setShowContext] = useState(false);
+  const [showNote, setShowNote] = useState(false);
   const [graded, setGraded] = useState(false);
 
   // Only English → Japanese needs kana; the other direction is answered in
@@ -74,12 +75,13 @@ export default function Practice() {
       scope,
       now,
     );
-    setCurrent(pickWord(pool, scope, current ? keyOf(current) : undefined));
-    setDirection(randDir());
+    const nextWord = pickWord(pool, scope, current ? keyOf(current) : undefined);
+    setCurrent(nextWord);
+    setDirection(nextWord ? pickDirection(nextWord, now) : "etj");
     setAnswer("");
     setFeedback(null);
     setRevealed(false);
-    setShowContext(false);
+    setShowNote(false);
     setGraded(false);
   };
 
@@ -88,12 +90,13 @@ export default function Practice() {
     setSettings(updated);
     saveSettings(updated);
     const pool = scopeVocab(available, next, now);
-    setCurrent(pickWord(pool, next, current ? keyOf(current) : undefined));
-    setDirection(randDir());
+    const nextWord = pickWord(pool, next, current ? keyOf(current) : undefined);
+    setCurrent(nextWord);
+    setDirection(nextWord ? pickDirection(nextWord, now) : "etj");
     setAnswer("");
     setFeedback(null);
     setRevealed(false);
-    setShowContext(false);
+    setShowNote(false);
     setGraded(false);
   };
 
@@ -101,7 +104,7 @@ export default function Practice() {
   // updated vocab list so callers can advance from it.
   const grade = (correct: boolean): Vocab[] => {
     if (!current) return vocab;
-    const srs = applyReview(current.srs, correct, Date.now());
+    const srs = gradeDirection(current, direction, correct, Date.now());
     const next = vocab.map((v) => (keyOf(v) === keyOf(current) ? { ...v, srs } : v));
     setVocab(next);
     saveUserVocab(next);
@@ -208,6 +211,19 @@ export default function Practice() {
               : current.meanings.join(", ")}
           </div>
 
+          {current.context && (
+            <div className="practice-note-line">
+              <button
+                type="button"
+                className="practice-note-toggle"
+                onClick={() => setShowNote((s) => !s)}
+              >
+                {showNote ? "Hide note" : "Show note"}
+              </button>
+              {showNote && <span className="practice-note">{current.context}</span>}
+            </div>
+          )}
+
           <div className="practice-answer-container">
             <textarea
               value={answer}
@@ -261,19 +277,6 @@ export default function Practice() {
                   ? `${current.word} (${current.reading})`
                   : current.meanings.join(", ")}
               </p>
-            )}
-
-            {current.context && (
-              <button
-                type="button"
-                className="practice-context-toggle"
-                onClick={() => setShowContext((s) => !s)}
-              >
-                {showContext ? "Hide context" : "Show context"}
-              </button>
-            )}
-            {showContext && current.context && (
-              <p className="practice-context">{current.context}</p>
             )}
           </div>
         </>

@@ -1,11 +1,8 @@
 import { Link } from "react-router-dom";
-import kanjiData from "../../data/kanji.json";
-import type { Kanji } from "../../types/kanjiType";
 import type { KanjiStatus } from "../../types/kanjiProgress";
 import { useProgress } from "../../context/ProgressContext";
+import { getKanji } from "../../lib/kanjiIndex";
 import KanjiStrokeViewer from "../kanji-stroke-viewer/KanjiStrokeViewer";
-
-const byChar = new Map((kanjiData as Kanji[]).map((k) => [k.character, k]));
 
 type Props = {
   char: string;
@@ -14,7 +11,7 @@ type Props = {
 
 export default function KanjiInfoPanel({ char, onClose }: Props) {
   const { progress, setStatus } = useProgress();
-  const k = byChar.get(char);
+  const k = getKanji(char);
   const status: KanjiStatus = progress[char] ?? "new";
 
   return (

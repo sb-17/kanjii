@@ -198,3 +198,20 @@
     justify-content: center;
     gap: var(--space-3);
 }
+
+/* Fit the writing surface and its buttons on one phone screen: tighten the
+   vertical rhythm and cap the paper-mode box the same way as the canvas. */
+@media (max-width: 720px) {
+    .write-prompt {
+        margin-bottom: var(--space-2);
+    }
+    .write-toggles {
+        margin-bottom: var(--space-2);
+    }
+    .write-actions {
+        margin-top: var(--space-3);
+    }
+    .write-paper {
+        max-width: min(360px, 52vh);
+    }
+}

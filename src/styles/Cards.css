@@ -106,7 +106,35 @@
 .card-actions {
     display: flex;
     justify-content: center;
+    gap: var(--space-3);
     width: 100%;
+}
+
+.card-grade {
+    flex: 1;
+    padding: var(--space-4);
+    border: none;
+    border-radius: var(--radius);
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, filter 0.2s;
+}
+
+.card-grade-again {
+    background: var(--surface-strong);
+    color: var(--text-strong);
+}
+.card-grade-again:hover {
+    background: var(--surface-strong-hover);
+}
+
+.card-grade-got {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+.card-grade-got:hover {
+    filter: brightness(1.08);
 }
 
 .practice-submit-button {

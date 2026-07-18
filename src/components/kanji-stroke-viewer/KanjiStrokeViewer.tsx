@@ -37,7 +37,7 @@ export default function KanjiStrokeViewer({ kanji }: KanjiStrokeViewerProps) {
               y1="55"
               x2="110"
               y2="55"
-              stroke="gray"
+              stroke="var(--border)"
               strokeWidth={1}
             />
             <line
@@ -45,7 +45,7 @@ export default function KanjiStrokeViewer({ kanji }: KanjiStrokeViewerProps) {
               y1="0"
               x2="55"
               y2="110"
-              stroke="gray"
+              stroke="var(--border)"
               strokeWidth={1}
             />
 
@@ -57,7 +57,7 @@ export default function KanjiStrokeViewer({ kanji }: KanjiStrokeViewerProps) {
                 <g key={j}>
                   <path d={d} stroke="currentColor" strokeWidth={3} fill="none" />
                   {isLast && start && (
-                    <circle cx={start.x} cy={start.y} r={4} fill="red" />
+                    <circle cx={start.x} cy={start.y} r={4} fill="var(--accent)" />
                   )}
                 </g>
               );

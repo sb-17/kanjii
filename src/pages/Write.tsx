@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import kanji from "../data/kanji.json";
 import "../styles/Write.css";
 import type { Kanji } from "../types/kanjiType";
 import type { KanjiProgress } from "../types/kanjiProgress";
+import { ALL_KANJI, getKanji, hasKanji } from "../lib/kanjiIndex";
 import { useProgress } from "../context/ProgressContext";
 import { loadSettings, saveSettings } from "../storage/settings";
-import type { Settings, WritePool } from "../types/settingsType";
+import type { Settings, WriteMode, WritePool } from "../types/settingsType";
 import KanjiWriter, {
   type WriteResult,
 } from "../components/kanji-writer/KanjiWriter";
@@ -23,8 +23,6 @@ import {
 } from "../lib/kanjiSkill";
 import { useNow } from "../lib/useNow";
 
-const kanjiData = kanji as Kanji[];
-
 // Kanji to practice in session mode. "both/learning/known" filter by status;
 // "due" is the learning/known kanji whose handwriting review has come due
 // (unwritten kanji count as due). Module scope so it's a stable memo dependency.
@@ -34,7 +32,7 @@ function computePool(
   skill: KanjiSkillMap,
   now: number,
 ): Kanji[] {
-  return kanjiData.filter((k) => {
+  return ALL_KANJI.filter((k) => {
     const status = progress[k.character];
     const active = status === "learning" || status === "known";
     if (!active) return false;
@@ -148,6 +146,19 @@ export default function Write() {
     saveSettings(updated);
   };
 
+  const changeMode = (mode: WriteMode) => {
+    // Paper mode can't grade handwriting (there are no strokes to check), so the
+    // Due filter would never clear and the pool would stick on the same kanji.
+    // Drop back to Both when entering paper mode on Due — the current kanji is
+    // learning/known, so it stays in the Both pool and doesn't need repicking.
+    if (mode === "paper" && writePool === "due") {
+      updateSettings({ writeMode: mode, writePool: "both" });
+    } else {
+      updateSettings({ writeMode: mode });
+    }
+    setRevealed(false);
+  };
+
   const changePool = (p: WritePool) => {
     updateSettings({ writePool: p });
     setRevealed(false);
@@ -174,7 +185,7 @@ export default function Write() {
   };
 
   // Bad /kanji/:char/write URL.
-  if (single && !kanjiData.some((k) => k.character === routeChar)) {
+  if (single && !hasKanji(routeChar ?? "")) {
     return (
       <div className="page page-center">
         <EmptyState
@@ -186,7 +197,7 @@ export default function Write() {
     );
   }
 
-  const obj = kanjiData.find((k) => k.character === current);
+  const obj = getKanji(current);
   const readings = obj ? [...obj.kun, ...obj.on].slice(0, 3) : [];
 
   // The writer already shows "Correct!" briefly before calling this. Record how
@@ -278,13 +289,13 @@ export default function Write() {
         <div className="write-modes">
           <button
             className={`write-toggle${writeMode === "screen" ? " active" : ""}`}
-            onClick={() => updateSettings({ writeMode: "screen" })}
+            onClick={() => changeMode("screen")}
           >
             Screen
           </button>
           <button
             className={`write-toggle${writeMode === "paper" ? " active" : ""}`}
-            onClick={() => updateSettings({ writeMode: "paper" })}
+            onClick={() => changeMode("paper")}
           >
             Paper
           </button>
@@ -306,7 +317,9 @@ export default function Write() {
         <div className="write-toggles">
           <span className="write-toggle-label">Practising:</span>
           <div className="write-modes">
-            {POOLS.map((p) => (
+            {POOLS.filter(
+              (p) => p.id !== "due" || writeMode === "screen",
+            ).map((p) => (
               <button
                 key={p.id}
                 className={`write-toggle${writePool === p.id ? " active" : ""}`}

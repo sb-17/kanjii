@@ -1,4 +1,5 @@
 import type { Vocab } from "../types/vocabType";
+import { normalizeVocabList } from "../lib/vocab";
 import { readWithMigration, writeValue } from "./db";
 
 const STORAGE_KEY = "kanjii:userVocab";
@@ -8,7 +9,9 @@ const STORAGE_KEY = "kanjii:userVocab";
 let cache: Vocab[] = [];
 
 export async function hydrateUserVocab(): Promise<void> {
-  cache = (await readWithMigration<Vocab[]>(STORAGE_KEY)) ?? [];
+  // Normalise on load so legacy single-box srs migrates to per-direction once,
+  // up front — every synchronous reader then sees the new shape.
+  cache = normalizeVocabList((await readWithMigration<Vocab[]>(STORAGE_KEY)) ?? []);
 }
 
 export function loadUserVocab(): Vocab[] {
