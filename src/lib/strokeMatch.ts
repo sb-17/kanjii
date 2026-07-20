@@ -31,6 +31,7 @@ export type MatchThresholds = {
   dotRadius: number; // a tap within this of a dot counts
   chordMin: number; // below this the template's chord is too short to give a direction
   minChordCos: number; // user and template chords must agree to at least this cosine
+  maxOffset: number; // cap on the drawing-frame offset (see clampMagnitude)
 };
 
 // The caps sit a touch above the old fixed thresholds (endpoints 25, meanDist 22,
@@ -51,7 +52,24 @@ export const DEFAULT_THRESHOLDS: MatchThresholds = {
   dotRadius: 18,
   chordMin: 8,
   minChordCos: 0,
+  // A whole character written a little off-centre shouldn't fight you: strokes are
+  // matched against the template shifted by the frame offset (estimated from the
+  // strokes you've already got right), so only *relative* placement is graded.
+  // Capped here so a genuinely misplaced stroke — not a consistent shift — still
+  // fails. Roughly one endpoint-tolerance's worth. Tune on-device.
+  maxOffset: 30,
 };
+
+export const ZERO: Point = { x: 0, y: 0 };
+
+// Cap a vector's magnitude, keeping its direction. Used to bound the drawing-frame
+// offset so matching stays anchored near the template, not wherever the pen wanders.
+export function clampMagnitude(p: Point, max: number): Point {
+  const m = Math.hypot(p.x, p.y);
+  if (m <= max || m === 0) return p;
+  const s = max / m;
+  return { x: p.x * s, y: p.y * s };
+}
 
 function dist(a: Point, b: Point): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
@@ -152,6 +170,10 @@ export type MatchResult = {
   // gets weighted by.
   score: number;
   reason?: MatchReason;
+  // This stroke's own translation from the (unshifted) template — mean of
+  // user[i] − template[i]. The caller folds accepted strokes' deltas into the
+  // running frame offset. Present only once the stroke reaches shape scoring.
+  delta?: Point;
 };
 
 // Compare a user-drawn stroke to a template. Lenient by design: this grades a
@@ -160,13 +182,18 @@ export function matchStroke(
   userPoints: Point[],
   template: StrokeTemplate,
   thresholds: MatchThresholds = DEFAULT_THRESHOLDS,
+  // How far the user's drawing frame sits from the template (from the strokes
+  // they've already got right). The template is compared shifted by this, so a
+  // consistent whole-character offset stops eating the tolerance budget.
+  offset: Point = ZERO,
 ): MatchResult {
   if (template.points.length === 0) return { ok: false, score: 0, reason: "no-template" };
   if (userPoints.length === 0) return { ok: false, score: 0, reason: "short" };
 
-  // Dot / tiny stroke: accept a tap near it, scored by how near.
+  // Dot / tiny stroke: accept a tap near it (shifted into the drawing frame),
+  // scored by how near.
   if (template.length < thresholds.dotLen) {
-    const c = template.points[0];
+    const c = { x: template.points[0].x + offset.x, y: template.points[0].y + offset.y };
     let best = Infinity;
     for (const p of userPoints) best = Math.min(best, dist(p, c));
     return best < thresholds.dotRadius
@@ -180,24 +207,31 @@ export function matchStroke(
 
   const user = resample(userPoints);
   const last = user.length - 1;
+  const tpts = template.points;
+  // Template point shifted into the user's drawing frame.
+  const sp = (i: number): Point => ({ x: tpts[i].x + offset.x, y: tpts[i].y + offset.y });
 
   const endTol = tolerance(thresholds.endpoints, template.length);
   const meanTol = tolerance(thresholds.meanDist, template.length);
   const devTol = tolerance(thresholds.maxDev, template.length);
 
-  const endDev = Math.max(
-    dist(user[0], template.points[0]),
-    dist(user[last], template.points[template.points.length - 1]),
-  );
+  const endDev = Math.max(dist(user[0], sp(0)), dist(user[last], sp(tpts.length - 1)));
 
   let sum = 0;
   let maxDev = 0;
+  let dsx = 0;
+  let dsy = 0;
   for (let i = 0; i < user.length; i++) {
-    const d = dist(user[i], template.points[i]);
+    const d = dist(user[i], sp(i));
     sum += d;
     if (d > maxDev) maxDev = d;
+    // Raw (unshifted) displacement, so the running frame offset is measured
+    // against the template itself, not against the already-shifted comparison.
+    dsx += user[i].x - tpts[i].x;
+    dsy += user[i].y - tpts[i].y;
   }
   const meanDev = sum / user.length;
+  const delta: Point = { x: dsx / user.length, y: dsy / user.length };
 
   // How far inside each tolerance the stroke sits. Shape carries most of it —
   // endpoints and wobble are secondary. Computed before the accept/reject checks
@@ -208,7 +242,7 @@ export function matchStroke(
       0.25 * (1 - maxDev / devTol),
   );
 
-  if (endDev > endTol) return { ok: false, score, reason: "endpoints" };
+  if (endDev > endTol) return { ok: false, score, reason: "endpoints", delta };
 
   // Reject strokes drawn backwards. On a long stroke the endpoint check already
   // catches this — a reversed start lands near the template's end, well outside
@@ -226,13 +260,13 @@ export function matchStroke(
       ucLen === 0
         ? -1
         : (template.chord.x * uc.x + template.chord.y * uc.y) / (template.chordLen * ucLen);
-    if (cos < thresholds.minChordCos) return { ok: false, score, reason: "direction" };
+    if (cos < thresholds.minChordCos) return { ok: false, score, reason: "direction", delta };
   }
 
-  if (meanDev > meanTol) return { ok: false, score, reason: "shape" };
-  if (maxDev > devTol) return { ok: false, score, reason: "wobble" };
+  if (meanDev > meanTol) return { ok: false, score, reason: "shape", delta };
+  if (maxDev > devTol) return { ok: false, score, reason: "wobble", delta };
 
-  return { ok: true, score };
+  return { ok: true, score, delta };
 }
 
 // Which still-upcoming stroke of this kanji the user actually drew, or -1.
@@ -247,9 +281,10 @@ export function findMatchingStroke(
   templates: StrokeTemplate[],
   current: number,
   thresholds: MatchThresholds = DEFAULT_THRESHOLDS,
+  offset: Point = ZERO,
 ): number {
   for (let i = current + 1; i < templates.length; i++) {
-    if (matchStroke(userPoints, templates[i], thresholds).ok) return i;
+    if (matchStroke(userPoints, templates[i], thresholds, offset).ok) return i;
   }
   return -1;
 }

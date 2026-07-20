@@ -5,6 +5,8 @@ import {
   buildTemplate,
   findMatchingStroke,
   matchStroke,
+  clampMagnitude,
+  DEFAULT_THRESHOLDS,
   type Point,
 } from "../../lib/strokeMatch";
 
@@ -35,6 +37,22 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
   const missesRef = useRef(0);
   const hintsRef = useRef(0);
   const startedAtRef = useRef<number | null>(null);
+
+  // Running drawing-frame offset: the summed per-stroke translation of the strokes
+  // accepted so far, divided by their count and capped, gives how far this
+  // character sits from the template. Later strokes are matched against that frame,
+  // so a consistent whole-character offset doesn't fight the learner. Reset on
+  // Clear (and naturally on remount when the kanji changes).
+  const offsetSumRef = useRef<Point>({ x: 0, y: 0 });
+  const offsetCountRef = useRef(0);
+  const frameOffset = (): Point => {
+    const n = offsetCountRef.current;
+    if (n === 0) return { x: 0, y: 0 };
+    return clampMagnitude(
+      { x: offsetSumRef.current.x / n, y: offsetSumRef.current.y / n },
+      DEFAULT_THRESHOLDS.maxOffset,
+    );
+  };
 
   const [strokes, setStrokes] = useState<string[]>([]);
   const [current, setCurrent] = useState(0);
@@ -120,8 +138,17 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
     setPoints([]);
     if (userPts.length === 0) return;
 
-    const res = matchStroke(userPts, templates[current]);
+    const offset = frameOffset();
+    const res = matchStroke(userPts, templates[current], DEFAULT_THRESHOLDS, offset);
     if (res.ok) {
+      // Fold this stroke's translation into the running frame estimate.
+      if (res.delta) {
+        offsetSumRef.current = {
+          x: offsetSumRef.current.x + res.delta.x,
+          y: offsetSumRef.current.y + res.delta.y,
+        };
+        offsetCountRef.current += 1;
+      }
       setAccepted((prev) => [...prev, userPts]);
       setHint(false);
       const next = current + 1;
@@ -141,13 +168,15 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
       // A well-drawn stroke in the wrong place is usually a *different* stroke of
       // this kanji. Naming that is much more useful than "try again", since
       // stroke order is the thing being taught.
-      const other = findMatchingStroke(userPts, templates, current);
+      const other = findMatchingStroke(userPts, templates, current, DEFAULT_THRESHOLDS, offset);
       setMiss(other === -1 ? "shape" : "order");
     }
   };
 
   const handleClear = () => {
     pointsRef.current = [];
+    offsetSumRef.current = { x: 0, y: 0 };
+    offsetCountRef.current = 0;
     setAccepted([]);
     setCurrent(0);
     setPoints([]);
