@@ -16,6 +16,13 @@ export function loadKanjiSkill(): KanjiSkillMap {
   return cache;
 }
 
+// Replace the whole skill map (used by full-backup restore). Per-kanji edits go
+// through updateKanjiSkill instead.
+export function saveKanjiSkill(map: KanjiSkillMap): void {
+  cache = map;
+  void writeValue(STORAGE_KEY, map);
+}
+
 // Set (or clear, with undefined) one kanji's skill and persist. Returns the new
 // map so callers can drive local state from it.
 export function updateKanjiSkill(

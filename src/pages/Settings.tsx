@@ -3,8 +3,10 @@ import "../styles/Settings.css";
 import { useProgress } from "../context/ProgressContext";
 import { parseProgress } from "../storage/kanjiProgress";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
+import { loadKanjiSkill, saveKanjiSkill } from "../storage/kanjiSkill";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { mergeVocab } from "../lib/vocab";
+import { buildBackup, parseBackup } from "../lib/backup";
 import { getThemePref, setThemePref, type ThemePref } from "../storage/theme";
 
 const THEMES: { id: ThemePref; label: string }[] = [
@@ -111,6 +113,42 @@ export default function Settings() {
       } catch {
         alert("Invalid file. Expected a vocab JSON array.");
       }
+    });
+  };
+
+  const handleBackupExport = () =>
+    downloadJson(
+      buildBackup(progress, loadUserVocab(), loadKanjiSkill()),
+      "kanjii-backup.json",
+    );
+
+  const handleBackupImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    readFile(e.target, (text) => {
+      let data;
+      try {
+        data = parseBackup(JSON.parse(text));
+      } catch (err) {
+        alert(
+          "Couldn't read that backup.\n\n" +
+            `${(err as Error).message}\n\n` +
+            "Nothing was changed.",
+        );
+        return;
+      }
+
+      const ok = confirm(
+        "Restore this backup?\n\n" +
+          `• ${Object.keys(data.progress).length} kanji statuses — replaces your current progress\n` +
+          `• ${data.vocab.length} words — merged into your current words\n` +
+          `• ${Object.keys(data.skill).length} handwriting-skill entries — replaces current\n\n` +
+          "This cannot be undone.",
+      );
+      if (!ok) return;
+
+      replaceProgress(data.progress);
+      saveUserVocab(mergeVocab(loadUserVocab(), data.vocab).merged);
+      saveKanjiSkill(data.skill);
+      alert("Backup restored.");
     });
   };
 
@@ -224,6 +262,33 @@ export default function Settings() {
               type="file"
               accept="application/json"
               onChange={handleVocabImport}
+              hidden
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="settings-card surface-card">
+        <strong>Full backup</strong>
+
+        <p className="settings-description">
+          Everything in one file — kanji progress, your words (with review
+          progress), and handwriting skill. Use it to back up or move to another
+          device. Restoring replaces your kanji progress and writing skill, and
+          merges in the backup's words. (Practice trends aren't included.)
+        </p>
+
+        <div className="settings-actions">
+          <button className="settings-button" onClick={handleBackupExport}>
+            <strong>📦 Export everything</strong>
+          </button>
+
+          <label className="settings-import">
+            <strong>📥 Import backup</strong>
+            <input
+              type="file"
+              accept="application/json"
+              onChange={handleBackupImport}
               hidden
             />
           </label>
