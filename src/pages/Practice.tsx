@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import "../styles/Practice.css";
 import type { Vocab } from "../types/vocabType";
 import type { PracticeScope, Settings } from "../types/settingsType";
@@ -23,8 +24,11 @@ type Direction = "etj" | "jte";
 
 const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
 
+// The "smart" id is kept (it's the stored setting value); only the label changed
+// to "Due" to line up with writing practice. It still falls back to extra cards
+// when you're caught up — see the "all caught up" banner.
 const SCOPES: { id: PracticeScope; label: string }[] = [
-  { id: "smart", label: "Smart" },
+  { id: "smart", label: "Due" },
   { id: "recent", label: "Recent" },
   { id: "all", label: "All" },
   { id: "new", label: "New" },
@@ -288,6 +292,14 @@ export default function Practice() {
                   ? `${current.word} (${current.reading})`
                   : current.meanings.join(", ")}
               </p>
+            )}
+            {revealed && (
+              <Link
+                className="practice-word-link"
+                to={`/word/${encodeURIComponent(keyOf(current))}`}
+              >
+                View word →
+              </Link>
             )}
           </div>
         </>

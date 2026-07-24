@@ -44,11 +44,15 @@ export default function Kanji() {
       <p className="kanji-vocab-empty">{emptyMessage}</p>
     ) : (
       items.map((v, i) => (
-        <div className="kanji-vocab-item" key={`${v.word}-${i}`}>
+        <Link
+          className="kanji-vocab-item"
+          key={`${v.word}-${i}`}
+          to={`/word/${encodeURIComponent(`${v.word}|${v.reading}`)}`}
+        >
           <span className="kanji-vocab-word">{v.word}</span>
           <span className="kanji-vocab-reading">{v.reading}</span>
           <span className="kanji-vocab-meaning">{v.meanings.join(", ")}</span>
-        </div>
+        </Link>
       ))
     );
 

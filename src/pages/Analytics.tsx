@@ -227,7 +227,7 @@ export default function Analytics() {
             <div className="growth-bars">
               {writes.buckets.map((b, i) => (
                 <div className="growth-col" key={i} title={`${b.count} writes`}>
-                  <span className="growth-count">{b.count > 0 ? b.count : ""}</span>
+                  <span className="growth-count">{b.count}</span>
                   <span
                     className="growth-fill"
                     style={{ height: `${(b.count / writeMax) * 100}%` }}
@@ -271,7 +271,7 @@ export default function Analytics() {
               <div className="growth-bars">
                 {growth.buckets.map((b, i) => (
                   <div className="growth-col" key={i} title={`${b.count} added`}>
-                    <span className="growth-count">{b.count > 0 ? b.count : ""}</span>
+                    <span className="growth-count">{b.count}</span>
                     <span
                       className="growth-fill"
                       style={{ height: `${(b.count / growthMax) * 100}%` }}
@@ -312,7 +312,7 @@ export default function Analytics() {
                 </div>
               </div>
 
-              <h3 className="stat-subheading">Leitner boxes</h3>
+              <h3 className="stat-subheading">Skill boxes</h3>
               <div className="box-bars">
                 <div className="box-col">
                   <span className="box-fill" style={{ height: `${(srs.unstudied / boxMax) * 100}%` }} />
@@ -349,7 +349,7 @@ export default function Analytics() {
             <div className="growth-bars">
               {reviews.buckets.map((b, i) => (
                 <div className="growth-col" key={i} title={`${b.count} reviews`}>
-                  <span className="growth-count">{b.count > 0 ? b.count : ""}</span>
+                  <span className="growth-count">{b.count}</span>
                   <span
                     className="growth-fill"
                     style={{ height: `${(b.count / reviewMax) * 100}%` }}

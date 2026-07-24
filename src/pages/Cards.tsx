@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import "../styles/Cards.css";
 import type { Vocab } from "../types/vocabType";
 import type { PracticeScope, Settings } from "../types/settingsType";
@@ -11,8 +12,9 @@ import { useProgress } from "../context/ProgressContext";
 import { useNow } from "../lib/useNow";
 import EmptyState from "../components/empty-state/EmptyState";
 
+// "smart" id kept (stored setting); label shows "Due" to match writing practice.
 const SCOPES: { id: PracticeScope; label: string }[] = [
-  { id: "smart", label: "Smart" },
+  { id: "smart", label: "Due" },
   { id: "recent", label: "Recent" },
   { id: "all", label: "All" },
   { id: "new", label: "New" },
@@ -144,6 +146,13 @@ export default function Cards() {
                 {current.context && (
                   <p className="card-context">{current.context}</p>
                 )}
+                <Link
+                  className="card-word-link"
+                  to={`/word/${encodeURIComponent(keyOf(current))}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  View word →
+                </Link>
                 <span className="tap-hint">Tap to flip back</span>
               </div>
             </div>

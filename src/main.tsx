@@ -51,6 +51,23 @@ async function boot() {
 async function warmStrokeCache() {
   if (typeof navigator === "undefined" || navigator.onLine === false) return;
 
+  // Don't flood a weak or metered connection with the bulk stroke prefetch — it
+  // competes for the little bandwidth there is and can make the UI feel laggy.
+  // Strokes still load on demand (CacheFirst) when a kanji is actually opened.
+  const conn = (
+    navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }
+  ).connection;
+  if (
+    conn &&
+    (conn.saveData ||
+      conn.effectiveType === "2g" ||
+      conn.effectiveType === "slow-2g")
+  ) {
+    return;
+  }
+
   // Wait for the SW to be active so its CacheFirst rule can store the responses,
   // but don't hang forever if there's no SW (e.g. dev).
   if (navigator.serviceWorker) {

@@ -1,5 +1,12 @@
-import { useEffect, lazy, Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useEffect, useLayoutEffect, lazy, Suspense } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigationType,
+} from "react-router-dom";
 import Navigation from "./components/navigation/Navigation";
 import Home from "./pages/Home";
 import Learn from "./pages/Learn";
@@ -7,6 +14,7 @@ import Cards from "./pages/Cards";
 import Practice from "./pages/Practice";
 import Write from "./pages/Write";
 import MyWords from "./pages/MyWords";
+import WordDetail from "./pages/WordDetail";
 import Print from "./pages/Print";
 import SetDetail from "./pages/SetDetail";
 import KanjiList from "./pages/KanjiList";
@@ -49,11 +57,27 @@ function AnalyticsTracker() {
   return null;
 }
 
+// Send each new (PUSH) navigation to the top of the scrolling pane. Otherwise a
+// route change keeps the previous page's scroll offset — e.g. opening a kanji from
+// a scrolled list would land partway down. Back/forward (POP) is left alone so
+// pages that restore their own scroll (the kanji list) can return you where you
+// were. useLayoutEffect so it happens before paint (no visible jump).
+function ScrollManager() {
+  const location = useLocation();
+  const navType = useNavigationType();
+  useLayoutEffect(() => {
+    if (navType !== "PUSH") return;
+    document.querySelector<HTMLElement>(".app-content")?.scrollTo(0, 0);
+  }, [location.key, navType]);
+  return null;
+}
+
 export default function App() {
   return (
     <ProgressProvider>
       <Router basename={import.meta.env.BASE_URL}>
         <AnalyticsTracker />
+        <ScrollManager />
 
         <div className="app-container">
           <Navigation />
@@ -74,6 +98,7 @@ export default function App() {
             <Route path="/write" element={<Write />} />
             <Route path="/print" element={<Print />} />
             <Route path="/words" element={<MyWords />} />
+            <Route path="/word/:key" element={<WordDetail />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
             <Route path="/support" element={<Support />} />

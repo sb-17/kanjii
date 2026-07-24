@@ -91,6 +91,16 @@
     overflow: hidden;
 }
 
+.card-word-link {
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.card-word-link:hover {
+    color: var(--accent);
+}
+
 .tap-hint {
     position: absolute;
     bottom: var(--space-4);

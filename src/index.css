@@ -94,11 +94,26 @@ a:hover {
   color: var(--accent-hover);
 }
 
+/* The app is a fixed shell: only .app-content scrolls. Lock the page itself so it
+   can't drift (accidentally scrolling the document instead of the list) and so
+   overscroll doesn't rubber-band. Pinch-zoom is off via the viewport meta;
+   touch-action here also kills double-tap zoom. */
+html {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
 body {
   margin: 0;
   min-width: 320px;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
 }
 
 button {

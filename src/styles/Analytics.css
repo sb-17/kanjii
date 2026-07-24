@@ -17,8 +17,11 @@
 }
 
 @media (max-width: 720px) {
+  /* minmax(0, …) not a bare 1fr: a bare 1fr is minmax(auto,1fr), so a card with
+     wide min-content (e.g. the 14-column day charts) can push the track past the
+     viewport, making one section render wider than the other. */
   .analytics-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -26,6 +29,8 @@
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
+  /* let the card shrink to its grid track instead of its widest child */
+  min-width: 0;
 }
 
 .stat-card-title {

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import "../styles/MyWords.css";
 import type { Vocab } from "../types/vocabType";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
@@ -223,14 +224,17 @@ export default function MyWords() {
         <div className="mw-list">
           {filtered.map((v) => (
             <div className="mw-item surface-card" key={keyOf(v)}>
-              <div className="mw-item-body">
+              <Link
+                className="mw-item-body"
+                to={`/word/${encodeURIComponent(keyOf(v))}`}
+              >
                 <div className="mw-item-main">
                   <span className="mw-word">{v.word}</span>
                   {v.reading && <span className="mw-reading">{v.reading}</span>}
                   <span className="mw-meaning">{v.meanings.join(", ")}</span>
                 </div>
                 {v.context && <p className="mw-item-context">{v.context}</p>}
-              </div>
+              </Link>
               <div className="mw-item-actions">
                 <button className="mw-icon-button" onClick={() => handleEdit(v)}>
                   Edit

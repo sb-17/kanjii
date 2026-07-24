@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState, useMemo, useLayoutEffect } from "react";
+import { useSearchParams, useLocation } from "react-router-dom";
 import * as wanakana from "wanakana";
 import KanjiCard from "../components/kanji-card/KanjiCard";
 import kanji from "../data/kanji.json";
@@ -11,6 +11,11 @@ import { useProgress } from "../context/ProgressContext";
 import ClearableField from "../components/clearable-field/ClearableField";
 
 const DEFAULT_SHOWN = 100;
+
+// Remembered scroll offset per history entry, so returning from a kanji page
+// (browser back → same location.key) lands where you left off, while a fresh
+// open of the list (new key) starts at the top.
+const listScroll = new Map<string, number>();
 
 export default function KanjiList() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -32,6 +37,20 @@ export default function KanjiList() {
   const [statusFilter, setStatusFilter] = useState<KanjiStatus | null>(
     initialStatusFilter,
   );
+
+  // Save/restore the scroll offset of the scrolling pane (.app-content) for this
+  // history entry, so back-from-a-kanji returns to the same spot. A fresh visit
+  // has no saved offset, so it starts at the top (explicit, to not inherit the
+  // previous page's scroll).
+  const location = useLocation();
+  useLayoutEffect(() => {
+    const el = document.querySelector<HTMLElement>(".app-content");
+    if (!el) return;
+    el.scrollTop = listScroll.get(location.key) ?? 0;
+    const onScroll = () => listScroll.set(location.key, el.scrollTop);
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [location.key]);
 
   const parsedCount = Math.floor(Number(countInput));
   const numberOfKanjiShown =
