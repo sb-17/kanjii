@@ -203,17 +203,16 @@
     margin: var(--space-4) 0 var(--space-2);
 }
 
+/* The shared element (reading or shape component) sits on its own line, with its
+   kanji wrapping on the line(s) below — consistent for every group, however many
+   chips it has. */
 .kanji-related-row {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-3);
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-4);
 }
 
 .kanji-related-label {
-    flex: 0 0 auto;
-    min-width: 2.75rem;
+    display: block;
+    margin-bottom: var(--space-2);
     font-size: var(--text-base);
     font-weight: 600;
     color: var(--text-muted);

@@ -1,18 +1,21 @@
-// One-file backup of everything the learner has built: kanji statuses, their
-// vocab (with per-direction SRS), and handwriting skill. Local-first with no
+// One-file backup of everything the learner has: kanji statuses, their vocab
+// (with per-direction SRS), handwriting skill, the analytics event log (what the
+// trend charts are built from), and their settings/theme. Local-first with no
 // accounts, so this file *is* the backup — and the way to move to a new device.
-//
-// Events (the analytics trend log) are intentionally left out: they're derived,
-// device-local, and can grow large. This backs up state you can't recompute.
 
 import type { KanjiProgress } from "../types/kanjiProgress";
 import type { Vocab } from "../types/vocabType";
 import type { KanjiSkillMap } from "../types/kanjiSkill";
+import type { Settings } from "../types/settingsType";
+import type { AppEvent } from "../storage/events";
+import type { ThemePref } from "../storage/theme";
 import { parseProgress } from "../storage/kanjiProgress";
 import { mergeVocab } from "./vocab";
 
 export const BACKUP_KIND = "kanjii-backup";
-export const BACKUP_VERSION = 1;
+// v2 added events + settings + theme. v1 files (progress/vocab/skill only) still
+// import — the extra sections just come back empty/undefined.
+export const BACKUP_VERSION = 2;
 
 export type Backup = {
   kind: typeof BACKUP_KIND;
@@ -21,12 +24,27 @@ export type Backup = {
   progress: KanjiProgress;
   vocab: Vocab[];
   skill: KanjiSkillMap;
+  events: AppEvent[];
+  settings?: Settings;
+  theme?: ThemePref;
+};
+
+export type ParsedBackup = {
+  progress: KanjiProgress;
+  vocab: Vocab[];
+  skill: KanjiSkillMap;
+  events: AppEvent[];
+  settings?: Partial<Settings>;
+  theme?: ThemePref;
 };
 
 export function buildBackup(
   progress: KanjiProgress,
   vocab: Vocab[],
   skill: KanjiSkillMap,
+  events: AppEvent[],
+  settings: Settings,
+  theme: ThemePref,
 ): Backup {
   return {
     kind: BACKUP_KIND,
@@ -35,6 +53,9 @@ export function buildBackup(
     progress,
     vocab,
     skill,
+    events,
+    settings,
+    theme,
   };
 }
 
@@ -58,14 +79,35 @@ function parseSkill(raw: unknown): KanjiSkillMap {
   return out;
 }
 
+// Keep well-formed events (a timestamp + a known kind); drop anything else so a
+// stray entry can't break the trend math.
+function parseEvents(raw: unknown): AppEvent[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((e): e is AppEvent => {
+    if (!e || typeof e !== "object") return false;
+    const o = e as Record<string, unknown>;
+    return (
+      typeof o.t === "number" &&
+      (o.k === "kanji" || o.k === "review" || o.k === "write")
+    );
+  });
+}
+
+function parseTheme(raw: unknown): ThemePref | undefined {
+  return raw === "light" || raw === "dark" || raw === "system" ? raw : undefined;
+}
+
+function parseSettings(raw: unknown): Partial<Settings> | undefined {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  // Kept partial — merged onto the current settings on import, so unknown or
+  // missing fields fall back to what's already there.
+  return raw as Partial<Settings>;
+}
+
 // Validate a parsed JSON blob as a full backup, throwing a user-readable reason if
 // it isn't one. The `kind` guard is what stops a bare progress/vocab export (or an
 // unrelated file) from being restored as if it were a backup.
-export function parseBackup(raw: unknown): {
-  progress: KanjiProgress;
-  vocab: Vocab[];
-  skill: KanjiSkillMap;
-} {
+export function parseBackup(raw: unknown): ParsedBackup {
   if (raw == null || typeof raw !== "object" || Array.isArray(raw)) {
     throw new Error("This doesn't look like a Kanjii backup file.");
   }
@@ -79,5 +121,12 @@ export function parseBackup(raw: unknown): {
   // same item validation + srs normalisation the vocab import already trusts.
   const progress = parseProgress(r.progress);
   const { merged } = mergeVocab([], r.vocab);
-  return { progress, vocab: merged, skill: parseSkill(r.skill) };
+  return {
+    progress,
+    vocab: merged,
+    skill: parseSkill(r.skill),
+    events: parseEvents(r.events),
+    settings: parseSettings(r.settings),
+    theme: parseTheme(r.theme),
+  };
 }

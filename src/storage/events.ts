@@ -89,6 +89,14 @@ function append(e: AppEvent): void {
   if (flushTimer == null) flushTimer = setTimeout(flush, FLUSH_DELAY);
 }
 
+// Replace the whole log (full-backup restore). Cancels any pending coalesced
+// flush since it would just re-write the same cache.
+export function replaceEvents(events: AppEvent[]): void {
+  cache = events;
+  dirty = false;
+  void writeValue(KEY, events);
+}
+
 export function logKanjiStatus(char: string, from: string | null, to: string): void {
   if (from === to) return;
   append({ t: Date.now(), k: "kanji", c: char, f: from, to });

@@ -4,6 +4,7 @@ import { useProgress } from "../context/ProgressContext";
 import { parseProgress } from "../storage/kanjiProgress";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
 import { loadKanjiSkill, saveKanjiSkill } from "../storage/kanjiSkill";
+import { loadEvents, replaceEvents } from "../storage/events";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { mergeVocab } from "../lib/vocab";
 import { buildBackup, parseBackup } from "../lib/backup";
@@ -118,7 +119,14 @@ export default function Settings() {
 
   const handleBackupExport = () =>
     downloadJson(
-      buildBackup(progress, loadUserVocab(), loadKanjiSkill()),
+      buildBackup(
+        progress,
+        loadUserVocab(),
+        loadKanjiSkill(),
+        loadEvents(),
+        loadSettings(),
+        getThemePref(),
+      ),
       "kanjii-backup.json",
     );
 
@@ -140,14 +148,30 @@ export default function Settings() {
         "Restore this backup?\n\n" +
           `• ${Object.keys(data.progress).length} kanji statuses — replaces your current progress\n` +
           `• ${data.vocab.length} words — merged into your current words\n` +
-          `• ${Object.keys(data.skill).length} handwriting-skill entries — replaces current\n\n` +
-          "This cannot be undone.",
+          `• ${Object.keys(data.skill).length} handwriting-skill entries — replaces current\n` +
+          `• ${data.events.length} analytics events — replaces your trend history\n` +
+          (data.settings || data.theme ? "• settings & theme\n" : "") +
+          "\nThis cannot be undone.",
       );
       if (!ok) return;
 
       replaceProgress(data.progress);
       saveUserVocab(mergeVocab(loadUserVocab(), data.vocab).merged);
       saveKanjiSkill(data.skill);
+      replaceEvents(data.events);
+
+      if (data.settings) {
+        const mergedSettings = { ...loadSettings(), ...data.settings };
+        saveSettings(mergedSettings);
+        // keep the on-screen toggles in sync with what was just restored
+        setRomajiInput(mergedSettings.romajiInput);
+        setPartialAvailability(mergedSettings.partialAvailability);
+      }
+      if (data.theme) {
+        setThemePref(data.theme);
+        setTheme(data.theme);
+      }
+
       alert("Backup restored.");
     });
   };
@@ -273,9 +297,10 @@ export default function Settings() {
 
         <p className="settings-description">
           Everything in one file — kanji progress, your words (with review
-          progress), and handwriting skill. Use it to back up or move to another
-          device. Restoring replaces your kanji progress and writing skill, and
-          merges in the backup's words. (Practice trends aren't included.)
+          progress), handwriting skill, your analytics history, and your
+          settings/theme. Use it to back up or move to another device. Restoring
+          replaces progress, skill, analytics and settings, and merges in the
+          backup's words.
         </p>
 
         <div className="settings-actions">
