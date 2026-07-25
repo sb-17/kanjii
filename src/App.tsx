@@ -13,6 +13,7 @@ import Learn from "./pages/Learn";
 import Cards from "./pages/Cards";
 import Practice from "./pages/Practice";
 import Write from "./pages/Write";
+import KanjiLearn from "./pages/KanjiLearn";
 import MyWords from "./pages/MyWords";
 import WordDetail from "./pages/WordDetail";
 import Print from "./pages/Print";
@@ -91,6 +92,7 @@ export default function App() {
             <Route path="/map" element={<KanjiMap />} />
             <Route path="/kanji/:char" element={<Kanji />} />
             <Route path="/kanji/:char/write" element={<Write />} />
+            <Route path="/kanji/:char/learn" element={<KanjiLearn />} />
             <Route path="/sets" element={<Learn />} />
             <Route path="/sets/:setId" element={<SetDetail />} />
             <Route path="/cards" element={<Cards />} />

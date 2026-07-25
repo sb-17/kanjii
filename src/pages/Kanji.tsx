@@ -139,6 +139,12 @@ export default function Kanji() {
             <option value="known">✅ Known</option>
           </select>
           <Link
+            to={`/kanji/${encodeURIComponent(kanjiObj.character)}/learn`}
+            className="kanji-write-link"
+          >
+            📖 Learn this kanji
+          </Link>
+          <Link
             to={`/kanji/${encodeURIComponent(kanjiObj.character)}/write`}
             className="kanji-write-link"
           >

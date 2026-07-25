@@ -1,0 +1,284 @@
+.kl-page {
+    display: flex;
+    flex-direction: column;
+}
+
+.kl-back {
+    align-self: flex-start;
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    cursor: pointer;
+}
+
+.kl-back:hover {
+    color: var(--accent);
+}
+
+.kl-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-3) 0 var(--space-4);
+}
+
+.kl-heading {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-strong);
+    text-align: center;
+}
+
+/* Position in the session, without a score attached to it. */
+.kl-pips {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.kl-pip {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+}
+
+.kl-pip.filled {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.kl-step {
+    width: 100%;
+}
+
+.kl-step-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.kl-char {
+    font-size: clamp(5rem, 22vw, 8rem);
+    line-height: 1.1;
+    font-weight: bold;
+    font-family: "Noto Sans JP", sans-serif;
+    color: var(--text-strong);
+}
+
+.kl-char-small {
+    font-size: clamp(3rem, 12vw, 4.5rem);
+}
+
+.kl-meanings {
+    margin: var(--space-2) 0 0;
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+    font-weight: 600;
+    color: var(--text-strong);
+}
+
+.kl-facts {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.kl-sub {
+    margin: var(--space-4) 0 0;
+    max-width: 460px;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+.kl-write-prompt {
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-md);
+    color: var(--text-strong);
+}
+
+.kl-rep {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+.kl-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+}
+
+.kl-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    background: var(--surface-strong);
+    color: var(--text-strong);
+    text-decoration: none;
+    border: none;
+    border-radius: var(--radius);
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.kl-button:hover {
+    background: var(--surface-strong-hover);
+}
+
+.kl-button:active {
+    transform: translateY(1px);
+}
+
+.kl-button-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
+.kl-button-primary:hover {
+    background: var(--accent-hover);
+}
+
+.kl-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.kl-button:disabled:hover {
+    background: var(--accent);
+}
+
+.kl-readings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+}
+
+.kl-reading-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+}
+
+.kl-reading-label {
+    flex: 0 0 5.5rem;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.kl-reading-values {
+    flex: 1 1 200px;
+    min-width: 0;
+    font-size: var(--text-md);
+    color: var(--text-strong);
+}
+
+.kl-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+}
+
+.kl-form .kl-sub {
+    margin: 0;
+    max-width: none;
+}
+
+.kl-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.kl-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--surface-strong);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-base);
+}
+
+.kl-input::placeholder {
+    color: var(--text-faint);
+}
+
+.kl-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.kl-error {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--error);
+}
+
+.kl-form .kl-actions {
+    margin-top: var(--space-1);
+}
+
+.kl-done-word {
+    margin: var(--space-3) 0 0;
+    font-size: var(--text-base);
+    color: var(--text-muted);
+}
+
+.kl-done-word strong {
+    color: var(--text-strong);
+}
+
+.kl-suggest {
+    width: 100%;
+    max-width: 420px;
+    margin-top: var(--space-5);
+    padding: var(--space-4);
+}
+
+.kl-suggest-text {
+    margin: 0;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.kl-suggest .kl-actions {
+    margin-top: var(--space-3);
+}
+
+/* Keep the writing canvas and its buttons on one phone screen — same budget the
+   Write page works to. */
+@media (max-width: 720px) {
+    .kl-header {
+        margin: var(--space-2) 0 var(--space-3);
+    }
+
+    .kl-actions {
+        margin-top: var(--space-4);
+    }
+
+    .kl-write-prompt {
+        margin-bottom: var(--space-2);
+    }
+
+    .kl-sub {
+        margin-top: var(--space-3);
+    }
+}
