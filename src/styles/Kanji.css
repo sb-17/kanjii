@@ -1,3 +1,18 @@
+.kanji-back {
+    display: inline-block;
+    margin-bottom: var(--space-3);
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    cursor: pointer;
+}
+
+.kanji-back:hover {
+    color: var(--accent);
+}
+
 /* Top block: glyph | meanings & readings | controls — stable across kanji. */
 .kanji-top {
     display: flex;

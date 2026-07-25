@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import "../styles/Kanji.css";
 import type { KanjiStatus } from "../types/kanjiProgress";
 import { isVocabAvailable, knownRatio } from "../lib/vocab";
@@ -11,6 +11,7 @@ import KanjiStrokeViewer from "../components/kanji-stroke-viewer/KanjiStrokeView
 export default function Kanji() {
   const { char } = useParams<{ char: string }>();
   const { progress, setStatus } = useProgress();
+  const navigate = useNavigate();
 
   // load kanji data
   const kanjiObj = getKanji(char ?? "");
@@ -90,6 +91,14 @@ export default function Kanji() {
 
   return (
     <div className="page kanji-page">
+      <button
+        type="button"
+        className="kanji-back"
+        onClick={() => navigate(-1)}
+      >
+        ← Back
+      </button>
+
       <div className="kanji-top">
         <div className="kanji-char">{kanjiObj.character}</div>
 
