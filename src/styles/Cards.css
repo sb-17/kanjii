@@ -147,7 +147,10 @@
     filter: brightness(1.08);
 }
 
-.practice-submit-button {
+/* Was `.practice-submit-button`, which Practice.css also defines: the two rule
+   sets merged in the global cascade, so each page's button silently picked up the
+   other's properties. Cards owns its own class now. */
+.card-show-answer {
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -164,11 +167,11 @@
     transition: background 0.2s, color 0.2s;
 }
 
-.practice-submit-button:hover {
+.card-show-answer:hover {
     background: var(--surface-strong-hover);
     color: var(--text-strong);
 }
 
-.practice-submit-button:focus {
+.card-show-answer:focus {
     outline: none;
 }

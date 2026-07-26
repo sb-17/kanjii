@@ -6,7 +6,7 @@ import kanji from "../data/kanji.json";
 import "../styles/KanjiList.css";
 import type { Kanji } from "../types/kanjiType";
 import type { KanjiStatus } from "../types/kanjiProgress";
-import { getStatusCounts } from "../storage/kanjiProgress";
+import { statusBreakdown } from "../lib/analytics";
 import { useProgress } from "../context/ProgressContext";
 import ClearableField from "../components/clearable-field/ClearableField";
 
@@ -110,7 +110,9 @@ export default function KanjiList() {
     setSearchParams(newParams, { replace: true });
   };
 
-  const statusCounts = getStatusCounts(progress);
+  // Counted over the kanji dataset, so these match the rows the filter actually
+  // shows (and Home/Analytics), rather than the raw progress map.
+  const statusCounts = statusBreakdown(progress);
 
   return (
     <div className="page page-center">

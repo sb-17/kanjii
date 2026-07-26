@@ -132,8 +132,8 @@ export default function Analytics() {
             <>
               <div className="stat-duo">
                 <div>
-                  <span className="stat-big">{writing.dueToday}</span>
-                  <span className="stat-sub">due today</span>
+                  <span className="stat-big">{writing.due}</span>
+                  <span className="stat-sub">due now</span>
                 </div>
                 <div>
                   <span className="stat-big">{writing.unpracticed}</span>
@@ -163,7 +163,7 @@ export default function Analytics() {
                 ))}
               </div>
 
-              {writing.dueToday > 0 && (
+              {writing.due > 0 && (
                 <Link className="stat-cta" to="/write">
                   Practise writing →
                 </Link>
@@ -303,8 +303,8 @@ export default function Analytics() {
             <>
               <div className="stat-duo">
                 <div>
-                  <span className="stat-big">{srs.dueToday}</span>
-                  <span className="stat-sub">due today</span>
+                  <span className="stat-big">{srs.due}</span>
+                  <span className="stat-sub">due now</span>
                 </div>
                 <div>
                   <span className="stat-big">{srs.unstudied}</span>
@@ -328,7 +328,7 @@ export default function Analytics() {
                 ))}
               </div>
 
-              {srs.dueToday > 0 && (
+              {srs.due > 0 && (
                 <Link className="stat-cta" to="/practice">
                   Review now →
                 </Link>

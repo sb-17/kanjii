@@ -63,19 +63,3 @@ export function parseProgress(raw: unknown): KanjiProgress {
   }
   return out;
 }
-
-export function getStatusCounts(progress: KanjiProgress): Record<KanjiStatus, number> {
-  const counts: Record<KanjiStatus, number> = {
-    new: 0,
-    learning: 0,
-    known: 0,
-  };
-
-  Object.values(progress).forEach((status) => {
-    if (counts[status] !== undefined) {
-      counts[status]++;
-    }
-  });
-
-  return counts;
-}

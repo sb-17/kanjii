@@ -144,19 +144,26 @@ export default function Settings() {
         return;
       }
 
+      const localWords = loadUserVocab().length;
       const ok = confirm(
         "Restore this backup?\n\n" +
           `• ${Object.keys(data.progress).length} kanji statuses — replaces your current progress\n` +
-          `• ${data.vocab.length} words — merged into your current words\n` +
+          `• ${data.vocab.length} words — replaces your current ${localWords} word${localWords === 1 ? "" : "s"}\n` +
           `• ${Object.keys(data.skill).length} handwriting-skill entries — replaces current\n` +
           `• ${data.events.length} analytics events — replaces your trend history\n` +
           (data.settings || data.theme ? "• settings & theme\n" : "") +
-          "\nThis cannot be undone.",
+          "\nEverything on this device is replaced by the backup. This cannot be undone.",
       );
       if (!ok) return;
 
       replaceProgress(data.progress);
-      saveUserVocab(mergeVocab(loadUserVocab(), data.vocab).merged);
+      // Replace, don't merge. Merging kept the *local* srs for any word the backup
+      // also had (`mergeVocab` prefers existing), so restoring onto a device that
+      // already had your words silently threw away the backup's review progress —
+      // and words deleted since the backup came back. A restore puts the device
+      // back in the state the file describes; the vocab-file import above is the
+      // one that merges. (parseBackup already normalised/validated these entries.)
+      saveUserVocab(data.vocab);
       saveKanjiSkill(data.skill);
       replaceEvents(data.events);
 
@@ -299,8 +306,9 @@ export default function Settings() {
           Everything in one file — kanji progress, your words (with review
           progress), handwriting skill, your analytics history, and your
           settings/theme. Use it to back up or move to another device. Restoring
-          replaces progress, skill, analytics and settings, and merges in the
-          backup's words.
+          replaces <em>everything</em> on this device with the backup's contents,
+          including your word list — to merge a word list instead, use the
+          vocabulary import above.
         </p>
 
         <div className="settings-actions">

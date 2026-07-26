@@ -47,13 +47,17 @@
   background: var(--surface-strong);
 }
 
-.kanji {
+/* Prefixed, not `.kanji` / `.kanji-meanings`: every stylesheet is global, and
+   those names are also used by SetCard and the kanji detail page. Kanji.css ships
+   in a lazily-loaded chunk, so opening a kanji page appended its `.kanji-meanings`
+   after this one and restyled every card in the list for the rest of the session. */
+.kanji-card-char {
   flex: 0 0 auto;
   font-size: clamp(1rem, 5vw, 1.5rem);
   color: var(--text-strong);
 }
 
-.kanji-meanings {
+.kanji-card-meanings {
   /* wrap to as many lines as needed — showing every meaning matters more than
      keeping card heights equal */
   flex: 1 1 auto;

@@ -73,12 +73,40 @@ function ScrollManager() {
   return null;
 }
 
+// The shell locks html/body to `overflow: hidden` so only .app-content scrolls —
+// but a mobile browser still scrolls the *document* to reveal a text field when
+// the keyboard opens. With the page locked there's no way to scroll that offset
+// back by hand, so it sticks: the fixed nav toggle stays pinned to the viewport
+// while the content sits shifted underneath it, and it survives navigation
+// (ScrollManager only resets .app-content). Snap the document back whenever it
+// drifts. The viewport meta's `interactive-widget=resizes-content` prevents most
+// of this where it's supported; this covers the browsers that ignore it.
+function ViewportGuard() {
+  useEffect(() => {
+    const reset = () => {
+      const el = document.scrollingElement ?? document.documentElement;
+      if (el.scrollTop !== 0) el.scrollTop = 0;
+      if (el.scrollLeft !== 0) el.scrollLeft = 0;
+    };
+    // `scroll` catches the drift as it happens; the visual-viewport resize catches
+    // the keyboard closing, which can leave an offset without firing a scroll.
+    window.addEventListener("scroll", reset, { passive: true });
+    window.visualViewport?.addEventListener("resize", reset);
+    return () => {
+      window.removeEventListener("scroll", reset);
+      window.visualViewport?.removeEventListener("resize", reset);
+    };
+  }, []);
+  return null;
+}
+
 export default function App() {
   return (
     <ProgressProvider>
       <Router basename={import.meta.env.BASE_URL}>
         <AnalyticsTracker />
         <ScrollManager />
+        <ViewportGuard />
 
         <div className="app-container">
           <Navigation />

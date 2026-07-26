@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Practice.css";
 import type { Vocab } from "../types/vocabType";
@@ -59,6 +59,18 @@ export default function Practice() {
   const [revealed, setRevealed] = useState(false);
   const [showNote, setShowNote] = useState(false);
   const [graded, setGraded] = useState(false);
+
+  // The pause before auto-advancing must not outlive the component — answering
+  // correctly and navigating away inside the window would otherwise advance a
+  // page that's gone. Same guard KanjiWriter uses for its "Correct!" beat.
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const later = (fn: () => void, ms: number) => {
+    timersRef.current.push(setTimeout(fn, ms));
+  };
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => timers.forEach(clearTimeout);
+  }, []);
 
   // Only English → Japanese needs kana; the other direction is answered in
   // English, so with this on the phone can stay on its Latin keyboard for both.
@@ -137,7 +149,7 @@ export default function Practice() {
       const next = graded ? vocab : grade(true);
       setFeedback("correct");
       setRevealed(false);
-      setTimeout(() => advance(next), 700);
+      later(() => advance(next), 700);
     } else {
       if (!graded) grade(false);
       setAnswer(guess); // show the finalized kana alongside "try again"

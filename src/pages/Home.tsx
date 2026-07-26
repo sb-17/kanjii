@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
-import kanji from "../data/kanji.json";
 import "../styles/Home.css";
-import { getStatusCounts } from "../storage/kanjiProgress";
+import { statusBreakdown } from "../lib/analytics";
 import { loadUserVocab } from "../storage/userVocab";
 import { useProgress } from "../context/ProgressContext";
 
 export default function Home() {
   const { progress } = useProgress();
-  const statusCounts = getStatusCounts(progress);
-  const total = kanji.length;
-  const newCount = total - statusCounts.learning - statusCounts.known;
+  // Same counter Analytics uses. The old one tallied the progress *map*, so any
+  // character not in kanji.json (an older import, a dataset change) inflated the
+  // totals here relative to Analytics and could drive "new" negative.
+  const statusCounts = statusBreakdown(progress);
   const wordCount = loadUserVocab().length;
 
   return (
@@ -24,7 +24,7 @@ export default function Home() {
           <strong>{statusCounts.learning}</strong> learning
         </div>
         <div className="home-stat surface-card">
-          <strong>{newCount}</strong> new
+          <strong>{statusCounts.new}</strong> new
         </div>
         <div className="home-stat surface-card">
           <strong>{wordCount}</strong> {wordCount === 1 ? "word" : "words"}

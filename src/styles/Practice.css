@@ -68,6 +68,13 @@
     outline: none;
 }
 
+/* Submit is the primary action of the row. It used to render bold only because
+   Cards.css defined a same-named class that leaked into the global cascade; state
+   it here now that the two are separate. */
+.practice-submit-button {
+    font-weight: bold;
+}
+
 .practice-feedback {
     margin-top: var(--space-3);
     text-align: center;

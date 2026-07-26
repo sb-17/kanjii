@@ -1,12 +1,12 @@
 import SetCard from "../components/set-card/SetCard";
 import sets from "../data/sets.json";
-import { getStatusCounts } from "../storage/kanjiProgress";
+import { statusBreakdown } from "../lib/analytics";
 import { useProgress } from "../context/ProgressContext";
 import "../styles/Learn.css";
 
 export default function Learn() {
   const { progress } = useProgress();
-  const statusCounts = getStatusCounts(progress);
+  const statusCounts = statusBreakdown(progress);
 
   return (
     <div className="page page-center">

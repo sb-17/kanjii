@@ -9,9 +9,14 @@ import * as wanakana from "wanakana";
 // Leading words that carry no meaning for recall ("to eat" ≡ "eat").
 const LEADING = /^(to|a|an|the)\s+/;
 
-// Below this length a single edit can turn one real answer into a different one
-// ("up" / "us"), so only fuzzy-match words long enough to be safe.
-const FUZZY_MIN_LEN = 4;
+// Below this length a single edit can turn one real answer into a different one,
+// so only fuzzy-match words long enough to be safe. At 4 this was far too loose —
+// "wine" graded as Nine, "hire" as Fire, "book" as Look, "eat" as East, each of
+// them promoting a word the learner actually got wrong. Short English meanings are
+// dense with one-edit neighbours; from 6 up they're sparse enough that an edit is
+// almost always a typo. The leniency that matters ("eat" ≡ "to eat") comes from
+// normalizeMeaning below, not from here.
+const FUZZY_MIN_LEN = 6;
 
 export function normalizeMeaning(s: string): string {
   let out = s

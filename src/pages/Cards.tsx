@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Cards.css";
 import type { Vocab } from "../types/vocabType";
@@ -46,6 +46,14 @@ export default function Cards() {
     [vocab, progress],
   );
 
+  // The flip-back pause must not outlive the component — grading and navigating
+  // away inside the window would otherwise swap the card on a page that's gone.
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
   // Move to the next card, picked from the latest vocab + current scope. Flips
   // back first, then swaps the word once it's face-down (so the answer doesn't
   // flash on the way out).
@@ -56,9 +64,11 @@ export default function Cards() {
       now,
     );
     setIsFlipped(false);
-    setTimeout(() => {
-      setCurrent(pickWord(pool, scope, current ? keyOf(current) : undefined));
-    }, 150);
+    timersRef.current.push(
+      setTimeout(() => {
+        setCurrent(pickWord(pool, scope, current ? keyOf(current) : undefined));
+      }, 150),
+    );
   };
 
   const changeScope = (next: PracticeScope) => {
@@ -175,7 +185,7 @@ export default function Cards() {
                 </button>
               </>
             ) : (
-              <button className="practice-submit-button" onClick={handleFlip}>
+              <button className="card-show-answer" onClick={handleFlip}>
                 Show answer
               </button>
             )}

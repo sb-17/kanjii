@@ -9,7 +9,8 @@ import type { Vocab } from "../types/vocabType";
 import type { KanjiSkillMap } from "../types/kanjiSkill";
 import { isKnownOrLearning } from "../storage/kanjiProgress";
 import { isVocabAvailable } from "./vocab";
-import { MAX_BOX } from "./srs";
+import { MAX_BOX, isDue } from "./srs";
+import { isSkillDue } from "./kanjiSkill";
 import type { AppEvent } from "../storage/events";
 
 const KANJI = kanjiData as Kanji[];
@@ -81,15 +82,9 @@ export function mostFrequentNew(progress: KanjiProgress, n = 12): Kanji[] {
 export type SrsStats = {
   boxes: number[]; // counts in Leitner boxes 0..MAX_BOX
   unstudied: number; // available words never practiced
-  dueToday: number; // available words whose review is due by end of today
+  due: number; // words Practice's Due scope would offer right now
   available: number; // words whose kanji are all known/learning
 };
-
-function endOfToday(now: number): number {
-  const d = new Date(now);
-  d.setHours(23, 59, 59, 999);
-  return d.getTime();
-}
 
 export function srsStats(
   vocab: Vocab[],
@@ -97,9 +92,8 @@ export function srsStats(
   now = Date.now(),
 ): SrsStats {
   const boxes = new Array(MAX_BOX + 1).fill(0) as number[];
-  const cutoff = endOfToday(now);
   let unstudied = 0;
-  let dueToday = 0;
+  let due = 0;
   let available = 0;
 
   // Locked words are excluded throughout: this backs the "Review queue" card, and
@@ -109,6 +103,11 @@ export function srsStats(
   for (const v of vocab) {
     if (!isVocabAvailable(v, progress)) continue;
     available++;
+    // Exactly what Practice's Due scope would hand you (`scopeVocab`) — including
+    // never-practised words, which are due by definition. This card's number and
+    // its "Review now →" have to agree with the page they send you to.
+    if (isDue(v, now)) due++;
+
     const etj = v.srs?.etj;
     const jte = v.srs?.jte;
     if (!etj && !jte) {
@@ -120,10 +119,9 @@ export function srsStats(
     // only one way sits low in the chart until its other side catches up.
     const effBox = Math.min(etj?.box ?? 0, jte?.box ?? 0);
     boxes[Math.min(Math.max(effBox, 0), MAX_BOX)]++;
-    if (!etj || etj.due <= cutoff || !jte || jte.due <= cutoff) dueToday++;
   }
 
-  return { boxes, unstudied, dueToday, available };
+  return { boxes, unstudied, due, available };
 }
 
 // ---- Handwriting skill (mirrors srsStats, keyed by kanji) ----
@@ -132,7 +130,7 @@ export type WritingStats = {
   boxes: number[]; // counts in skill boxes 0..MAX_BOX
   unpracticed: number; // learning/known kanji never written from memory
   practiced: number; // learning/known kanji with a skill record
-  dueToday: number; // practiced kanji whose review is due by end of today
+  due: number; // kanji the Write page's Due pool would offer right now
 };
 
 export function writingStats(
@@ -141,10 +139,9 @@ export function writingStats(
   now = Date.now(),
 ): WritingStats {
   const boxes = new Array(MAX_BOX + 1).fill(0) as number[];
-  const cutoff = endOfToday(now);
   let unpracticed = 0;
   let practiced = 0;
-  let dueToday = 0;
+  let due = 0;
 
   // Only the writable set — kanji you're actually studying.
   for (const k of KANJI) {
@@ -153,13 +150,16 @@ export function writingStats(
     if (s) {
       boxes[Math.min(Math.max(s.box, 0), MAX_BOX)]++;
       practiced++;
-      if (s.due <= cutoff) dueToday++;
     } else {
       unpracticed++;
     }
+    // Same predicate as the Write page's Due pool (`computePool`), so the two can
+    // never disagree — an unwritten kanji counts as due, and one rescheduled for
+    // later today does not.
+    if (isSkillDue(s, now)) due++;
   }
 
-  return { boxes, unpracticed, practiced, dueToday };
+  return { boxes, unpracticed, practiced, due };
 }
 
 export type VocabTotals = { total: number; unlocked: number; locked: number };
