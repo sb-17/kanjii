@@ -1,5 +1,11 @@
 // Shared helpers for loading and parsing KanjiVG stroke data
 // (files live in public/kanjiVG/<codepoint>.svg, served under the app's base).
+//
+// Kanjii uses KanjiVG (http://kanjivg.tagaini.net), copyright (C) 2009/2010/2011
+// Ulrich Apel, distributed under the Creative Commons Attribution-Share Alike 3.0
+// licence (http://creativecommons.org/licenses/by-sa/3.0/). The SVG files under
+// public/kanjiVG/ are redistributed unmodified under that same licence. See
+// README.md.
 
 // Vite normalizes BASE_URL with a trailing slash. Same source of truth as the
 // router's basename (see App.tsx) — don't hardcode the deploy path here.

@@ -1,5 +1,11 @@
 // Build-time precompute for the kanji connection map.
 //
+// The output (src/data/kanjiGraph.json) is derived from KanjiVG
+// (http://kanjivg.tagaini.net), copyright (C) 2009/2010/2011 Ulrich Apel, which is
+// distributed under the Creative Commons Attribution-Share Alike 3.0 licence
+// (http://creativecommons.org/licenses/by-sa/3.0/). Being built upon that work,
+// kanjiGraph.json is shared under the same licence — see README.md.
+//
 // Parses every KanjiVG file once and extracts, per kanji in our dataset, its
 // component decomposition so the app never has to touch the ~44 MB of SVGs at
 // runtime. Output: src/data/kanjiGraph.json, keyed by character:

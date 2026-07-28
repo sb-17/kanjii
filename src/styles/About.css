@@ -5,6 +5,13 @@
     margin-bottom: var(--space-4);
 }
 
+.about-heading {
+    font-size: var(--text-md);
+    font-weight: 700;
+    color: var(--text-strong);
+    margin: var(--space-6) 0 var(--space-3);
+}
+
 .github-link {
     color: var(--accent);
     text-decoration: none;

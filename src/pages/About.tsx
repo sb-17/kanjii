@@ -34,6 +34,32 @@ export default function About() {
             kanjii.simon@gmail.com
         </a>.
       </p>
+
+      <h2 className="about-heading">Credits</h2>
+
+      <p className="about-text">
+        Stroke order, writing practice and the handwriting checker are all built
+        on{" "}
+        <a
+            href="http://kanjivg.tagaini.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="github-link"
+        >
+            KanjiVG
+        </a>
+        , copyright © 2009–2011 Ulrich Apel, distributed under the{" "}
+        <a
+            href="http://creativecommons.org/licenses/by-sa/3.0/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="github-link"
+        >
+            Creative Commons Attribution-Share Alike 3.0
+        </a>{" "}
+        licence. The stroke files Kanjii ships, and the connection data derived
+        from them, are shared under that same licence.
+      </p>
     </div>
   );
 }
