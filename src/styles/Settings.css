@@ -64,3 +64,27 @@
     accent-color: var(--accent);
     cursor: pointer;
 }
+
+.settings-number {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--text);
+    font-size: var(--text-sm);
+}
+
+.settings-number input {
+    width: 5rem;
+    box-sizing: border-box;
+    background: var(--surface-strong);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-base);
+}
+
+.settings-number input:focus {
+    outline: none;
+    border-color: var(--accent);
+}

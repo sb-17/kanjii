@@ -6,7 +6,8 @@ import type { PracticeScope, Settings } from "../types/settingsType";
 import { isVocabAvailable } from "../lib/vocab";
 import { scopeVocab, pickWord, gradeDirection } from "../lib/srs";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
-import { logReview } from "../storage/events";
+import { logReview, loadEvents } from "../storage/events";
+import { newWordsIntroducedToday } from "../lib/analytics";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { useProgress } from "../context/ProgressContext";
 import { useNow } from "../lib/useNow";
@@ -22,6 +23,11 @@ const SCOPES: { id: PracticeScope; label: string }[] = [
 
 const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
 
+// New words still allowed today — shared budget with Practice, since both grade
+// into the same boxes and log the same events.
+const remainingNewToday = (perDay: number) =>
+  Math.max(0, perDay - newWordsIntroducedToday(loadEvents()));
+
 export default function Cards() {
   const { progress } = useProgress();
   const now = useNow();
@@ -36,8 +42,11 @@ export default function Cards() {
         loadUserVocab().filter((v) => isVocabAvailable(v, progress)),
         scope,
         Date.now(),
+        remainingNewToday(loadSettings().newPerDay),
       ),
       scope,
+      undefined,
+      Date.now(),
     ),
   );
 
@@ -62,11 +71,14 @@ export default function Cards() {
       source.filter((v) => isVocabAvailable(v, progress)),
       scope,
       now,
+      remainingNewToday(settings.newPerDay),
     );
     setIsFlipped(false);
     timersRef.current.push(
       setTimeout(() => {
-        setCurrent(pickWord(pool, scope, current ? keyOf(current) : undefined));
+        setCurrent(
+          pickWord(pool, scope, current ? keyOf(current) : undefined, now),
+        );
       }, 150),
     );
   };
@@ -76,8 +88,15 @@ export default function Cards() {
     setSettings(updated);
     saveSettings(updated);
     setIsFlipped(false);
-    const pool = scopeVocab(available, next, now);
-    setCurrent(pickWord(pool, next, current ? keyOf(current) : undefined));
+    const pool = scopeVocab(
+      available,
+      next,
+      now,
+      remainingNewToday(updated.newPerDay),
+    );
+    setCurrent(
+      pickWord(pool, next, current ? keyOf(current) : undefined, now),
+    );
   };
 
   // A card shows English and you recall the Japanese — the E→J (production)

@@ -79,6 +79,29 @@ export function mostFrequentNew(progress: KanjiProgress, n = 12): Kanji[] {
     .slice(0, n);
 }
 
+// How many words were introduced today — a word counts as introduced on the day
+// of its first-ever review. Derived from the event log rather than stored, so
+// there's no new state to keep in sync (or to get wrong across a restore).
+export function newWordsIntroducedToday(
+  events: AppEvent[],
+  now = Date.now(),
+): number {
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  const startMs = start.getTime();
+
+  const firstSeen = new Map<string, number>();
+  for (const e of events) {
+    if (e.k !== "review") continue;
+    const prev = firstSeen.get(e.w);
+    if (prev === undefined || e.t < prev) firstSeen.set(e.w, e.t);
+  }
+
+  let n = 0;
+  for (const t of firstSeen.values()) if (t >= startMs) n++;
+  return n;
+}
+
 export type SrsStats = {
   boxes: number[]; // counts in Leitner boxes 0..MAX_BOX
   unstudied: number; // available words never practiced
@@ -90,6 +113,7 @@ export function srsStats(
   vocab: Vocab[],
   progress: KanjiProgress,
   now = Date.now(),
+  newBudget = Number.POSITIVE_INFINITY,
 ): SrsStats {
   const boxes = new Array(MAX_BOX + 1).fill(0) as number[];
   let unstudied = 0;
@@ -103,10 +127,6 @@ export function srsStats(
   for (const v of vocab) {
     if (!isVocabAvailable(v, progress)) continue;
     available++;
-    // Exactly what Practice's Due scope would hand you (`scopeVocab`) — including
-    // never-practised words, which are due by definition. This card's number and
-    // its "Review now →" have to agree with the page they send you to.
-    if (isDue(v, now)) due++;
 
     const etj = v.srs?.etj;
     const jte = v.srs?.jte;
@@ -114,12 +134,21 @@ export function srsStats(
       unstudied++;
       continue;
     }
+    // Only *started* words count toward "due" here; the never-practised ones are
+    // added below, capped by today's allowance. This card's number and its
+    // "Review now →" have to agree with what Practice would actually hand you
+    // (`scopeVocab`) — otherwise it reads "2,004 due" against a page that offers
+    // a handful.
+    if (isDue(v, now)) due++;
     // Weakest link: a word is only as strong as its weaker direction, and a
     // never-practised direction counts as box 0 (and due now). So a word tested
     // only one way sits low in the chart until its other side catches up.
     const effBox = Math.min(etj?.box ?? 0, jte?.box ?? 0);
     boxes[Math.min(Math.max(effBox, 0), MAX_BOX)]++;
   }
+
+  // Plus however many new words Practice may still introduce today.
+  due += Math.min(unstudied, Math.max(0, newBudget));
 
   return { boxes, unstudied, due, available };
 }

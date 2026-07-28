@@ -56,6 +56,11 @@ export default function Settings() {
   const [partialAvailability, setPartialAvailability] = useState(
     () => loadSettings().partialAvailability,
   );
+  // Held as text so the field can be emptied while retyping; an unparseable value
+  // just isn't saved, leaving the stored setting alone.
+  const [newPerDay, setNewPerDay] = useState(() =>
+    String(loadSettings().newPerDay),
+  );
 
   const changeTheme = (next: ThemePref) => {
     setTheme(next);
@@ -70,6 +75,13 @@ export default function Settings() {
   const changePartialAvailability = (next: boolean) => {
     setPartialAvailability(next);
     saveSettings({ ...loadSettings(), partialAvailability: next });
+  };
+
+  const changeNewPerDay = (raw: string) => {
+    setNewPerDay(raw);
+    const n = Math.floor(Number(raw));
+    if (raw.trim() === "" || !Number.isFinite(n) || n < 0) return;
+    saveSettings({ ...loadSettings(), newPerDay: Math.min(n, 200) });
   };
 
   const handleExport = () => downloadJson(progress, "kanjii-progress.json");
@@ -173,6 +185,7 @@ export default function Settings() {
         // keep the on-screen toggles in sync with what was just restored
         setRomajiInput(mergedSettings.romajiInput);
         setPartialAvailability(mergedSettings.partialAvailability);
+        setNewPerDay(String(mergedSettings.newPerDay));
       }
       if (data.theme) {
         setThemePref(data.theme);
@@ -224,6 +237,30 @@ export default function Settings() {
             onChange={(e) => changeRomajiInput(e.target.checked)}
           />
           <span>Romaji input in Practice</span>
+        </label>
+      </div>
+
+      <div className="settings-card surface-card">
+        <strong>New words per day</strong>
+
+        <p className="settings-description">
+          The Due scope always shows every review that's come round, then tops up
+          with this many words you've never practised. Reviews are never capped —
+          this only paces how fast a backlog gets fed in, so a large imported list
+          can't bury the words you're actually reviewing. Set it to 0 to work
+          through reviews only.
+        </p>
+
+        <label className="settings-number">
+          <input
+            type="number"
+            min={0}
+            max={200}
+            step={1}
+            value={newPerDay}
+            onChange={(e) => changeNewPerDay(e.target.value)}
+          />
+          <span>new words per day</span>
         </label>
       </div>
 

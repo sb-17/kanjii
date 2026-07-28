@@ -81,6 +81,12 @@ export function mergeVocab(
   const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
   const map = new Map<string, Vocab>(existing.map((v) => [keyOf(v), v]));
   let added = 0;
+  // One timestamp for the whole import, for entries whose file doesn't carry an
+  // `addedAt` (nothing outside Kanjii writes that field). They then sort as a
+  // single "added on this day" batch — behind anything added later, and drawn at
+  // random within the batch rather than in file order. Left undefined, they'd all
+  // read as the epoch and be indistinguishable from each other for good.
+  const importedAt = Date.now();
 
   for (const item of raw as unknown[]) {
     const r = (item ?? {}) as Record<string, unknown>;
@@ -112,8 +118,8 @@ export function mergeVocab(
       kanji,
       // keep an existing context unless the import provides one
       context: context ?? existing?.context,
-      // keep the original add time; fall back to the imported one
-      addedAt: existing?.addedAt ?? importedAddedAt,
+      // keep the original add time; fall back to the imported one, then to now
+      addedAt: existing?.addedAt ?? importedAddedAt ?? importedAt,
       // keep existing review progress; otherwise take the imported state
       srs: existing?.srs ?? importedSrs,
     });

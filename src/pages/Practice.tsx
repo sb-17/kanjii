@@ -4,7 +4,14 @@ import "../styles/Practice.css";
 import type { Vocab } from "../types/vocabType";
 import type { PracticeScope, Settings } from "../types/settingsType";
 import { isVocabAvailable } from "../lib/vocab";
-import { scopeVocab, pickWord, gradeDirection, pickDirection, isDue } from "../lib/srs";
+import {
+  scopeVocab,
+  pickWord,
+  gradeDirection,
+  pickDirection,
+  isDue,
+  isNew,
+} from "../lib/srs";
 import {
   japaneseMatches,
   meaningMatches,
@@ -12,7 +19,8 @@ import {
   finalizeKana,
 } from "../lib/answer";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
-import { logReview } from "../storage/events";
+import { logReview, loadEvents } from "../storage/events";
+import { newWordsIntroducedToday } from "../lib/analytics";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { useProgress } from "../context/ProgressContext";
 import { useNow } from "../lib/useNow";
@@ -23,6 +31,12 @@ import ClearableField from "../components/clearable-field/ClearableField";
 type Direction = "etj" | "jte";
 
 const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
+
+// New words still allowed today. Read live from the event cache rather than held
+// in state: each new word graded consumes one, and the pool is recomputed on
+// every advance, so the allowance has to be current at that moment.
+const remainingNewToday = (perDay: number) =>
+  Math.max(0, perDay - newWordsIntroducedToday(loadEvents()));
 
 // The "smart" id is kept (it's the stored setting value); only the label changed
 // to "Due" to line up with writing practice. It still falls back to extra cards
@@ -47,8 +61,11 @@ export default function Practice() {
         loadUserVocab().filter((v) => isVocabAvailable(v, progress)),
         scope,
         Date.now(),
+        remainingNewToday(loadSettings().newPerDay),
       ),
       scope,
+      undefined,
+      Date.now(),
     ),
   );
   const [direction, setDirection] = useState<Direction>(() =>
@@ -80,10 +97,13 @@ export default function Practice() {
     () => vocab.filter((v) => isVocabAvailable(v, progress)),
     [vocab, progress],
   );
+  // Caught up = no review is due *and* today's new-word allowance is spent (or
+  // there's nothing new left). Anything after that is extra practice.
   const caughtUp =
     scope === "smart" &&
     available.length > 0 &&
-    !available.some((v) => isDue(v, now));
+    !available.some((v) => !isNew(v) && isDue(v, now)) &&
+    (remainingNewToday(settings.newPerDay) <= 0 || !available.some(isNew));
 
   // Move to the next word, picked from the latest vocab + current scope.
   const advance = (source: Vocab[]) => {
@@ -91,8 +111,14 @@ export default function Practice() {
       source.filter((v) => isVocabAvailable(v, progress)),
       scope,
       now,
+      remainingNewToday(settings.newPerDay),
     );
-    const nextWord = pickWord(pool, scope, current ? keyOf(current) : undefined);
+    const nextWord = pickWord(
+      pool,
+      scope,
+      current ? keyOf(current) : undefined,
+      now,
+    );
     setCurrent(nextWord);
     setDirection(nextWord ? pickDirection(nextWord, now) : "etj");
     setAnswer("");
@@ -106,8 +132,18 @@ export default function Practice() {
     const updated = { ...settings, practiceScope: next };
     setSettings(updated);
     saveSettings(updated);
-    const pool = scopeVocab(available, next, now);
-    const nextWord = pickWord(pool, next, current ? keyOf(current) : undefined);
+    const pool = scopeVocab(
+      available,
+      next,
+      now,
+      remainingNewToday(updated.newPerDay),
+    );
+    const nextWord = pickWord(
+      pool,
+      next,
+      current ? keyOf(current) : undefined,
+      now,
+    );
     setCurrent(nextWord);
     setDirection(nextWord ? pickDirection(nextWord, now) : "etj");
     setAnswer("");

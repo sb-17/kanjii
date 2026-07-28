@@ -10,6 +10,7 @@ const DEFAULTS: Settings = {
   practiceScope: "smart",
   romajiInput: true,
   partialAvailability: false,
+  newPerDay: 10,
 };
 
 // In-memory source of truth, hydrated once at startup (see hydrateSettings).

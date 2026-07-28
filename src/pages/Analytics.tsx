@@ -5,7 +5,10 @@ import { useProgress } from "../context/ProgressContext";
 import { loadUserVocab } from "../storage/userVocab";
 import { loadEvents } from "../storage/events";
 import { loadKanjiSkill } from "../storage/kanjiSkill";
+import { loadSettings } from "../storage/settings";
+import { useNow } from "../lib/useNow";
 import {
+  newWordsIntroducedToday,
   statusBreakdown,
   frequencyBands,
   mostFrequentNew,
@@ -21,11 +24,20 @@ import {
 export default function Analytics() {
   const { progress } = useProgress();
   const vocab = loadUserVocab();
+  const now = useNow();
 
   const status = useMemo(() => statusBreakdown(progress), [progress]);
   const bands = useMemo(() => frequencyBands(progress), [progress]);
   const nextUp = useMemo(() => mostFrequentNew(progress, 12), [progress]);
-  const srs = useMemo(() => srsStats(vocab, progress), [vocab, progress]);
+  // Same allowance Practice applies, so "due now" matches what it would offer.
+  const newBudget = Math.max(
+    0,
+    loadSettings().newPerDay - newWordsIntroducedToday(loadEvents(), now),
+  );
+  const srs = useMemo(
+    () => srsStats(vocab, progress, now, newBudget),
+    [vocab, progress, now, newBudget],
+  );
   const skill = loadKanjiSkill();
   const writing = useMemo(() => writingStats(skill, progress), [skill, progress]);
   const totals = useMemo(() => vocabTotals(vocab, progress), [vocab, progress]);

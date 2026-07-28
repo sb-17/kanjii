@@ -17,4 +17,8 @@ export type Settings = {
   // When true, a word is practiceable once *most* (≥50%) of its kanji are
   // Learning/Known, instead of requiring all of them. Off = strict (all kanji).
   partialAvailability: boolean;
+  // How many never-practised words the Due scope may introduce per day. Reviews
+  // are never capped — this only paces how fast a backlog (a big import) is fed
+  // in, so it can't bury the reviews. 0 = never introduce new words.
+  newPerDay: number;
 };

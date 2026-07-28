@@ -87,30 +87,66 @@ export function dueCount(list: Vocab[], now: number): number {
   return list.filter((v) => isDue(v, now)).length;
 }
 
-// "Practice sooner" key for ordering (overdue/new first): the soonest actionable
-// time across both directions.
-function dirDueKey(v: Vocab, dir: ReviewDirection): number {
-  const s = v.srs?.[dir];
-  return s ? s.due : (v.addedAt ?? 0);
+// How overdue a *started* word is — the soonest due date across its directions.
+// A direction that's never been tested on an otherwise-started word counts as due
+// right now, so it joins today's reviews rather than jumping ahead of genuinely
+// overdue ones.
+//
+// Never-practised words deliberately have no place on this scale. They used to:
+// the key fell back to `addedAt`, which put them on the same numeric axis as due
+// dates. Since nothing outside Kanjii writes `addedAt`, an imported list all tied
+// at 0 and sorted ahead of every real review (and, being tied, stayed in file
+// order); meanwhile a word added today keyed on `Date.now()` and sorted behind
+// everything. New words are a separate queue now — see `pickNewWord`.
+function reviewDueKey(v: Vocab, now: number): number {
+  const keyOf = (d: ReviewDirection) => {
+    const s = v.srs?.[d];
+    return s ? s.due : now;
+  };
+  return Math.min(keyOf("etj"), keyOf("jte"));
 }
-function dueKey(v: Vocab): number {
-  return Math.min(dirDueKey(v, "etj"), dirDueKey(v, "jte"));
+
+const addedDay = (v: Vocab) => Math.floor((v.addedAt ?? 0) / DAY);
+
+// Which never-practised word to introduce next: the most recently added, at
+// day granularity. A word you deliberately added today therefore comes before a
+// bulk import — and because a whole import shares one day (one timestamp, even),
+// the tie is broken at random instead of marching through the file in order.
+function pickNewWord(pool: Vocab[]): Vocab {
+  const newest = Math.max(...pool.map(addedDay));
+  const bucket = pool.filter((v) => addedDay(v) === newest);
+  return bucket[Math.floor(Math.random() * bucket.length)];
 }
 
 // Narrow the available vocab to the chosen scope.
-//   smart  → due words (falls back to everything once you're caught up)
+//   smart  → due reviews, then up to `newBudget` never-practised words
+//            (falls back to everything once you're caught up)
 //   recent → added in the last RECENT_DAYS
 //   new    → never practised
 //   all    → everything
+//
+// `newBudget` is how many brand-new words may still be introduced today; the
+// caller derives it from the event log (see analytics.newWordsIntroducedToday).
+// Without it a large import is a wall: every unpractised word reports as due, so
+// the queue never empties and real reviews never come round.
 export function scopeVocab(
   list: Vocab[],
   scope: PracticeScope,
   now: number,
+  newBudget = Number.POSITIVE_INFINITY,
 ): Vocab[] {
   switch (scope) {
     case "smart": {
-      const due = list.filter((v) => isDue(v, now));
-      return due.length > 0 ? due : list;
+      // Reviews first — words you've actually studied, coming back on schedule.
+      const reviews = list.filter((v) => !isNew(v) && isDue(v, now));
+      if (reviews.length > 0) return reviews;
+      // Then today's allowance of new words.
+      if (newBudget > 0) {
+        const fresh = list.filter(isNew);
+        if (fresh.length > 0) return fresh;
+      }
+      // Nothing due and no allowance left: extra practice (the "caught up" case).
+      return list;
     }
     case "recent":
       return list.filter((v) => isRecent(v, now));
@@ -122,13 +158,15 @@ export function scopeVocab(
   }
 }
 
-// Pick the next word from a scoped pool. smart/recent order by soonest-due (with
-// light randomness among the top few); all/new pick at random. Avoids repeating
-// the just-shown word when possible.
+// Pick the next word from a scoped pool. smart/recent take the most overdue
+// review (with light randomness among the front runners) and only fall through to
+// a new word when the pool holds no reviews; all/new pick at random. Avoids
+// repeating the just-shown word when possible.
 export function pickWord(
   pool: Vocab[],
   scope: PracticeScope,
   exceptKey?: string,
+  now: number = Date.now(),
 ): Vocab | null {
   if (pool.length === 0) return null;
 
@@ -139,9 +177,15 @@ export function pickWord(
   }
 
   if (scope === "smart" || scope === "recent") {
-    const sorted = [...candidates].sort((a, b) => dueKey(a) - dueKey(b));
-    const topK = sorted.slice(0, Math.min(5, sorted.length));
-    return topK[Math.floor(Math.random() * topK.length)];
+    const reviews = candidates.filter((v) => !isNew(v));
+    if (reviews.length > 0) {
+      const sorted = [...reviews].sort(
+        (a, b) => reviewDueKey(a, now) - reviewDueKey(b, now),
+      );
+      const topK = sorted.slice(0, Math.min(5, sorted.length));
+      return topK[Math.floor(Math.random() * topK.length)];
+    }
+    return pickNewWord(candidates);
   }
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
