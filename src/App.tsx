@@ -134,6 +134,12 @@ function ViewportGuard() {
     // covering. Deliberately not `scrollIntoView`: that centres within the pane,
     // and where the layout viewport *didn't* shrink the pane is taller than
     // what's actually on screen, so its centre can still sit behind the keyboard.
+    //
+    // Animated rather than assigned: setting scrollTop teleports the page, which
+    // reads as a snap against the keyboard sliding up. `scroll-behavior: smooth`
+    // in CSS would do it too, but it applies to *every* programmatic scroll —
+    // including ScrollManager's jump to the top and KanjiList's scroll restore,
+    // both of which have to stay instant. So it's opted into per call.
     const revealFocused = () => {
       const el = focusedField();
       if (!el) return;
@@ -145,49 +151,53 @@ function ViewportGuard() {
       const rect = el.getBoundingClientRect();
       const margin = 16;
 
-      if (rect.bottom > bottom - margin) {
-        pane.scrollTop += rect.bottom - bottom + margin;
-      } else if (rect.top < top + margin) {
-        pane.scrollTop -= top + margin - rect.top;
-      }
-    };
+      let delta = 0;
+      if (rect.bottom > bottom - margin) delta = rect.bottom - bottom + margin;
+      else if (rect.top < top + margin) delta = rect.top - top - margin;
+      // Sub-pixel corrections would only ever show up as jitter.
+      if (Math.abs(delta) < 2) return;
 
-    // After a keystroke, wait for React to commit the filtered list before
-    // measuring — the clamp we're correcting for happens during that relayout.
-    let frame = 0;
-    const scheduleReveal = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        syncReserve();
-        revealFocused();
+      const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      pane.scrollTo({
+        top: pane.scrollTop + delta,
+        behavior: reduced ? "auto" : "smooth",
       });
     };
 
-    const onViewportChange = () => {
-      syncReserve();
-      resetDocumentScroll();
-      revealFocused();
-    };
-
-    // The keyboard animates in, so the pane settles a beat after focus. focusin is
-    // also the only signal when moving between fields with the keyboard already
-    // open — that fires no viewport resize.
-    let focusTimer: ReturnType<typeof setTimeout>;
-    const onFocusIn = (e: FocusEvent) => {
-      if (!(e.target instanceof HTMLElement) || !e.target.matches(FIELD_SELECTOR)) {
-        return;
-      }
-      scheduleReveal();
-      clearTimeout(focusTimer);
-      focusTimer = setTimeout(() => {
+    // One debounced reveal for all three triggers. The keyboard fires a burst of
+    // resize events while it animates, and reacting to each one made the pane
+    // lurch repeatedly; waiting for the burst to settle turns it into a single
+    // glide. Typing gets no delay — it's correcting a clamp that already happened.
+    let revealTimer: ReturnType<typeof setTimeout>;
+    const requestReveal = (delay: number) => {
+      clearTimeout(revealTimer);
+      revealTimer = setTimeout(() => {
         syncReserve();
         revealFocused();
-      }, 300);
+      }, delay);
     };
 
+    const onViewportChange = () => {
+      // Reserve first — the space has to exist before there's anywhere to scroll.
+      syncReserve();
+      resetDocumentScroll();
+      requestReveal(120);
+    };
+
+    // focusin is the only signal when moving between fields with the keyboard
+    // already open, since that fires no viewport resize.
+    const onFocusIn = (e: FocusEvent) => {
+      if (e.target instanceof HTMLElement && e.target.matches(FIELD_SELECTOR)) {
+        requestReveal(60);
+      }
+    };
+
+    // Typing in a field that filters a list shrinks the page, so the browser
+    // clamps scrollTop and the field slides back down. Re-measure after React has
+    // committed the new list.
     const onInput = (e: Event) => {
       if (e.target instanceof HTMLElement && e.target.matches(FIELD_SELECTOR)) {
-        scheduleReveal();
+        requestReveal(0);
       }
     };
 
@@ -198,8 +208,7 @@ function ViewportGuard() {
     vv?.addEventListener("resize", onViewportChange);
 
     return () => {
-      clearTimeout(focusTimer);
-      cancelAnimationFrame(frame);
+      clearTimeout(revealTimer);
       window.removeEventListener("scroll", resetDocumentScroll);
       window.removeEventListener("focusin", onFocusIn);
       window.removeEventListener("input", onInput);
