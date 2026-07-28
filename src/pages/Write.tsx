@@ -83,7 +83,7 @@ const POOLS: { id: WritePool; label: string }[] = [
 // keying the suggestion off it would make the prompt unreachable in a sitting.
 // "Can you write it from memory, repeatedly?" is a different question from "when
 // should it come back?", and this is the right signal for the first one.
-const PROMOTE_SUGGEST_COUNT = 4;
+const PROMOTE_SUGGEST_COUNT = 6;
 
 // Clean from-memory writes of this kanji across all sessions — unguided, hint-
 // free, few enough misses to count (the same bar as an SRS promotion). Reused for
