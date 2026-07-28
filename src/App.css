@@ -21,11 +21,11 @@
   box-sizing: border-box;
   /* just enough to clear the fixed hamburger (top 12px + 40px tall = 52px) */
   padding-top: 2.75rem;
-  /* --keyboard-inset is set by ViewportGuard (App.tsx) to however much of the
-     viewport the on-screen keyboard covers, so this pane can scroll a field at the
-     very bottom of a form up above it. It's 0px whenever the keyboard is closed,
-     and on browsers that shrink the layout viewport themselves. */
+  /* --input-reserve is set by ViewportGuard (App.tsx) while the on-screen keyboard
+     is up: scrollable space below the content so *any* focused field can be
+     scrolled clear of the keyboard, even one that's the last thing on the page.
+     0px whenever the keyboard is closed, so it never shows on desktop. */
   padding-bottom: calc(
-    var(--keyboard-inset, 0px) + env(safe-area-inset-bottom)
+    var(--input-reserve, 0px) + env(safe-area-inset-bottom)
   );
 }

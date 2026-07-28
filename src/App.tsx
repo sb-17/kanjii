@@ -85,18 +85,27 @@ const FIELD_SELECTOR = "input, textarea, [contenteditable]";
 //    only resets .app-content). So the document gets snapped back whenever it
 //    drifts.
 // 2. But blocking that also blocks the browser's only way of showing you the field
-//    you're typing in — which is why the lower inputs on My words became
-//    unreachable. So do the job properly instead: publish how much of the viewport
-//    the keyboard covers as `--keyboard-inset` (App.css adds it to .app-content's
-//    bottom padding, giving the pane room to scroll a bottom field up past the
-//    keyboard), and scroll the focused field into the *visible* strip ourselves.
+//    you're typing in. So do the job properly instead: reserve scrollable space
+//    below the content while the keyboard is up (`--input-reserve`, which App.css
+//    adds to .app-content's bottom padding) and scroll the focused field into the
+//    *visible* strip ourselves.
 //
-// Where `interactive-widget=resizes-content` is honoured the browser shrinks the
-// layout viewport itself, the inset computes to 0, and only the scrolling matters.
+// The reveal has to re-run as you type, not just on focus: typing in a field that
+// filters a list (My words' search) shrinks the page, the browser clamps scrollTop
+// to the smaller maximum, and the field slides back under the keyboard. The
+// reserve is what makes that recoverable — filtered down to no results, the search
+// box is the last element on the page, with nothing beneath it to scroll against.
 function ViewportGuard() {
   useEffect(() => {
     const root = document.documentElement;
     const vv = window.visualViewport;
+
+    const visibleTop = () => vv?.offsetTop ?? 0;
+    const visibleHeight = () => vv?.height ?? window.innerHeight;
+    const focusedField = () => {
+      const el = document.activeElement;
+      return el instanceof HTMLElement && el.matches(FIELD_SELECTOR) ? el : null;
+    };
 
     const resetDocumentScroll = () => {
       const el = document.scrollingElement ?? root;
@@ -104,9 +113,21 @@ function ViewportGuard() {
       if (el.scrollLeft !== 0) el.scrollLeft = 0;
     };
 
-    const syncKeyboardInset = () => {
-      const inset = vv ? Math.max(0, window.innerHeight - vv.height) : 0;
-      root.style.setProperty("--keyboard-inset", `${Math.round(inset)}px`);
+    // Viewport height with nothing focused — the baseline the keyboard eats into.
+    // Re-measured whenever no field is focused, so rotating the device doesn't
+    // leave a stale value. Comparing against it detects the keyboard on both kinds
+    // of browser: those that shrink the layout viewport (`resizes-content`) and
+    // those that only shrink the visual one.
+    let baseHeight = visibleHeight();
+
+    const syncReserve = () => {
+      const h = visibleHeight();
+      if (!focusedField()) baseHeight = h;
+      const covered = Math.max(0, baseHeight - h);
+      root.style.setProperty(
+        "--input-reserve",
+        covered > 0 ? `${Math.round(covered + h)}px` : "0px",
+      );
     };
 
     // Nudge the focused field into the part of the pane the keyboard isn't
@@ -114,13 +135,13 @@ function ViewportGuard() {
     // and where the layout viewport *didn't* shrink the pane is taller than
     // what's actually on screen, so its centre can still sit behind the keyboard.
     const revealFocused = () => {
-      const el = document.activeElement;
-      if (!(el instanceof HTMLElement) || !el.matches(FIELD_SELECTOR)) return;
+      const el = focusedField();
+      if (!el) return;
       const pane = document.querySelector<HTMLElement>(".app-content");
       if (!pane) return;
 
-      const top = vv?.offsetTop ?? 0;
-      const bottom = top + (vv?.height ?? window.innerHeight);
+      const top = visibleTop();
+      const bottom = top + visibleHeight();
       const rect = el.getBoundingClientRect();
       const margin = 16;
 
@@ -131,35 +152,59 @@ function ViewportGuard() {
       }
     };
 
+    // After a keystroke, wait for React to commit the filtered list before
+    // measuring — the clamp we're correcting for happens during that relayout.
+    let frame = 0;
+    const scheduleReveal = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        syncReserve();
+        revealFocused();
+      });
+    };
+
     const onViewportChange = () => {
-      syncKeyboardInset();
+      syncReserve();
       resetDocumentScroll();
       revealFocused();
     };
 
     // The keyboard animates in, so the pane settles a beat after focus. focusin is
     // also the only signal when moving between fields with the keyboard already
-    // open — that fires no viewport resize, and is exactly the reported case.
+    // open — that fires no viewport resize.
     let focusTimer: ReturnType<typeof setTimeout>;
     const onFocusIn = (e: FocusEvent) => {
       if (!(e.target instanceof HTMLElement) || !e.target.matches(FIELD_SELECTOR)) {
         return;
       }
+      scheduleReveal();
       clearTimeout(focusTimer);
-      focusTimer = setTimeout(revealFocused, 300);
+      focusTimer = setTimeout(() => {
+        syncReserve();
+        revealFocused();
+      }, 300);
     };
 
-    syncKeyboardInset();
+    const onInput = (e: Event) => {
+      if (e.target instanceof HTMLElement && e.target.matches(FIELD_SELECTOR)) {
+        scheduleReveal();
+      }
+    };
+
+    syncReserve();
     window.addEventListener("scroll", resetDocumentScroll, { passive: true });
     window.addEventListener("focusin", onFocusIn);
+    window.addEventListener("input", onInput);
     vv?.addEventListener("resize", onViewportChange);
 
     return () => {
       clearTimeout(focusTimer);
+      cancelAnimationFrame(frame);
       window.removeEventListener("scroll", resetDocumentScroll);
       window.removeEventListener("focusin", onFocusIn);
+      window.removeEventListener("input", onInput);
       vv?.removeEventListener("resize", onViewportChange);
-      root.style.removeProperty("--keyboard-inset");
+      root.style.removeProperty("--input-reserve");
     };
   }, []);
   return null;
