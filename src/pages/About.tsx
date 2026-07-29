@@ -38,8 +38,8 @@ export default function About() {
       <h2 className="about-heading">Credits</h2>
 
       <p className="about-text">
-        Stroke order, writing practice and the handwriting checker are all built
-        on{" "}
+        Stroke order, writing practice, the handwriting checker and drawing to
+        search are all built on{" "}
         <a
             href="http://kanjivg.tagaini.net"
             target="_blank"
@@ -57,8 +57,9 @@ export default function About() {
         >
             Creative Commons Attribution-Share Alike 3.0
         </a>{" "}
-        licence. The stroke files Kanjii ships, and the connection data derived
-        from them, are shared under that same licence.
+        licence. The stroke files Kanjii ships, and the connection and
+        stroke-signature data derived from them, are shared under that same
+        licence.
       </p>
     </div>
   );

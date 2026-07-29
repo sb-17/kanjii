@@ -1,8 +1,11 @@
 .write-back {
     align-self: flex-start;
+    padding: 0;
+    background: none;
+    border: none;
     color: var(--text-muted);
     font-size: var(--text-sm);
-    text-decoration: none;
+    cursor: pointer;
     margin-bottom: var(--space-3);
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import "../styles/Write.css";
 import type { Kanji } from "../types/kanjiType";
 import type { KanjiProgress } from "../types/kanjiProgress";
@@ -104,6 +104,8 @@ export default function Write() {
   // Present on /kanji/:char/write — drills a single kanji on a loop.
   const { char: routeChar } = useParams<{ char?: string }>();
   const single = !!routeChar;
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [settings, setSettings] = useState<Settings>(loadSettings());
   const { writeMode, guide, writePool } = settings;
@@ -182,6 +184,22 @@ export default function Write() {
     const live = loadKanjiSkill();
     const freshPool = computePool(writePool, progress, live, Date.now());
     setCurrent(pickFromPool(freshPool, writePool, live, current));
+  };
+
+  // A back affordance has to actually go back. This was a Link, which *pushes*:
+  // leaving the writer stacked a second /kanji/:char entry, so the kanji page's
+  // own ← Back (navigate(-1)) landed you straight back in the writer — the two
+  // pages trapped you between them, browser back button included. Popping keeps
+  // history honest, so back from the kanji page reaches the list as expected.
+  // Opened directly (deep link, refresh, PWA shortcut) there's nothing to pop —
+  // location.key is "default" only for a session's first entry — so go forward
+  // to the kanji page instead of dumping the user out of the app.
+  const goBack = () => {
+    if (location.key === "default") {
+      navigate(`/kanji/${encodeURIComponent(current)}`);
+    } else {
+      navigate(-1);
+    }
   };
 
   // Bad /kanji/:char/write URL.
@@ -271,9 +289,9 @@ export default function Write() {
   return (
     <div className="page page-center">
       {single && (
-        <Link to={`/kanji/${current}`} className="write-back">
+        <button type="button" className="write-back" onClick={goBack}>
           ← Back to {current}
-        </Link>
+        </button>
       )}
 
       {current && (

@@ -73,12 +73,59 @@ function ScrollManager() {
   return null;
 }
 
+// Put the document back to 0 once the keyboard has gone.
+//
+// A mobile browser scrolls the *document* — not .app-content — to reveal a focused
+// text field. The shell locks html/body to `overflow: hidden`, so that offset
+// can't be scrolled back by hand: the whole app stays shifted up, and since the
+// nav toggle is anchored to the shell it travels with it, sometimes clean off the
+// screen where it can't be tapped. Nothing else ever resets it, so it also
+// survives navigating to another page.
+//
+// Deliberately narrow. Earlier attempts reset on every scroll event, which fought
+// the browser mid-interaction and produced a visible snap; this waits until the
+// viewport is back to full height (keyboard dismissed) and the page is otherwise
+// still, so the correction lands when nothing is moving. Checking the height
+// rather than focus covers Android's back-button dismissal, which closes the
+// keyboard while leaving the field focused.
+function ViewportReset() {
+  useEffect(() => {
+    const vv = window.visualViewport;
+    const heightNow = () => vv?.height ?? window.innerHeight;
+    // Tallest the viewport has been = its height with no keyboard up.
+    let tallest = heightNow();
+    let timer: ReturnType<typeof setTimeout>;
+
+    const restore = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const h = heightNow();
+        tallest = Math.max(tallest, h);
+        if (tallest - h > 100) return; // keyboard still up — leave it alone
+        const el = document.scrollingElement ?? document.documentElement;
+        if (el.scrollTop !== 0) el.scrollTop = 0;
+        if (el.scrollLeft !== 0) el.scrollLeft = 0;
+      }, 250);
+    };
+
+    window.addEventListener("focusout", restore);
+    vv?.addEventListener("resize", restore);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("focusout", restore);
+      vv?.removeEventListener("resize", restore);
+    };
+  }, []);
+  return null;
+}
+
 export default function App() {
   return (
     <ProgressProvider>
       <Router basename={import.meta.env.BASE_URL}>
         <AnalyticsTracker />
         <ScrollManager />
+        <ViewportReset />
 
         <div className="app-container">
           <Navigation />

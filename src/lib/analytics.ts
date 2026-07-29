@@ -102,6 +102,31 @@ export function newWordsIntroducedToday(
   return n;
 }
 
+// When each kanji entered the status it holds *now*, from the event log.
+//
+// A kanji can be re-marked (learning → known → back to learning), so the answer
+// is the latest transition *into* its current status, not the first one it ever
+// had — otherwise a kanji you picked back up last week would sort as months old.
+//
+// Absent for two groups, which callers must handle rather than treat as epoch 0:
+// kanji marked before event logging existed, and kanji from a bare progress-file
+// import (`replaceProgress` writes no events). A *full backup* carries the event
+// log with it, so restoring one keeps these dates.
+export function statusEnteredAt(
+  events: AppEvent[],
+  progress: KanjiProgress,
+): Map<string, number> {
+  const at = new Map<string, number>();
+  for (const e of events) {
+    if (e.k !== "kanji") continue;
+    // Only the transitions that led to where the kanji stands today.
+    if (e.to !== progress[e.c]) continue;
+    const prev = at.get(e.c);
+    if (prev === undefined || e.t > prev) at.set(e.c, e.t);
+  }
+  return at;
+}
+
 export type SrsStats = {
   boxes: number[]; // counts in Leitner boxes 0..MAX_BOX
   unstudied: number; // available words never practiced
