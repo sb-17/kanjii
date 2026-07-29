@@ -1,5 +1,13 @@
+/* Anchored to .app-container (which is position: relative), not to the viewport.
+   `fixed` was the whole cause of the "toggle ends up covering the page title" bug:
+   when a mobile browser offsets the viewport to reveal a focused text field, the
+   content moves but a fixed element does not, so the button slid over the heading
+   and stayed there — the offset can't be scrolled back, since the shell locks
+   html/body. Anchored to the shell it moves with the content under any offset, so
+   the two can never come apart, and the browser is left free to scroll as it
+   likes. Visually identical at rest: .app-container is exactly the viewport box. */
 .nav-toggle {
-    position: fixed;
+    position: absolute;
     top: var(--space-3);
     left: var(--space-3);
     z-index: 30;

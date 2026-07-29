@@ -1,4 +1,7 @@
 .app-container {
+  /* Positioning context for the nav toggle, so it anchors to the app shell rather
+     than the viewport — see .nav-toggle in Navigation.css. */
+  position: relative;
   display: flex;
   flex-direction: row;
   height: 100vh;
@@ -19,13 +22,7 @@
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   box-sizing: border-box;
-  /* just enough to clear the fixed hamburger (top 12px + 40px tall = 52px) */
+  /* just enough to clear the overlaid hamburger (top 12px + 40px tall = 52px) */
   padding-top: 2.75rem;
-  /* --input-reserve is set by ViewportGuard (App.tsx) while the on-screen keyboard
-     is up: scrollable space below the content so *any* focused field can be
-     scrolled clear of the keyboard, even one that's the last thing on the page.
-     0px whenever the keyboard is closed, so it never shows on desktop. */
-  padding-bottom: calc(
-    var(--input-reserve, 0px) + env(safe-area-inset-bottom)
-  );
+  padding-bottom: env(safe-area-inset-bottom);
 }
