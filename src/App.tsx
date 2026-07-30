@@ -24,6 +24,9 @@ import About from "./pages/About";
 import Support from "./pages/Support";
 import Analytics from "./pages/Analytics";
 import { ProgressProvider } from "./context/ProgressContext";
+// TEMPORARY — diagnostic for the keyboard/scroll bug, enabled with ?debug=scroll.
+// Remove this import, the <ScrollDebug/> below, and the component file together.
+import ScrollDebug from "./components/scroll-debug/ScrollDebug";
 import "./App.css";
 
 // Code-split the connection map and the kanji detail page: both pull in the
@@ -96,16 +99,40 @@ function ViewportReset() {
     let tallest = heightNow();
     let timer: ReturnType<typeof setTimeout>;
 
+    // Keep re-checking while the keyboard looks like it's still up, instead of
+    // checking once and giving up.
+    //
+    // Giving up was a PWA-only bug. In a browser the bottom/URL bar coming back
+    // after the keyboard fires *more* visualViewport resizes, so `restore` got
+    // retriggered and some later attempt landed on a full-height viewport. A
+    // standalone PWA has no such bar: if the one check happened to run while the
+    // keyboard was still animating out, nothing ever tried again — and with
+    // html/body overflow:hidden the offset can't be scrolled back by hand, so the
+    // page just stayed shifted with the nav toggle riding up over the title.
+    //
+    // Still never resets while the keyboard is up: that's the height guard's job,
+    // and the retries only re-test it. ~3s is far longer than a close animation
+    // and bounded, so it can't sit spinning.
+    const RETRY_MS = 250;
+    const MAX_TRIES = 12;
+
+    const attempt = (triesLeft: number) => {
+      const h = heightNow();
+      tallest = Math.max(tallest, h);
+      if (tallest - h > 100) {
+        if (triesLeft > 0) {
+          timer = setTimeout(() => attempt(triesLeft - 1), RETRY_MS);
+        }
+        return; // keyboard still up — leave it alone
+      }
+      const el = document.scrollingElement ?? document.documentElement;
+      if (el.scrollTop !== 0) el.scrollTop = 0;
+      if (el.scrollLeft !== 0) el.scrollLeft = 0;
+    };
+
     const restore = () => {
       clearTimeout(timer);
-      timer = setTimeout(() => {
-        const h = heightNow();
-        tallest = Math.max(tallest, h);
-        if (tallest - h > 100) return; // keyboard still up — leave it alone
-        const el = document.scrollingElement ?? document.documentElement;
-        if (el.scrollTop !== 0) el.scrollTop = 0;
-        if (el.scrollLeft !== 0) el.scrollLeft = 0;
-      }, 250);
+      timer = setTimeout(() => attempt(MAX_TRIES), RETRY_MS);
     };
 
     window.addEventListener("focusout", restore);
@@ -126,6 +153,9 @@ export default function App() {
         <AnalyticsTracker />
         <ScrollManager />
         <ViewportReset />
+        {new URLSearchParams(window.location.search).get("debug") === "scroll" && (
+          <ScrollDebug />
+        )}
 
         <div className="app-container">
           <Navigation />
