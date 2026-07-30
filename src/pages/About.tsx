@@ -1,5 +1,13 @@
 import "../styles/About.css";
 
+// The build actually running, so a stale service worker is obvious rather than
+// something you have to deduce. Commit identifies the source; the timestamp is
+// the part you can sanity-check against "I pushed that ten minutes ago".
+const built = new Date(__APP_BUILT__);
+const builtLabel = Number.isNaN(built.getTime())
+  ? __APP_BUILT__
+  : built.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+
 export default function About() {
   return (
     <div className="page">
@@ -60,6 +68,11 @@ export default function About() {
         licence. The stroke files Kanjii ships, and the connection and
         stroke-signature data derived from them, are shared under that same
         licence.
+      </p>
+
+      <p className="about-version">
+        Build <code>{__APP_COMMIT__}</code> · {builtLabel}
+        {import.meta.env.DEV ? " · dev" : ""}
       </p>
     </div>
   );

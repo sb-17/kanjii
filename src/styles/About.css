@@ -24,3 +24,15 @@
     color: var(--accent-hover);
     border-bottom-style: solid;
 }
+/* Build stamp — deliberately quiet, but selectable so it can be pasted into a
+   bug report. */
+.about-version {
+    margin-top: var(--space-5);
+    color: var(--text-faint);
+    font-size: var(--text-sm);
+}
+
+.about-version code {
+    font-family: ui-monospace, monospace;
+    user-select: all;
+}

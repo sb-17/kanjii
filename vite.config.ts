@@ -1,8 +1,26 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { execSync } from "node:child_process";
 import { copyFileSync } from "node:fs";
 import { resolve } from "node:path";
+
+// Build stamp, shown on the About page. The point is to tell at a glance whether
+// the installed PWA is actually running the build you just pushed — a service
+// worker can keep serving an old one, which has already cost a debugging session.
+// `package.json`'s version is not used: it would need bumping by hand and says
+// nothing about which commit is deployed.
+const commit = (() => {
+  try {
+    return execSync("git rev-parse --short HEAD", {
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+      .toString()
+      .trim();
+  } catch {
+    return "unknown"; // no git (e.g. building from a source archive)
+  }
+})();
 
 // GitHub Pages has no SPA rewrite, so deep links / refreshes on client routes
 // (e.g. /kanjii/kanji) would 404. Serving a 404.html that's a copy of index.html
@@ -26,6 +44,10 @@ const spaFallback = () => ({
 
 export default defineConfig({
   base: "/kanjii/",
+  define: {
+    __APP_COMMIT__: JSON.stringify(commit),
+    __APP_BUILT__: JSON.stringify(new Date().toISOString()),
+  },
   plugins: [
     react(),
     VitePWA({
