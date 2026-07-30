@@ -201,3 +201,9 @@
 .mw-delete:hover {
     color: var(--error);
 }
+
+/* "Show more" sits inside the list flow, so it lands directly under the last row. */
+.mw-show-more {
+    align-self: center;
+    margin-top: var(--space-2);
+}

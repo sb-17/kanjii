@@ -8,6 +8,10 @@ import ClearableField from "../components/clearable-field/ClearableField";
 
 const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
 
+// Rows rendered before "Show more". A long list is hundreds of cards with two
+// buttons each, and all of it is laid out on every keystroke in the search box.
+const PAGE_SIZE = 50;
+
 export default function MyWords() {
   const [list, setList] = useState<Vocab[]>(() => loadUserVocab());
   const [word, setWord] = useState("");
@@ -16,6 +20,14 @@ export default function MyWords() {
   const [context, setContext] = useState("");
   const [editKey, setEditKey] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [shown, setShown] = useState(PAGE_SIZE);
+
+  // A new search starts from the top again — otherwise having expanded to 300
+  // rows silently keeps that cost for every later search.
+  const changeSearch = (value: string) => {
+    setSearch(value);
+    setShown(PAGE_SIZE);
+  };
 
   const persist = (next: Vocab[]) => {
     setList(next);
@@ -203,17 +215,23 @@ export default function MyWords() {
         <ClearableField
           className="mw-search-wrap"
           show={search.length > 0}
-          onClear={() => setSearch("")}
+          onClear={() => changeSearch("")}
           label="Clear search"
         >
           <input
             className="mw-search"
             placeholder="Search your words…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => changeSearch(e.target.value)}
           />
         </ClearableField>
-        <span className="mw-count">{list.length} words</span>
+        {/* While searching, the matching count is the useful number — the total
+            is kept alongside it so the list size doesn't appear to have changed. */}
+        <span className="mw-count">
+          {search.trim()
+            ? `${filtered.length} of ${list.length} words`
+            : `${list.length} words`}
+        </span>
       </div>
 
       {list.length === 0 ? (
@@ -222,7 +240,7 @@ export default function MyWords() {
         </p>
       ) : (
         <div className="mw-list">
-          {filtered.map((v) => (
+          {filtered.slice(0, shown).map((v) => (
             <div className="mw-item surface-card" key={keyOf(v)}>
               <Link
                 className="mw-item-body"
@@ -248,6 +266,20 @@ export default function MyWords() {
               </div>
             </div>
           ))}
+
+          {filtered.length > shown && (
+            <button
+              type="button"
+              className="mw-button mw-show-more"
+              onClick={() => setShown((n) => n + PAGE_SIZE)}
+            >
+              Show more ({filtered.length - shown} left)
+            </button>
+          )}
+
+          {filtered.length === 0 && (
+            <p className="mw-empty">No words match “{search}”.</p>
+          )}
         </div>
       )}
     </div>
