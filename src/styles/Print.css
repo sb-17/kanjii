@@ -318,6 +318,9 @@
     }
 
     .app-container {
+        /* The shell is `position: fixed` on screen (see App.css); a fixed element
+           prints only on the first page, so put it back in flow to print. */
+        position: static !important;
         display: block !important;
         width: auto !important;
         height: auto !important;

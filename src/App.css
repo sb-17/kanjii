@@ -1,20 +1,44 @@
 .app-container {
-  /* Positioning context for the nav toggle, so it anchors to the app shell rather
-     than the viewport — see .nav-toggle in Navigation.css. */
-  position: relative;
+  /* `fixed` takes the whole shell out of document flow, which is what finally
+     killed the stuck-keyboard offset — and it is load-bearing, so don't put it
+     back to `relative`.
+
+     The bug: focus a field low on the page, and iOS scrolls the *document* to
+     reveal it. `html/body { overflow: hidden }` means that offset can't be
+     scrolled back by hand, so the page stayed shifted with the nav toggle riding
+     up off the top. Three attempts to undo it after the fact all failed —
+     `ViewportReset` fired, zeroed html, body and window, and ~33px still survived
+     (measured on device 2026-07-30). iOS simply won't be argued out of it.
+
+     So remove the ability instead of the symptom: with the shell out of flow,
+     `body` has no in-flow content, the document's scroll range is zero, and a
+     scroll offset is not a state the document can be in. It also means the page
+     can no longer drift independently of the content — the thing
+     `overflow: hidden` was added for — so that original fix is preserved
+     structurally rather than by suppression. (`overflow: hidden` stays on
+     html/body as belt-and-braces.)
+
+     Still sized by dvh rather than `inset: 0`: `inset` would resolve against the
+     *layout* viewport and hide the bottom of the app behind a browser URL bar.
+     Also the positioning context for the nav toggle, so it anchors to the shell
+     rather than the viewport — see .nav-toggle in Navigation.css. */
+  position: fixed;
+  top: 0;
+  left: 0;
   display: flex;
   flex-direction: row;
   height: 100vh;
   height: 100dvh; /* match the visible area on mobile (excludes the URL bar) */
-  width: 100vw;
+  width: 100%;
   overflow: hidden;
   box-sizing: border-box;
 }
 
 .app-content {
   flex: 1;
-  height: 100vh;
-  height: 100dvh;
+  /* Fills the shell, which is already the visible height — don't reintroduce dvh
+     here, or the two can disagree by the height of a browser toolbar. */
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   /* keep scroll contained to this pane so reaching the end doesn't chain to the
