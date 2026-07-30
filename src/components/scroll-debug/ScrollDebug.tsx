@@ -86,6 +86,11 @@ export default function ScrollDebug() {
       {row("body.scroll", document.body.scrollTop)}
       {row("vvOffsetTop", vv?.offsetTop ?? 0)}
       {row("contentTop", content?.scrollTop ?? 0)}
+      {/* The decisive one: if these are 0 the document *cannot* scroll, so any
+          offset must be a visual-viewport offset and no scrollTop reset will ever
+          fix it. If they're non-zero, something overflows and that's the bug. */}
+      {row("htmlRange", scroller.scrollHeight - scroller.clientHeight)}
+      {row("bodyRange", document.body.scrollHeight - document.body.clientHeight)}
       <div style={{ display: "flex", gap: 6, marginTop: 3 }}>
         <span style={{ width: 86, opacity: 0.65 }}>vvH / innerH</span>
         <span>

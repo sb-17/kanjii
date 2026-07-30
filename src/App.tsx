@@ -125,9 +125,23 @@ function ViewportReset() {
         }
         return; // keyboard still up — leave it alone
       }
-      const el = document.scrollingElement ?? document.documentElement;
-      if (el.scrollTop !== 0) el.scrollTop = 0;
-      if (el.scrollLeft !== 0) el.scrollLeft = 0;
+      // Zero every element that could be holding the offset, not just
+      // `scrollingElement`.
+      //
+      // Evidence from a device (2026-07-30): closing the keyboard took the offset
+      // from ~71px to ~33px and left it there. So the reset was running — the
+      // height guard had passed — and still didn't clear it, which means it was
+      // zeroing the wrong element. `scrollingElement` is <html>, but *both* html
+      // and body carry `overflow: hidden` here, and iOS can keep the offset on
+      // <body>, where nothing above ever touched it.
+      //
+      // `scrollTo` as well as the direct assignments because the two don't always
+      // route to the same place on iOS. All three are no-ops when already at zero.
+      for (const el of [document.documentElement, document.body]) {
+        if (el.scrollTop !== 0) el.scrollTop = 0;
+        if (el.scrollLeft !== 0) el.scrollLeft = 0;
+      }
+      window.scrollTo(0, 0);
     };
 
     const restore = () => {
