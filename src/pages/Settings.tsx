@@ -7,9 +7,6 @@ import { loadKanjiSkill, saveKanjiSkill } from "../storage/kanjiSkill";
 import { loadEvents, replaceEvents } from "../storage/events";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { mergeVocab } from "../lib/vocab";
-import { anchorExistingDue } from "../lib/srs";
-import type { KanjiSkillMap } from "../types/kanjiSkill";
-import type { ReviewDirection } from "../types/vocabType";
 import { buildBackup, parseBackup } from "../lib/backup";
 import { getThemePref, setThemePref, type ThemePref } from "../storage/theme";
 
@@ -85,62 +82,6 @@ export default function Settings() {
     const n = Math.floor(Number(raw));
     if (raw.trim() === "" || !Number.isFinite(n) || n < 0) return;
     saveSettings({ ...loadSettings(), newPerDay: Math.min(n, 200) });
-  };
-
-  // TEMPORARY — see the matching Settings card. Existing due dates were written
-  // before scheduling was day-anchored, so they sit at whatever time of day you
-  // last studied (clear the queue at 23:00 and it reopens at 23:00). This moves
-  // each onto 04:00 of the day it already falls on: same day, same box, just no
-  // longer hostage to the hour. Box 0 is skipped — that's the 10-minute
-  // same-session step, and snapping it to a morning would be wrong.
-  const handleRealign = () => {
-    const skill = loadKanjiSkill();
-    const nextSkill: KanjiSkillMap = {};
-    let skillMoved = 0;
-    for (const [char, s] of Object.entries(skill)) {
-      if (s.box < 1) {
-        nextSkill[char] = s;
-        continue;
-      }
-      const due = anchorExistingDue(s.due);
-      if (due !== s.due) skillMoved++;
-      nextSkill[char] = { ...s, due };
-    }
-
-    let vocabMoved = 0;
-    const nextVocab = loadUserVocab().map((v) => {
-      if (!v.srs) return v;
-      const srs = { ...v.srs };
-      for (const dir of ["etj", "jte"] as ReviewDirection[]) {
-        const b = srs[dir];
-        if (!b || b.box < 1) continue;
-        const due = anchorExistingDue(b.due);
-        if (due !== b.due) vocabMoved++;
-        srs[dir] = { ...b, due };
-      }
-      return { ...v, srs };
-    });
-
-    if (skillMoved === 0 && vocabMoved === 0) {
-      alert("Nothing to realign — every due date is already day-anchored.");
-      return;
-    }
-
-    const ok = confirm(
-      "Realign review schedule?\n\n" +
-        `• ${skillMoved} handwriting due date${skillMoved === 1 ? "" : "s"}\n` +
-        `• ${vocabMoved} vocabulary due date${vocabMoved === 1 ? "" : "s"}\n\n` +
-        "Each moves to 04:00 on the day it already falls on. Levels and boxes are " +
-        "unchanged, and nothing moves to a different day.",
-    );
-    if (!ok) return;
-
-    saveKanjiSkill(nextSkill);
-    saveUserVocab(nextVocab);
-    alert(
-      `Realigned ${skillMoved + vocabMoved} due dates. Anything scheduled for ` +
-        "today is now available.",
-    );
   };
 
   const handleExport = () => downloadJson(progress, "kanjii-progress.json");
@@ -341,27 +282,6 @@ export default function Settings() {
           />
           <span>Unlock words when ≥50% of their kanji are started</span>
         </label>
-      </div>
-
-      {/* TEMPORARY — remove this card, handleRealign above, and anchorExistingDue
-          in lib/srs.ts once the schedule has been realigned once. */}
-      <div className="settings-card surface-card">
-        <strong>Realign review schedule</strong>
-
-        <p className="settings-description">
-          Reviews are now scheduled to a day rather than to a clock time. Due dates
-          set before that change still sit at whatever hour you last studied — so
-          clearing the queue at 23:00 means it reopens at 23:00, and a morning
-          check shows nothing. This moves each due date to 04:00 on the day it
-          already falls on. Levels are untouched and nothing moves to a different
-          day. One-off; it does nothing on a second run.
-        </p>
-
-        <div className="settings-actions">
-          <button className="settings-button" onClick={handleRealign}>
-            <strong>🕓 Realign schedule</strong>
-          </button>
-        </div>
       </div>
 
       <div className="settings-card surface-card">

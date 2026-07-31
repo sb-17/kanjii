@@ -24,9 +24,6 @@ import About from "./pages/About";
 import Support from "./pages/Support";
 import Analytics from "./pages/Analytics";
 import { ProgressProvider } from "./context/ProgressContext";
-// TEMPORARY — diagnostic for the keyboard/scroll bug, enabled with ?debug=scroll.
-// Remove this import, the <ScrollDebug/> below, and the component file together.
-import ScrollDebug from "./components/scroll-debug/ScrollDebug";
 import "./App.css";
 
 // Code-split the connection map and the kanji detail page: both pull in the
@@ -167,9 +164,6 @@ export default function App() {
         <AnalyticsTracker />
         <ScrollManager />
         <ViewportReset />
-        {new URLSearchParams(window.location.search).get("debug") === "scroll" && (
-          <ScrollDebug />
-        )}
 
         <div className="app-container">
           <Navigation />

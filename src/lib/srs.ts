@@ -50,17 +50,6 @@ export const RECENT_DAYS = 14;
 
 export const DIRECTIONS: ReviewDirection[] = ["etj", "jte"];
 
-// TEMPORARY — one-off migration for due dates written before `dueAfter` existed.
-// They sit at whatever clock time you last studied; this moves one onto the day
-// it already falls on. Never changes which day, never touches the box, and moves
-// a date by at most the distance to 04:00 that morning. Remove with the Settings
-// button that calls it.
-export function anchorExistingDue(due: number): number {
-  const d = new Date(due);
-  d.setHours(DAY_CUTOFF_HOUR, 0, 0, 0);
-  return d.getTime();
-}
-
 // A direction's box, if it's been practised.
 export function dirSrs(v: Vocab, dir: ReviewDirection): Srs | undefined {
   return v.srs?.[dir];
