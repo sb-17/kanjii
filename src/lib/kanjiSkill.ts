@@ -7,7 +7,7 @@
 // a kanji for its interval and it resurfaces. Guided tracing never advances the
 // box, so the level always means "written from memory".
 
-import { applyReview, BOX_INTERVALS, type Srs } from "./srs";
+import { applyReview, dueAfter, type Srs } from "./srs";
 import type { KanjiSkill } from "../types/kanjiSkill";
 
 // What a completed write attempt did to the skill box.
@@ -45,9 +45,9 @@ export function gradeSkill(
 
   // hold: keep the box, push the next review out to its interval so a stumbled
   // write leaves the due pool without leveling up. A clean write is required to
-  // advance.
+  // advance. Same day-anchored scheduling as a promotion — see `dueAfter`.
   const box = prev?.box ?? 0;
-  return { box, due: now + BOX_INTERVALS[box], reviewed: now };
+  return { box, due: dueAfter(box, now), reviewed: now };
 }
 
 // Never-written kanji count as due, so they surface in the Due scope.

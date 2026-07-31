@@ -19,10 +19,47 @@ export const BOX_INTERVALS: number[] = [
 ];
 export const MAX_BOX = BOX_INTERVALS.length - 1;
 
+// A study day starts at 04:00, not midnight, so a late-night session counts as
+// the day it felt like rather than tipping into the next one.
+const DAY_CUTOFF_HOUR = 4;
+
+// When something reviewed at `now` should next come up.
+//
+// Day-length intervals land on the *start of a day*, not on the clock time you
+// happened to review at. Anchoring to the moment made the schedule chase your
+// habits: clear the queue at 23:00 and everything returns at 23:00 the next day,
+// so checking in the morning shows nothing due — you're permanently 14 hours
+// early, and the queue only ever opens at the hour you last studied.
+//
+// Box 0 is deliberately exempt. It's the "come back this session" step, and ten
+// minutes means ten minutes.
+export function dueAfter(box: number, now: number): number {
+  const interval = BOX_INTERVALS[Math.min(Math.max(box, 0), MAX_BOX)];
+  if (interval < DAY) return now + interval;
+
+  const d = new Date(now);
+  if (d.getHours() < DAY_CUTOFF_HOUR) d.setDate(d.getDate() - 1);
+  d.setHours(DAY_CUTOFF_HOUR, 0, 0, 0);
+  // setDate rather than adding milliseconds, so DST and month ends stay right.
+  d.setDate(d.getDate() + Math.round(interval / DAY));
+  return d.getTime();
+}
+
 // "Recently added" window.
 export const RECENT_DAYS = 14;
 
 export const DIRECTIONS: ReviewDirection[] = ["etj", "jte"];
+
+// TEMPORARY — one-off migration for due dates written before `dueAfter` existed.
+// They sit at whatever clock time you last studied; this moves one onto the day
+// it already falls on. Never changes which day, never touches the box, and moves
+// a date by at most the distance to 04:00 that morning. Remove with the Settings
+// button that calls it.
+export function anchorExistingDue(due: number): number {
+  const d = new Date(due);
+  d.setHours(DAY_CUTOFF_HOUR, 0, 0, 0);
+  return d.getTime();
+}
 
 // A direction's box, if it's been practised.
 export function dirSrs(v: Vocab, dir: ReviewDirection): Srs | undefined {
@@ -55,7 +92,7 @@ export function isRecent(v: Vocab, now: number): boolean {
 // back to box 0. Atomic — callers decide which direction it belongs to.
 export function applyReview(prev: Srs | undefined, correct: boolean, now: number): Srs {
   const box = correct ? Math.min((prev?.box ?? 0) + 1, MAX_BOX) : 0;
-  return { box, due: now + BOX_INTERVALS[box], reviewed: now };
+  return { box, due: dueAfter(box, now), reviewed: now };
 }
 
 // Grade one direction of a word, returning the updated per-direction srs. Leaves
