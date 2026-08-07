@@ -14,9 +14,10 @@ import KanjiStrokeViewer from "../components/kanji-stroke-viewer/KanjiStrokeView
 import EmptyState from "../components/empty-state/EmptyState";
 import { logWrite, loadEvents } from "../storage/events";
 import { loadKanjiSkill, updateKanjiSkill } from "../storage/kanjiSkill";
-import type { KanjiSkillMap } from "../types/kanjiSkill";
+import type { KanjiSkill, KanjiSkillMap } from "../types/kanjiSkill";
 import {
   classifyWrite,
+  demoteSkill,
   gradeSkill,
   isSkillDue,
   skillDueKey,
@@ -149,15 +150,10 @@ export default function Write() {
   };
 
   const changeMode = (mode: WriteMode) => {
-    // Paper mode can't grade handwriting (there are no strokes to check), so the
-    // Due filter would never clear and the pool would stick on the same kanji.
-    // Drop back to Both when entering paper mode on Due — the current kanji is
-    // learning/known, so it stays in the Both pool and doesn't need repicking.
-    if (mode === "paper" && writePool === "due") {
-      updateSettings({ writeMode: mode, writePool: "both" });
-    } else {
-      updateSettings({ writeMode: mode });
-    }
+    // Due used to be forced back to Both here: paper couldn't grade, so the filter
+    // never cleared and stuck on the same kanji. Self-report grading fixed that, so
+    // paper keeps whichever pool you were on.
+    updateSettings({ writeMode: mode });
     setRevealed(false);
   };
 
@@ -268,6 +264,51 @@ export default function Write() {
     }
   };
 
+  // Paper mode: there are no strokes to check, so the learner reports how it went.
+  // That self-report is the whole reason paper can now touch the SRS at all —
+  // before this it recorded nothing, which is why Due used to be hidden here.
+  //
+  // "Got it" is treated exactly like a clean unguided screen write, due-gate
+  // included: extra practice while ahead of schedule doesn't level anything up.
+  // "Again" demotes to box 0 — see demoteSkill.
+  const handlePaperGrade = (got: boolean) => {
+    const at = Date.now();
+    const strokes = obj?.strokes ?? 0;
+
+    // Logged so paper practice counts in Writes/day and toward the promote-to-Known
+    // suggestion, both of which read the event log. There's no per-stroke data to
+    // record, so the self-report is expressed in the terms `classifyWrite` already
+    // understands: a clean run, or one where nothing came out right.
+    logWrite({
+      c: current,
+      n: strokes,
+      m: got ? 0 : strokes,
+      h: 0,
+      g: false,
+      ms: 0,
+    });
+
+    const prev = skill[current];
+    let next: KanjiSkill | undefined;
+    if (!got) {
+      next = demoteSkill(prev, at);
+    } else {
+      next = gradeSkill(prev, isSkillDue(prev, at) ? "promote" : "practice", at);
+    }
+    if (next !== prev) setSkill(updateKanjiSkill(current, next));
+
+    if (
+      got &&
+      progress[current] === "learning" &&
+      !dismissedPromotes.current.has(current) &&
+      cleanMemoryWriteCount(current) >= PROMOTE_SUGGEST_COUNT
+    ) {
+      setPromoteSuggest(current);
+    } else {
+      pickNext();
+    }
+  };
+
   // Resolve the promotion banner: either mark the kanji Known or dismiss, then
   // carry on to the next kanji.
   const resolvePromote = (markKnown: boolean) => {
@@ -335,9 +376,7 @@ export default function Write() {
         <div className="write-toggles">
           <span className="write-toggle-label">Practising:</span>
           <div className="write-modes">
-            {POOLS.filter(
-              (p) => p.id !== "due" || writeMode === "screen",
-            ).map((p) => (
+            {POOLS.map((p) => (
               <button
                 key={p.id}
                 className={`write-toggle${writePool === p.id ? " active" : ""}`}
@@ -378,13 +417,6 @@ export default function Write() {
               Write it on paper from memory, then reveal to check.
             </p>
           )}
-          {!revealed && (
-            <div className="write-paper-actions">
-              <button className="write-action" onClick={() => setRevealed(true)}>
-                Show answer
-              </button>
-            </div>
-          )}
         </div>
       )}
 
@@ -421,10 +453,43 @@ export default function Write() {
       )}
 
       {current && !promoteSuggest && (
+        // One row, so Skip and Show answer sit side by side rather than stacking
+        // in two separate containers as they used to.
         <div className="write-actions">
-          <button className="write-action" onClick={pickNext}>
-            {single ? "Again" : revealed ? "Next" : "Skip"}
-          </button>
+          {writeMode !== "paper" ? (
+            <button className="write-action" onClick={pickNext}>
+              {single ? "Again" : "Skip"}
+            </button>
+          ) : revealed ? (
+            <>
+              <button
+                className="write-action"
+                onClick={() => handlePaperGrade(false)}
+              >
+                Again
+              </button>
+              <button
+                className="write-action write-action-primary"
+                onClick={() => handlePaperGrade(true)}
+              >
+                Got it
+              </button>
+            </>
+          ) : (
+            <>
+              {!single && (
+                <button className="write-action" onClick={pickNext}>
+                  Skip
+                </button>
+              )}
+              <button
+                className="write-action write-action-primary"
+                onClick={() => setRevealed(true)}
+              >
+                Show answer
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

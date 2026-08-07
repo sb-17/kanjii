@@ -110,10 +110,12 @@
     line-height: 1.1;
 }
 
-.write-paper-actions,
 .write-actions {
     display: flex;
     justify-content: center;
+    /* Two buttons share this row in paper mode; wrap rather than overflow if a
+       narrow phone can't fit them side by side. */
+    flex-wrap: wrap;
     gap: var(--space-3);
     margin-top: var(--space-4);
 }
@@ -213,6 +215,11 @@
     }
     .write-actions {
         margin-top: var(--space-3);
+    }
+    /* Paper mode puts two buttons on this row — trim the generous side padding
+       so they stay on one line on a narrow phone. */
+    .write-action {
+        padding: var(--space-3) var(--space-4);
     }
     .write-paper {
         max-width: min(360px, 52vh);

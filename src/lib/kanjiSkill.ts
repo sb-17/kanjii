@@ -1,11 +1,16 @@
 // Grading and scheduling for handwriting skill. Reuses the vocab Leitner engine
 // (lib/srs.ts) keyed by character instead of by word.
 //
-// Design: skill only rises or holds — never demotes. Writing has no true fail
-// state (you complete a kanji eventually, or leave and nothing is logged), so
-// there's no clean signal to demote on. Decay is the due date's job: don't write
-// a kanji for its interval and it resurfaces. Guided tracing never advances the
-// box, so the level always means "written from memory".
+// Design: on screen, skill only rises or holds — never demotes. Screen writing has
+// no true fail state (you complete a kanji eventually, or leave and nothing is
+// logged), so there's no clean signal to demote on. Decay is the due date's job:
+// don't write a kanji for its interval and it resurfaces. Guided tracing never
+// advances the box, so the level always means "written from memory".
+//
+// Paper mode is the exception, and only because it has the signal screen mode
+// lacks: the learner says outright whether they got it (`demoteSkill`). The rule
+// above was never about writing being un-failable in principle — it was about not
+// being able to *observe* the failure.
 
 import { applyReview, dueAfter, type Srs } from "./srs";
 import type { KanjiSkill } from "../types/kanjiSkill";
@@ -48,6 +53,17 @@ export function gradeSkill(
   // advance. Same day-anchored scheduling as a promotion — see `dueAfter`.
   const box = prev?.box ?? 0;
   return { box, due: dueAfter(box, now), reviewed: now };
+}
+
+// Self-reported failure, paper mode only: back to box 0, so it returns in ~10
+// minutes rather than at the interval it had earned. Anything gentler is worse
+// than useless at the top of the ladder — a box-5 kanji you couldn't write would
+// otherwise be rescheduled a month out on the strength of having failed it.
+export function demoteSkill(
+  prev: KanjiSkill | undefined,
+  now: number,
+): KanjiSkill {
+  return applyReview(prev as Srs | undefined, false, now);
 }
 
 // Never-written kanji count as due, so they surface in the Due scope.
