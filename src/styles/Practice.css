@@ -148,3 +148,10 @@
     font-size: var(--text-sm);
     color: var(--success);
 }
+/* Locked during the correct-answer pause, so a second tap can't queue a second
+   advance and skip the next word. */
+.practice-skip-button:disabled,
+.practice-submit-button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}

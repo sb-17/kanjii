@@ -374,7 +374,6 @@ export default function Write() {
 
       {!single && (
         <div className="write-toggles">
-          <span className="write-toggle-label">Practising:</span>
           <div className="write-modes">
             {POOLS.map((p) => (
               <button

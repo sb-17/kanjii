@@ -84,6 +84,57 @@ export default function Settings() {
     saveSettings({ ...loadSettings(), newPerDay: Math.min(n, 200) });
   };
 
+  // TEMPORARY — see the matching Settings card. Backfills `addedAt` for words that
+  // predate the field, so the vocab-growth chart files them under history instead
+  // of reporting them as undated.
+  const handleBackfillDates = () => {
+    const vocab = loadUserVocab();
+    const dated = vocab
+      .map((v) => v.addedAt)
+      .filter((t): t is number => typeof t === "number");
+    const undated = vocab.length - dated.length;
+
+    if (undated === 0) {
+      // Nothing to backfill — but report the spread, because a block of words all
+      // stamped with one import date looks much the same on the chart as undated
+      // ones and needs a different fix.
+      const sorted = [...dated].sort((a, b) => a - b);
+      alert(
+        sorted.length === 0
+          ? "No words to update."
+          : "Every word already has a date, so there's nothing to backfill.\n\n" +
+              `Oldest: ${new Date(sorted[0]).toLocaleDateString()}\n` +
+              `Newest: ${new Date(sorted[sorted.length - 1]).toLocaleDateString()}\n\n` +
+              "If those are the same day, they were stamped when you imported them " +
+              "rather than spread over time — tell me and I'll sort that separately.",
+      );
+      return;
+    }
+
+    // A day older than anything else on record, so they land in "added earlier"
+    // rather than skewing a recent week. Reduce rather than Math.min(...spread):
+    // the event log grows without bound and a big spread can overflow the stack.
+    const oldest = [...loadEvents().map((e) => e.t), ...dated]
+      .filter((t) => typeof t === "number" && t > 0)
+      .reduce((min, t) => (t < min ? t : min), Date.now());
+    const stamp = oldest - 86_400_000;
+
+    const ok = confirm(
+      `Give ${undated} undated word${undated === 1 ? "" : "s"} an added date?\n\n` +
+        `They'll be dated ${new Date(stamp).toLocaleDateString()} — a day before the ` +
+        "oldest thing on record — so they count as history rather than recent " +
+        "additions.\n\nWords that already have a date are left alone.",
+    );
+    if (!ok) return;
+
+    saveUserVocab(
+      vocab.map((v) =>
+        typeof v.addedAt === "number" ? v : { ...v, addedAt: stamp },
+      ),
+    );
+    alert(`Dated ${undated} word${undated === 1 ? "" : "s"}.`);
+  };
+
   const handleExport = () => downloadJson(progress, "kanjii-progress.json");
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -282,6 +333,25 @@ export default function Settings() {
           />
           <span>Unlock words when ≥50% of their kanji are started</span>
         </label>
+      </div>
+
+      {/* TEMPORARY — remove this card and handleBackfillDates above once run. */}
+      <div className="settings-card surface-card">
+        <strong>Date older words</strong>
+
+        <p className="settings-description">
+          Words added before Kanjii started recording an added date have none, so
+          the vocabulary growth chart can only report them as undated. This gives
+          them a date just before your oldest recorded activity, which files them
+          under history instead. Words that already have a date aren't touched, and
+          nothing else about them changes.
+        </p>
+
+        <div className="settings-actions">
+          <button className="settings-button" onClick={handleBackfillDates}>
+            <strong>📅 Date older words</strong>
+          </button>
+        </div>
       </div>
 
       <div className="settings-card surface-card">

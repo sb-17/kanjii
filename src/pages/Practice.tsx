@@ -169,6 +169,13 @@ export default function Practice() {
 
   const handleSubmit = () => {
     if (!current) return;
+    // A correct answer schedules the advance 700ms out and leaves the text in the
+    // box until it fires. Submitting again inside that window used to re-grade the
+    // same correct answer and queue a *second* advance, so the word after this one
+    // was skipped without ever being shown. The buttons are disabled during the
+    // pause too; this covers the Enter key, which isn't.
+    if (feedback === "correct") return;
+
     // An empty submit is a mis-tap, not a miss — grading it would knock the word
     // back to box 0 with no way to undo.
     const raw = answer.trim();
@@ -315,14 +322,28 @@ export default function Practice() {
               />
             </ClearableField>
 
+            {/* All three are locked during the correct-answer pause: any of them
+                firing while an advance is already queued skips a word. */}
             <div className="practice-actions">
-              <button onClick={handleSkip} className="practice-skip-button">
+              <button
+                onClick={handleSkip}
+                className="practice-skip-button"
+                disabled={feedback === "correct"}
+              >
                 Skip
               </button>
-              <button onClick={handleReveal} className="practice-skip-button">
+              <button
+                onClick={handleReveal}
+                className="practice-skip-button"
+                disabled={feedback === "correct"}
+              >
                 Show answer
               </button>
-              <button onClick={handleSubmit} className="practice-submit-button">
+              <button
+                onClick={handleSubmit}
+                className="practice-submit-button"
+                disabled={feedback === "correct"}
+              >
                 Submit
               </button>
             </div>

@@ -70,11 +70,6 @@
     color: var(--on-accent);
 }
 
-.write-toggle-label {
-    color: var(--text-muted);
-    font-size: var(--text-sm);
-}
-
 .write-guide {
     display: inline-flex;
     align-items: center;
