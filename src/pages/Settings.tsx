@@ -7,7 +7,6 @@ import { loadKanjiSkill, saveKanjiSkill } from "../storage/kanjiSkill";
 import { loadEvents, replaceEvents } from "../storage/events";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { mergeVocab } from "../lib/vocab";
-import { vocabGrowth } from "../lib/analytics";
 import { buildBackup, parseBackup } from "../lib/backup";
 import { getThemePref, setThemePref, type ThemePref } from "../storage/theme";
 
@@ -83,81 +82,6 @@ export default function Settings() {
     const n = Math.floor(Number(raw));
     if (raw.trim() === "" || !Number.isFinite(n) || n < 0) return;
     saveSettings({ ...loadSettings(), newPerDay: Math.min(n, 200) });
-  };
-
-  // TEMPORARY — see the matching Settings card. Deliberately a button rather than
-  // anything automatic: it rewrites real dates, so it happens when you say so.
-  //
-  // A bulk import carries no dates of its own, so mergeVocab stamps the whole file
-  // with a single timestamp. Every word from one import therefore shares an
-  // *identical* addedAt, and that's what tells an import apart from words added by
-  // hand — which is why hundreds of them pile into one column of the growth chart
-  // and flatten the weeks you actually built up.
-  const handleBackfillDates = () => {
-    const vocab = loadUserVocab();
-    const now = Date.now();
-    const WEEK = 7 * 24 * 60 * 60 * 1000;
-    const BULK_MIN = 20; // below this it's a real week's work, not an import
-
-    const byStamp = new Map<number, number>();
-    let undated = 0;
-    for (const v of vocab) {
-      if (typeof v.addedAt !== "number") undated++;
-      else byStamp.set(v.addedAt, (byStamp.get(v.addedAt) ?? 0) + 1);
-    }
-
-    // Only groups inside the chart's window matter — one already older than that
-    // is counted as history and isn't distorting anything.
-    const bulk = [...byStamp.entries()].filter(
-      ([t, n]) => n >= BULK_MIN && now - t < 8 * WEEK,
-    );
-    const bulkCount = bulk.reduce((sum, [, n]) => sum + n, 0);
-
-    if (bulkCount === 0 && undated === 0) {
-      const g = vocabGrowth(vocab, 8, now);
-      const buckets = g.buckets
-        .map((b) => `  ${b.label.padStart(3)}: ${b.count}`)
-        .join("\n");
-      alert(
-        "Nothing to change — no undated words, and no group of words sharing " +
-          "an import timestamp inside the chart's 8-week window.\n\n" +
-          `Growth chart buckets:\n${buckets}\n  older: ${g.older}\n` +
-          `  undated: ${g.untracked}`,
-      );
-      return;
-    }
-
-    // Nine weeks back: past the chart's window, so these are reported as "added
-    // earlier" rather than drawn as a bar.
-    const stamp = now - 9 * WEEK;
-    const targets = new Set(bulk.map(([t]) => t));
-
-    const lines = [
-      ...bulk.map(
-        ([t, n]) =>
-          `  • ${n} words sharing ${new Date(t).toLocaleDateString()}`,
-      ),
-      ...(undated ? [`  • ${undated} undated words`] : []),
-    ].join("\n");
-
-    const ok = confirm(
-      `Move these words into your history?\n\n${lines}\n\n` +
-        `They'll be dated ${new Date(stamp).toLocaleDateString()}, before the ` +
-        "growth chart's window, so it shows the words you added yourself instead " +
-        "of one import.\n\n" +
-        'Also affects: they leave Practice\'s "Recent" scope, and hand-added ' +
-        "words get introduced before them. Words added individually are untouched.",
-    );
-    if (!ok) return;
-
-    saveUserVocab(
-      vocab.map((v) =>
-        typeof v.addedAt !== "number" || targets.has(v.addedAt)
-          ? { ...v, addedAt: stamp }
-          : v,
-      ),
-    );
-    alert(`Moved ${bulkCount + undated} words into your history.`);
   };
 
   const handleExport = () => downloadJson(progress, "kanjii-progress.json");
@@ -358,27 +282,6 @@ export default function Settings() {
           />
           <span>Unlock words when ≥50% of their kanji are started</span>
         </label>
-      </div>
-
-      {/* TEMPORARY — remove this card and handleBackfillDates above once run. */}
-      <div className="settings-card surface-card">
-        <strong>Move older words into history</strong>
-
-        <p className="settings-description">
-          An imported word list carries no dates of its own, so every word in it
-          shares the moment it was imported — which is why one import fills a single
-          column of the growth chart and flattens the weeks you actually built up.
-          This finds groups of words sharing one timestamp (and any undated words)
-          and dates them before the chart's window, so it shows the words you added
-          yourself. Words you added one at a time are left alone. Nothing happens
-          until you confirm, and it tells you exactly what it found first.
-        </p>
-
-        <div className="settings-actions">
-          <button className="settings-button" onClick={handleBackfillDates}>
-            <strong>📅 Move older words into history</strong>
-          </button>
-        </div>
       </div>
 
       <div className="settings-card surface-card">

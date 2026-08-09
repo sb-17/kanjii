@@ -23,6 +23,17 @@ export const MAX_BOX = BOX_INTERVALS.length - 1;
 // the day it felt like rather than tipping into the next one.
 const DAY_CUTOFF_HOUR = 4;
 
+// The start of the study day containing `t`. The single definition of "a day" in
+// the app — scheduling, the daily new-word allowance and the per-day charts all
+// go through this, so a 01:00 session can't be yesterday to one of them and today
+// to another.
+export function startOfStudyDay(t: number): number {
+  const d = new Date(t);
+  if (d.getHours() < DAY_CUTOFF_HOUR) d.setDate(d.getDate() - 1);
+  d.setHours(DAY_CUTOFF_HOUR, 0, 0, 0);
+  return d.getTime();
+}
+
 // When something reviewed at `now` should next come up.
 //
 // Day-length intervals land on the *start of a day*, not on the clock time you
@@ -37,9 +48,7 @@ export function dueAfter(box: number, now: number): number {
   const interval = BOX_INTERVALS[Math.min(Math.max(box, 0), MAX_BOX)];
   if (interval < DAY) return now + interval;
 
-  const d = new Date(now);
-  if (d.getHours() < DAY_CUTOFF_HOUR) d.setDate(d.getDate() - 1);
-  d.setHours(DAY_CUTOFF_HOUR, 0, 0, 0);
+  const d = new Date(startOfStudyDay(now));
   // setDate rather than adding milliseconds, so DST and month ends stay right.
   d.setDate(d.getDate() + Math.round(interval / DAY));
   return d.getTime();

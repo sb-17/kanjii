@@ -9,7 +9,7 @@ import type { Vocab } from "../types/vocabType";
 import type { KanjiSkillMap } from "../types/kanjiSkill";
 import { isKnownOrLearning } from "../storage/kanjiProgress";
 import { isVocabAvailable } from "./vocab";
-import { MAX_BOX, isDue } from "./srs";
+import { MAX_BOX, isDue, startOfStudyDay } from "./srs";
 import { isSkillDue } from "./kanjiSkill";
 import type { AppEvent } from "../storage/events";
 
@@ -82,13 +82,15 @@ export function mostFrequentNew(progress: KanjiProgress, n = 12): Kanji[] {
 // How many words were introduced today — a word counts as introduced on the day
 // of its first-ever review. Derived from the event log rather than stored, so
 // there's no new state to keep in sync (or to get wrong across a restore).
+//
+// "Today" is the study day (`startOfStudyDay`), the same one scheduling uses. On
+// a midnight boundary a 01:00 session would hand out a fresh allowance while the
+// SRS still considered it the previous day.
 export function newWordsIntroducedToday(
   events: AppEvent[],
   now = Date.now(),
 ): number {
-  const start = new Date(now);
-  start.setHours(0, 0, 0, 0);
-  const startMs = start.getTime();
+  const startMs = startOfStudyDay(now);
 
   const firstSeen = new Map<string, number>();
   for (const e of events) {
@@ -299,15 +301,16 @@ export type DayCount = { label: string; count: number };
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 // Count events of one kind per day over the last `days` days.
+//
+// Bucketed by study day (`startOfStudyDay`), so a 01:00 session lands in the bar
+// for the evening it belongs to rather than splitting one sitting across two.
 function eventsPerDay(
   events: AppEvent[],
   kind: AppEvent["k"],
   days: number,
   now: number,
 ): { buckets: DayCount[]; total: number } {
-  const midnight = new Date(now);
-  midnight.setHours(0, 0, 0, 0);
-  const startMs = midnight.getTime() - (days - 1) * DAY_MS;
+  const startMs = startOfStudyDay(now) - (days - 1) * DAY_MS;
 
   const buckets: DayCount[] = [];
   for (let j = 0; j < days; j++) {
@@ -318,9 +321,7 @@ function eventsPerDay(
   let total = 0;
   for (const e of events) {
     if (e.k !== kind || e.t < startMs) continue;
-    const d = new Date(e.t);
-    d.setHours(0, 0, 0, 0);
-    const idx = Math.round((d.getTime() - startMs) / DAY_MS);
+    const idx = Math.round((startOfStudyDay(e.t) - startMs) / DAY_MS);
     if (idx >= 0 && idx < days) {
       buckets[idx].count++;
       total++;
