@@ -7,6 +7,7 @@ import { loadKanjiSkill, saveKanjiSkill } from "../storage/kanjiSkill";
 import { loadEvents, replaceEvents } from "../storage/events";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { mergeVocab } from "../lib/vocab";
+import { vocabGrowth } from "../lib/analytics";
 import { buildBackup, parseBackup } from "../lib/backup";
 import { getThemePref, setThemePref, type ThemePref } from "../storage/theme";
 
@@ -95,18 +96,25 @@ export default function Settings() {
     const undated = vocab.length - dated.length;
 
     if (undated === 0) {
-      // Nothing to backfill — but report the spread, because a block of words all
-      // stamped with one import date looks much the same on the chart as undated
-      // ones and needs a different fix.
+      // Nothing to backfill, so report what the dates actually are. Buckets come
+      // from `vocabGrowth` itself rather than a second calculation, so this can't
+      // disagree with the chart it's explaining.
       const sorted = [...dated].sort((a, b) => a - b);
+      if (sorted.length === 0) {
+        alert("No words to update.");
+        return;
+      }
+      const now = Date.now();
+      const future = dated.filter((t) => t > now).length;
+      const g = vocabGrowth(loadUserVocab(), 8, now);
       alert(
-        sorted.length === 0
-          ? "No words to update."
-          : "Every word already has a date, so there's nothing to backfill.\n\n" +
-              `Oldest: ${new Date(sorted[0]).toLocaleDateString()}\n` +
-              `Newest: ${new Date(sorted[sorted.length - 1]).toLocaleDateString()}\n\n` +
-              "If those are the same day, they were stamped when you imported them " +
-              "rather than spread over time — tell me and I'll sort that separately.",
+        "Every word already has a date, so there's nothing to backfill.\n\n" +
+          `Oldest: ${new Date(sorted[0]).toLocaleString()}\n` +
+          `Newest: ${new Date(sorted[sorted.length - 1]).toLocaleString()}\n` +
+          `Dated in the future: ${future}\n\n` +
+          "Growth chart buckets:\n" +
+          g.buckets.map((b) => `  ${b.label.padStart(3)}: ${b.count}`).join("\n") +
+          `\n  older: ${g.older}\n  undated: ${g.untracked}`,
       );
       return;
     }
