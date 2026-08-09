@@ -120,7 +120,17 @@ export function parseBackup(raw: unknown): ParsedBackup {
   // parseProgress throws on a bad shape; mergeVocab onto an empty list reuses the
   // same item validation + srs normalisation the vocab import already trusts.
   const progress = parseProgress(r.progress);
-  const { merged } = mergeVocab([], r.vocab);
+
+  // Words with no date of their own fall back to when the backup was *exported*,
+  // never to now. A restore isn't an addition: the words demonstrably existed by
+  // the time the file was written. Dating them "now" made every phone↔PC sync
+  // look like a week where hundreds of words were added, and restoring the same
+  // old file twice moved them twice. exportedAt is fixed, so it can't drift.
+  const exportedAt =
+    typeof r.exportedAt === "number" && r.exportedAt > 0
+      ? r.exportedAt
+      : undefined;
+  const { merged } = mergeVocab([], r.vocab, exportedAt);
   return {
     progress,
     vocab: merged,

@@ -75,6 +75,10 @@ export function extractKanji(word: string): string[] {
 export function mergeVocab(
   existing: Vocab[],
   raw: unknown,
+  // Date to give entries whose file carries none. Defaults to now, which is right
+  // for a vocab file you're adding today — but wrong for a *restore*, where the
+  // words already existed. See the call in lib/backup.ts.
+  fallbackAddedAt?: number,
 ): { merged: Vocab[]; added: number } {
   if (!Array.isArray(raw)) throw new Error("Expected a JSON array");
 
@@ -86,7 +90,7 @@ export function mergeVocab(
   // single "added on this day" batch — behind anything added later, and drawn at
   // random within the batch rather than in file order. Left undefined, they'd all
   // read as the epoch and be indistinguishable from each other for good.
-  const importedAt = Date.now();
+  const importedAt = fallbackAddedAt ?? Date.now();
 
   for (const item of raw as unknown[]) {
     const r = (item ?? {}) as Record<string, unknown>;
