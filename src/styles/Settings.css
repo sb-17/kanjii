@@ -88,3 +88,23 @@
     outline: none;
     border-color: var(--accent);
 }
+
+.settings-button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.settings-button:disabled:hover {
+    background: var(--surface-strong);
+}
+
+.settings-cloud-note {
+    margin-top: 0;
+}
+
+.settings-cloud-status {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin: var(--space-3) 0 0;
+    line-height: 1.6;
+}

@@ -30,6 +30,10 @@ export type Backup = {
 };
 
 export type ParsedBackup = {
+  // When the file was written, if it says. Already computed below to date the
+  // restored words; exposed because the cloud restore shows the backup's age
+  // before you confirm, and records it as this device's last-synced point.
+  exportedAt?: number;
   progress: KanjiProgress;
   vocab: Vocab[];
   skill: KanjiSkillMap;
@@ -132,6 +136,7 @@ export function parseBackup(raw: unknown): ParsedBackup {
       : undefined;
   const { merged } = mergeVocab([], r.vocab, exportedAt);
   return {
+    exportedAt,
     progress,
     vocab: merged,
     skill: parseSkill(r.skill),

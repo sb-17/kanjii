@@ -41,9 +41,9 @@ export function isKnownOrLearning(status: KanjiStatus | undefined) {
 const STATUSES: string[] = ["new", "learning", "known"];
 
 // Validate parsed JSON as a progress map, throwing a user-readable reason if it
-// isn't one. Importing *replaces* everything, and the Settings page offers two
-// similar-looking JSON imports — so picking the vocab file by mistake must fail
-// loudly here rather than silently wipe every kanji status.
+// isn't one. Only reached through parseBackup now, and a restore *replaces*
+// everything — so a malformed progress section must fail loudly here rather than
+// silently wipe every kanji status.
 export function parseProgress(raw: unknown): KanjiProgress {
   if (raw == null || typeof raw !== "object" || Array.isArray(raw)) {
     throw new Error("Expected an object of kanji → status.");
