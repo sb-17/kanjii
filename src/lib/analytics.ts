@@ -12,6 +12,7 @@ import { isVocabAvailable } from "./vocab";
 import { MAX_BOX, isDue, startOfStudyDay } from "./srs";
 import { isSkillDue } from "./kanjiSkill";
 import type { AppEvent } from "../storage/events";
+import type { DeckStats, DayDeckStat } from "../storage/deckStats";
 
 const KANJI = kanjiData as Kanji[];
 export const TOTAL_KANJI = KANJI.length;
@@ -338,4 +339,57 @@ export function reviewsPerDay(events: AppEvent[], days = 14, now = Date.now()) {
 // Handwriting practice completions per day over the last `days` days.
 export function writesPerDay(events: AppEvent[], days = 14, now = Date.now()) {
   return eventsPerDay(events, "write", days, now);
+}
+
+export type DeckTrend = {
+  buckets: DayCount[];
+  total: number;
+  correct: number;
+};
+
+// Deck answers per day, summed across every deck. Built from the daily counters
+// (storage/deckStats) rather than the event log — same buckets and same study-day
+// cutoff as the charts above, so the bars line up with them.
+export function deckReviewsPerDay(
+  stats: DeckStats,
+  days = 14,
+  now = Date.now(),
+): DeckTrend {
+  const startMs = startOfStudyDay(now) - (days - 1) * DAY_MS;
+
+  const buckets: DayCount[] = [];
+  for (let j = 0; j < days; j++) {
+    const d = new Date(startMs + j * DAY_MS);
+    buckets.push({ label: `${d.getDate()}`, count: 0 });
+  }
+
+  let total = 0;
+  let correct = 0;
+  for (const [day, decks] of Object.entries(stats)) {
+    const t = Number(day);
+    if (!Number.isFinite(t)) continue;
+    const idx = Math.round((t - startMs) / DAY_MS);
+    for (const stat of Object.values(decks)) {
+      if (idx >= 0 && idx < days) {
+        buckets[idx].count += stat.n;
+        total += stat.n;
+        correct += stat.ok;
+      }
+    }
+  }
+  return { buckets, total, correct };
+}
+
+// Lifetime answers per deck, for the per-deck breakdown. Covers all of history,
+// not just the charted window — the chart answers "how much lately", this
+// answers "how much ever".
+export function deckTotals(stats: DeckStats): Record<string, DayDeckStat> {
+  const out: Record<string, DayDeckStat> = {};
+  for (const decks of Object.values(stats)) {
+    for (const [id, stat] of Object.entries(decks)) {
+      const prev = out[id] ?? { n: 0, ok: 0 };
+      out[id] = { n: prev.n + stat.n, ok: prev.ok + stat.ok };
+    }
+  }
+  return out;
 }

@@ -5,6 +5,7 @@ import type { ColumnMap } from "../lib/deckImport";
 import { previewImport, buildDeck } from "../lib/deckImport";
 import { loadDecks, saveDecks } from "../storage/decks";
 import { deckBoxes, clearDeckProgress } from "../storage/deckProgress";
+import { clearDeckStats } from "../storage/deckStats";
 import { deckCounts } from "../lib/deckSrs";
 import { loadUserVocab } from "../storage/userVocab";
 import { isVocabAvailable } from "../lib/vocab";
@@ -104,13 +105,18 @@ export default function Decks() {
   };
 
   const removeDeck = (id: string, name: string) => {
-    if (!confirm(`Delete "${name}" and its review progress? This can't be undone.`)) {
+    if (
+      !confirm(
+        `Delete "${name}", its review progress and its study history? This can't be undone.`,
+      )
+    ) {
       return;
     }
     const next = decks.filter((d) => d.id !== id);
     setDecks(next);
     saveDecks(next);
     clearDeckProgress(id);
+    clearDeckStats(id);
   };
 
   const setColumn = (key: keyof ColumnMap, value: number | null) => {

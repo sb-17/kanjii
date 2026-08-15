@@ -5,6 +5,7 @@ import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
 import { loadKanjiSkill, saveKanjiSkill } from "../storage/kanjiSkill";
 import { loadEvents, replaceEvents } from "../storage/events";
 import { loadDeckProgress, saveDeckProgress } from "../storage/deckProgress";
+import { loadDeckStats, saveDeckStats } from "../storage/deckStats";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { mergeVocab } from "../lib/vocab";
 import { buildBackup, parseBackup, type ParsedBackup } from "../lib/backup";
@@ -170,6 +171,7 @@ export default function Settings() {
     saveKanjiSkill(data.skill);
     replaceEvents(data.events);
     saveDeckProgress(data.deckProgress);
+    saveDeckStats(data.deckStats);
 
     if (data.settings) {
       const mergedSettings = { ...loadSettings(), ...data.settings };
@@ -192,6 +194,7 @@ export default function Settings() {
       loadKanjiSkill(),
       loadEvents(),
       loadDeckProgress(),
+      loadDeckStats(),
       loadSettings(),
       getThemePref(),
     );

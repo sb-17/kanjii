@@ -10,6 +10,7 @@ import type { Settings } from "../types/settingsType";
 import type { AppEvent } from "../storage/events";
 import type { ThemePref } from "../storage/theme";
 import type { DeckProgress } from "../types/deckType";
+import type { DeckStats } from "../storage/deckStats";
 import { parseProgress } from "../storage/kanjiProgress";
 import { mergeVocab } from "./vocab";
 
@@ -31,6 +32,9 @@ export type Backup = {
   // entries reattach when the same deck file is imported again, because card ids
   // are derived from card content (see lib/deckImport `cardId`).
   deckProgress: DeckProgress;
+  // Daily deck study counters. Small and bounded by design (one row per deck per
+  // day), which is why these ride along where per-review events would not.
+  deckStats: DeckStats;
   settings?: Settings;
   theme?: ThemePref;
 };
@@ -45,6 +49,7 @@ export type ParsedBackup = {
   skill: KanjiSkillMap;
   events: AppEvent[];
   deckProgress: DeckProgress;
+  deckStats: DeckStats;
   settings?: Partial<Settings>;
   theme?: ThemePref;
 };
@@ -55,6 +60,7 @@ export function buildBackup(
   skill: KanjiSkillMap,
   events: AppEvent[],
   deckProgress: DeckProgress,
+  deckStats: DeckStats,
   settings: Settings,
   theme: ThemePref,
 ): Backup {
@@ -67,6 +73,7 @@ export function buildBackup(
     skill,
     events,
     deckProgress,
+    deckStats,
     settings,
     theme,
   };
@@ -132,6 +139,28 @@ function parseDeckProgress(raw: unknown): DeckProgress {
   return out;
 }
 
+// Day → deck → {n, ok}. Same forgiving treatment as the sections above: a bad
+// counter is dropped, never fatal.
+function parseDeckStats(raw: unknown): DeckStats {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const out: DeckStats = {};
+  for (const [day, decks] of Object.entries(raw as Record<string, unknown>)) {
+    if (!Number.isFinite(Number(day))) continue;
+    if (!decks || typeof decks !== "object" || Array.isArray(decks)) continue;
+    const kept: DeckStats[string] = {};
+    for (const [deckId, stat] of Object.entries(decks as Record<string, unknown>)) {
+      if (stat && typeof stat === "object") {
+        const s = stat as Record<string, unknown>;
+        if (typeof s.n === "number" && typeof s.ok === "number") {
+          kept[deckId] = { n: s.n, ok: s.ok };
+        }
+      }
+    }
+    if (Object.keys(kept).length > 0) out[day] = kept;
+  }
+  return out;
+}
+
 function parseTheme(raw: unknown): ThemePref | undefined {
   return raw === "light" || raw === "dark" || raw === "system" ? raw : undefined;
 }
@@ -177,6 +206,7 @@ export function parseBackup(raw: unknown): ParsedBackup {
     skill: parseSkill(r.skill),
     events: parseEvents(r.events),
     deckProgress: parseDeckProgress(r.deckProgress),
+    deckStats: parseDeckStats(r.deckStats),
     settings: parseSettings(r.settings),
     theme: parseTheme(r.theme),
   };

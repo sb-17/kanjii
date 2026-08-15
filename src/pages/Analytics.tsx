@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Analytics.css";
+import "../styles/Decks.css";
 import { useProgress } from "../context/ProgressContext";
 import { loadUserVocab } from "../storage/userVocab";
 import { loadEvents } from "../storage/events";
@@ -19,7 +20,11 @@ import {
   knownPerWeek,
   reviewsPerDay,
   writesPerDay,
+  deckReviewsPerDay,
+  deckTotals,
 } from "../lib/analytics";
+import { loadDeckStats } from "../storage/deckStats";
+import { loadDecks } from "../storage/decks";
 
 export default function Analytics() {
   const { progress } = useProgress();
@@ -47,6 +52,11 @@ export default function Analytics() {
   const reviews = useMemo(() => reviewsPerDay(events, 14), [events]);
   const writes = useMemo(() => writesPerDay(events, 14), [events]);
 
+  const deckStats = loadDeckStats();
+  const decks = loadDecks();
+  const deckTrend = useMemo(() => deckReviewsPerDay(deckStats, 14), [deckStats]);
+  const perDeck = useMemo(() => deckTotals(deckStats), [deckStats]);
+
   const pct = (n: number) => (status.total ? Math.round((n / status.total) * 100) : 0);
   const boxMax = Math.max(srs.unstudied, ...srs.boxes, 1);
   const writeBoxMax = Math.max(writing.unpracticed, ...writing.boxes, 1);
@@ -54,6 +64,7 @@ export default function Analytics() {
   const knownMax = Math.max(1, ...known.buckets.map((b) => Math.abs(b.net)));
   const reviewMax = Math.max(1, ...reviews.buckets.map((b) => b.count));
   const writeMax = Math.max(1, ...writes.buckets.map((b) => b.count));
+  const deckMax = Math.max(1, ...deckTrend.buckets.map((b) => b.count));
 
   return (
     <div className="page">
@@ -370,6 +381,62 @@ export default function Analytics() {
                 </div>
               ))}
             </div>
+          )}
+        </section>
+
+        {/* ---- Decks (imported) ---- */}
+        <section className="stat-card surface-card">
+          <h2 className="stat-card-title">Decks</h2>
+          {deckTrend.total === 0 ? (
+            <p className="stat-note">
+              Study an imported deck and it shows here.{" "}
+              <Link to="/cards">Decks →</Link>
+            </p>
+          ) : (
+            <>
+              <div className="stat-duo">
+                <div>
+                  <span className="stat-big">{deckTrend.total}</span>
+                  <span className="stat-sub">answers, 14 days</span>
+                </div>
+                <div>
+                  <span className="stat-big">
+                    {Math.round((deckTrend.correct / deckTrend.total) * 100)}%
+                  </span>
+                  <span className="stat-sub">correct</span>
+                </div>
+              </div>
+
+              <div className="growth-bars">
+                {deckTrend.buckets.map((b, i) => (
+                  <div className="growth-col" key={i} title={`${b.count} answers`}>
+                    <span className="growth-count">{b.count}</span>
+                    <span
+                      className="growth-fill"
+                      style={{ height: `${(b.count / deckMax) * 100}%` }}
+                    />
+                    <span className="growth-label">{b.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              <h3 className="stat-subheading">Per deck (all time)</h3>
+              <ul className="deck-stat-list">
+                {Object.entries(perDeck)
+                  .sort((a, b) => b[1].n - a[1].n)
+                  .map(([id, stat]) => (
+                    <li key={id}>
+                      {/* A deck deleted since these counts were recorded, or one
+                          restored from a backup but not yet re-imported, has no
+                          name on this device — show the id rather than nothing. */}
+                      <span>{decks.find((d) => d.id === id)?.name ?? id}</span>
+                      <span className="deck-stat-count">
+                        {stat.n} · {Math.round((stat.ok / stat.n) * 100)}%
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            </>
           )}
         </section>
       </div>

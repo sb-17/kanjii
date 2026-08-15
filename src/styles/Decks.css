@@ -78,27 +78,62 @@
     border-color: var(--accent);
 }
 
+/* Per-deck totals on the Analytics page. */
+.deck-stat-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+}
+
+.deck-stat-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.deck-stat-list li span:first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.deck-stat-count {
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
 .deck-error {
     font-size: var(--text-sm);
     color: var(--error);
     margin: var(--space-3) 0 0;
 }
 
-/* Player header: back link, deck name, live counts. */
+/* Player header: back link, deck name, live counts.
+   Full width so its edges line up with the card below it — .flashcard-container
+   is width:100%, so any max-width here would inset the back link from the panel.
+   Three columns with equal 1fr sides rather than flex: that centres the name on
+   the panel itself, instead of on whatever space the two unequal-width siblings
+   happen to leave over. */
 .deck-player-head {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr minmax(0, auto) 1fr;
     align-items: center;
     gap: var(--space-3);
     width: 100%;
-    max-width: 420px;
     margin-bottom: var(--space-4);
     font-size: var(--text-sm);
 }
 
 .deck-back {
+    justify-self: start;
     color: var(--text-muted);
     text-decoration: none;
-    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .deck-back:hover {
@@ -106,17 +141,18 @@
 }
 
 .deck-player-name {
-    font-weight: 500;
+    justify-self: center;
+    font-size: var(--text-md);
+    font-weight: 600;
     color: var(--text-strong);
-    flex: 1;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    text-align: center;
 }
 
 .deck-player-counts {
+    justify-self: end;
     color: var(--text-muted);
-    flex-shrink: 0;
+    white-space: nowrap;
 }

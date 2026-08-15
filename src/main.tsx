@@ -14,6 +14,7 @@ import { hydrateKanjiSkill } from "./storage/kanjiSkill";
 import { hydrateCloudConfig } from "./storage/cloudSync";
 import { hydrateDecks } from "./storage/decks";
 import { hydrateDeckProgress } from "./storage/deckProgress";
+import { hydrateDeckStats } from "./storage/deckStats";
 import { requestPersistence } from "./storage/db";
 import { prefetchKanjiStrokes } from "./lib/kanjiVg";
 import { applyTheme, initThemeSync } from "./storage/theme";
@@ -36,6 +37,7 @@ async function boot() {
     hydrateCloudConfig(),
     hydrateDecks(),
     hydrateDeckProgress(),
+    hydrateDeckStats(),
   ]);
   void requestPersistence();
   initEventFlush();

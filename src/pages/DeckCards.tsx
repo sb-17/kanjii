@@ -5,6 +5,7 @@ import "../styles/Decks.css";
 import type { DeckCard } from "../types/deckType";
 import { getDeck } from "../storage/decks";
 import { deckBoxes, setCardBox } from "../storage/deckProgress";
+import { recordDeckReview } from "../storage/deckStats";
 import { deckCounts, pickDeckCard } from "../lib/deckSrs";
 import { applyReview } from "../lib/srs";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
@@ -59,6 +60,7 @@ export default function DeckCards() {
     const next = { ...boxes, [current.id]: box };
     setBoxes(next);
     setCardBox(deck.id, current.id, box);
+    recordDeckReview(deck.id, correct);
 
     setIsFlipped(false);
     setAddState(null);
