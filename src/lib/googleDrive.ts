@@ -184,18 +184,11 @@ export async function connect(): Promise<void> {
   await requestToken("consent");
 }
 
-// Silent: restores the connection after a reload without showing anything.
-// Resolves false rather than throwing — "not signed in" is an expected state, not
-// an error worth putting in front of someone.
-export async function reconnectSilently(): Promise<boolean> {
-  if (!isDriveConfigured()) return false;
-  try {
-    await requestToken("");
-    return true;
-  } catch {
-    return false;
-  }
-}
+// There is deliberately no "reconnect on load" helper. `prompt: ""` is only
+// silent while Google can reuse an existing session; when it can't, it falls back
+// to a popup — so calling it on mount meant opening Settings could throw a login
+// window at the user unprompted. The silent retry still happens, but only inside
+// `accessToken()`, i.e. during a Back up or Restore the user asked for.
 
 export function disconnect(): void {
   const { token } = loadCloudConfig();

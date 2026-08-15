@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "../styles/Settings.css";
 import { useProgress } from "../context/ProgressContext";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
@@ -19,7 +19,6 @@ import {
   isDriveConfigured,
   pullBackup,
   pushBackup,
-  reconnectSilently,
 } from "../lib/googleDrive";
 
 const THEMES: { id: ThemePref; label: string }[] = [
@@ -106,19 +105,14 @@ export default function Settings() {
   const [cloudBusy, setCloudBusy] = useState(false);
   const [cloudStatus, setCloudStatus] = useState("");
 
-  // The stored token covers most reloads; this is for when it has expired. Ask
-  // Google for a new one rather than making the user click Connect again. Silent
-  // by design: it shows nothing and fails to `false` when there's no session.
-  useEffect(() => {
-    if (!loadCloudConfig().connected || isConnected()) return;
-    let cancelled = false;
-    void reconnectSilently().then((ok) => {
-      if (!cancelled) setDriveReady(ok);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Deliberately no automatic re-auth on mount. A "silent" token request is only
+  // silent while Google can reuse an existing session; when it can't — an expired
+  // session, partitioned third-party cookies — it falls back to a popup, so
+  // merely opening Settings threw a login window at you. Nothing may reach for a
+  // token except a button press. The stored token still covers reloads within its
+  // hour, and `accessToken()` retries silently inside Back up / Restore, which are
+  // user-initiated by definition.
+  const sessionExpired = loadCloudConfig().connected && !driveReady;
 
   const changeTheme = (next: ThemePref) => {
     setTheme(next);
@@ -444,6 +438,16 @@ export default function Settings() {
               Kanjii only sees the one file it creates,{" "}
               <code>kanjii-backup.json</code>.
             </p>
+
+            {/* Said plainly instead of silently re-authenticating: the sign-in
+                lasts an hour, and a page opening a Google popup by itself is
+                worse than a sentence explaining why the button is back. */}
+            {sessionExpired && (
+              <p className="settings-description settings-cloud-note">
+                Your Google sign-in has expired — connect again to back up or
+                restore.
+              </p>
+            )}
 
             <div className="settings-actions">
               {driveReady ? (
