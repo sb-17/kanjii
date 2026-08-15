@@ -4,6 +4,7 @@ import { useProgress } from "../context/ProgressContext";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
 import { loadKanjiSkill, saveKanjiSkill } from "../storage/kanjiSkill";
 import { loadEvents, replaceEvents } from "../storage/events";
+import { loadDeckProgress, saveDeckProgress } from "../storage/deckProgress";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { mergeVocab } from "../lib/vocab";
 import { buildBackup, parseBackup, type ParsedBackup } from "../lib/backup";
@@ -63,6 +64,9 @@ function backupSummary(data: ParsedBackup, localWords: number): string {
     `• ${data.vocab.length} words — replaces your current ${localWords} word${localWords === 1 ? "" : "s"}\n` +
     `• ${Object.keys(data.skill).length} handwriting-skill entries — replaces current\n` +
     `• ${data.events.length} analytics events — replaces your trend history\n` +
+    (Object.keys(data.deckProgress).length > 0
+      ? `• deck review progress for ${Object.keys(data.deckProgress).length} deck(s) — the decks themselves aren't in backups, so re-import their files\n`
+      : "") +
     (data.settings || data.theme ? "• settings & theme\n" : "")
   );
 }
@@ -165,6 +169,7 @@ export default function Settings() {
     saveUserVocab(data.vocab);
     saveKanjiSkill(data.skill);
     replaceEvents(data.events);
+    saveDeckProgress(data.deckProgress);
 
     if (data.settings) {
       const mergedSettings = { ...loadSettings(), ...data.settings };
@@ -186,6 +191,7 @@ export default function Settings() {
       loadUserVocab(),
       loadKanjiSkill(),
       loadEvents(),
+      loadDeckProgress(),
       loadSettings(),
       getThemePref(),
     );

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Cards.css";
+import "../styles/Decks.css";
 import type { Vocab } from "../types/vocabType";
 import type { PracticeScope, Settings } from "../types/settingsType";
 import { isVocabAvailable } from "../lib/vocab";
@@ -12,6 +13,8 @@ import { loadSettings, saveSettings } from "../storage/settings";
 import { useProgress } from "../context/ProgressContext";
 import { useNow } from "../lib/useNow";
 import EmptyState from "../components/empty-state/EmptyState";
+import Flashcard from "../components/flashcard/Flashcard";
+import CardActions from "../components/flashcard/CardActions";
 
 // "smart" id kept (stored setting); label shows "Due" to match writing practice.
 const SCOPES: { id: PracticeScope; label: string }[] = [
@@ -128,6 +131,13 @@ export default function Cards() {
 
   return (
     <div className="page page-center">
+      <div className="deck-player-head">
+        <Link className="deck-back" to="/cards">
+          ← Decks
+        </Link>
+        <span className="deck-player-name">My words</span>
+      </div>
+
       <div className="scope-tabs">
         {SCOPES.map((s) => (
           <button
@@ -157,18 +167,17 @@ export default function Cards() {
         />
       ) : (
         <>
-          <div
-            className={`flashcard-container ${isFlipped ? "flipped" : ""}`}
-            onClick={handleFlip}
-          >
-            <div className="flashcard-inner">
-              <div className="flashcard-front">
+          <Flashcard
+            flipped={isFlipped}
+            onFlip={handleFlip}
+            front={
+              <>
                 <span className="card-label">English</span>
                 <p className="card-text">{current.meanings.join(", ")}</p>
-                <span className="tap-hint">Tap to flip</span>
-              </div>
-
-              <div className="flashcard-back">
+              </>
+            }
+            back={
+              <>
                 <span className="card-label">Japanese</span>
                 <h1 className="japanese-word">{current.word}</h1>
                 <p className="japanese-reading">（{current.reading}）</p>
@@ -182,33 +191,15 @@ export default function Cards() {
                 >
                   View word →
                 </Link>
-                <span className="tap-hint">Tap to flip back</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-actions">
-            {isFlipped ? (
-              <>
-                <button
-                  className="card-grade card-grade-again"
-                  onClick={() => grade(false)}
-                >
-                  Again
-                </button>
-                <button
-                  className="card-grade card-grade-got"
-                  onClick={() => grade(true)}
-                >
-                  Got it
-                </button>
               </>
-            ) : (
-              <button className="card-show-answer" onClick={handleFlip}>
-                Show answer
-              </button>
-            )}
-          </div>
+            }
+          />
+
+          <CardActions
+            flipped={isFlipped}
+            onShow={handleFlip}
+            onGrade={grade}
+          />
         </>
       )}
     </div>

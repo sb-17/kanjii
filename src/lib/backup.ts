@@ -9,13 +9,14 @@ import type { KanjiSkillMap } from "../types/kanjiSkill";
 import type { Settings } from "../types/settingsType";
 import type { AppEvent } from "../storage/events";
 import type { ThemePref } from "../storage/theme";
+import type { DeckProgress } from "../types/deckType";
 import { parseProgress } from "../storage/kanjiProgress";
 import { mergeVocab } from "./vocab";
 
 export const BACKUP_KIND = "kanjii-backup";
-// v2 added events + settings + theme. v1 files (progress/vocab/skill only) still
-// import — the extra sections just come back empty/undefined.
-export const BACKUP_VERSION = 2;
+// v2 added events + settings + theme. v3 added imported-deck review progress.
+// Older files still import — the extra sections just come back empty/undefined.
+export const BACKUP_VERSION = 3;
 
 export type Backup = {
   kind: typeof BACKUP_KIND;
@@ -25,6 +26,11 @@ export type Backup = {
   vocab: Vocab[];
   skill: KanjiSkillMap;
   events: AppEvent[];
+  // Review boxes for imported decks. The decks' *cards* are deliberately absent —
+  // an Anki deck can be megabytes and would ride along on every Drive sync. These
+  // entries reattach when the same deck file is imported again, because card ids
+  // are derived from card content (see lib/deckImport `cardId`).
+  deckProgress: DeckProgress;
   settings?: Settings;
   theme?: ThemePref;
 };
@@ -38,6 +44,7 @@ export type ParsedBackup = {
   vocab: Vocab[];
   skill: KanjiSkillMap;
   events: AppEvent[];
+  deckProgress: DeckProgress;
   settings?: Partial<Settings>;
   theme?: ThemePref;
 };
@@ -47,6 +54,7 @@ export function buildBackup(
   vocab: Vocab[],
   skill: KanjiSkillMap,
   events: AppEvent[],
+  deckProgress: DeckProgress,
   settings: Settings,
   theme: ThemePref,
 ): Backup {
@@ -58,6 +66,7 @@ export function buildBackup(
     vocab,
     skill,
     events,
+    deckProgress,
     settings,
     theme,
   };
@@ -95,6 +104,32 @@ function parseEvents(raw: unknown): AppEvent[] {
       (o.k === "kanji" || o.k === "review" || o.k === "write")
     );
   });
+}
+
+// Same forgiving treatment as parseSkill: drop malformed entries rather than
+// failing the restore. Deck progress is the least critical section here, and a
+// stray entry must not cost someone their kanji statuses.
+function parseDeckProgress(raw: unknown): DeckProgress {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const out: DeckProgress = {};
+  for (const [deckId, cards] of Object.entries(raw as Record<string, unknown>)) {
+    if (!cards || typeof cards !== "object" || Array.isArray(cards)) continue;
+    const boxes: DeckProgress[string] = {};
+    for (const [cardId, box] of Object.entries(cards as Record<string, unknown>)) {
+      if (box && typeof box === "object") {
+        const b = box as Record<string, unknown>;
+        if (
+          typeof b.box === "number" &&
+          typeof b.due === "number" &&
+          typeof b.reviewed === "number"
+        ) {
+          boxes[cardId] = { box: b.box, due: b.due, reviewed: b.reviewed };
+        }
+      }
+    }
+    if (Object.keys(boxes).length > 0) out[deckId] = boxes;
+  }
+  return out;
 }
 
 function parseTheme(raw: unknown): ThemePref | undefined {
@@ -141,6 +176,7 @@ export function parseBackup(raw: unknown): ParsedBackup {
     vocab: merged,
     skill: parseSkill(r.skill),
     events: parseEvents(r.events),
+    deckProgress: parseDeckProgress(r.deckProgress),
     settings: parseSettings(r.settings),
     theme: parseTheme(r.theme),
   };

@@ -12,6 +12,8 @@ import { hydrateUserVocab } from "./storage/userVocab";
 import { hydrateEvents, initEventFlush } from "./storage/events";
 import { hydrateKanjiSkill } from "./storage/kanjiSkill";
 import { hydrateCloudConfig } from "./storage/cloudSync";
+import { hydrateDecks } from "./storage/decks";
+import { hydrateDeckProgress } from "./storage/deckProgress";
 import { requestPersistence } from "./storage/db";
 import { prefetchKanjiStrokes } from "./lib/kanjiVg";
 import { applyTheme, initThemeSync } from "./storage/theme";
@@ -32,6 +34,8 @@ async function boot() {
     hydrateEvents(),
     hydrateKanjiSkill(),
     hydrateCloudConfig(),
+    hydrateDecks(),
+    hydrateDeckProgress(),
   ]);
   void requestPersistence();
   initEventFlush();

@@ -11,6 +11,8 @@ import Navigation from "./components/navigation/Navigation";
 import Home from "./pages/Home";
 import Learn from "./pages/Learn";
 import Cards from "./pages/Cards";
+import Decks from "./pages/Decks";
+import DeckCards from "./pages/DeckCards";
 import Practice from "./pages/Practice";
 import Write from "./pages/Write";
 import KanjiLearn from "./pages/KanjiLearn";
@@ -180,7 +182,12 @@ export default function App() {
             <Route path="/kanji/:char/learn" element={<KanjiLearn />} />
             <Route path="/sets" element={<Learn />} />
             <Route path="/sets/:setId" element={<SetDetail />} />
-            <Route path="/cards" element={<Cards />} />
+            {/* /cards is the deck list; the two players sit under it. The static
+                my-words segment outranks the dynamic one, so it wins regardless
+                of declaration order. */}
+            <Route path="/cards" element={<Decks />} />
+            <Route path="/cards/my-words" element={<Cards />} />
+            <Route path="/cards/:deckId" element={<DeckCards />} />
             <Route path="/practice" element={<Practice />} />
             <Route path="/write" element={<Write />} />
             <Route path="/print" element={<Print />} />
