@@ -13,6 +13,8 @@ import Learn from "./pages/Learn";
 import Cards from "./pages/Cards";
 import Decks from "./pages/Decks";
 import DeckCards from "./pages/DeckCards";
+import DeckSettings from "./pages/DeckSettings";
+import DeckCardList from "./pages/DeckCardList";
 import Practice from "./pages/Practice";
 import Write from "./pages/Write";
 import KanjiLearn from "./pages/KanjiLearn";
@@ -188,6 +190,8 @@ export default function App() {
             <Route path="/cards" element={<Decks />} />
             <Route path="/cards/my-words" element={<Cards />} />
             <Route path="/cards/:deckId" element={<DeckCards />} />
+            <Route path="/cards/:deckId/settings" element={<DeckSettings />} />
+            <Route path="/cards/:deckId/list" element={<DeckCardList />} />
             <Route path="/practice" element={<Practice />} />
             <Route path="/write" element={<Write />} />
             <Route path="/print" element={<Print />} />

@@ -133,18 +133,37 @@ function ratio(values: string[], re: RegExp): number {
   return nonEmpty.filter((v) => re.test(v)).length / nonEmpty.length;
 }
 
+function avgLength(values: string[]): number {
+  const nonEmpty = values.filter((v) => v.trim() !== "");
+  if (nonEmpty.length === 0) return 0;
+  return nonEmpty.reduce((n, v) => n + v.length, 0) / nonEmpty.length;
+}
+
+// The five fields kept from an import. Everything else in the file is discarded.
 export type ColumnMap = {
-  japanese: number | null;
-  english: number | null;
+  word: number | null;
   reading: number | null;
+  meaning: number | null;
+  example: number | null;
+  exampleEn: number | null;
 };
+
+export const COLUMN_KEYS: (keyof ColumnMap)[] = [
+  "word",
+  "reading",
+  "meaning",
+  "example",
+  "exampleEn",
+];
 
 // Guess which column is which so the common case needs no fiddling. The user can
 // override every choice in the import form; this only sets the initial values.
 //
-// Japanese = the column most likely to contain kanji. Reading = mostly kana with
-// little or no kanji (a reading field is kana-only by definition). English = the
-// first column that is mostly neither.
+// Script tells Japanese columns from English ones; *length* then separates a term
+// from a sentence. An Anki note's word field is a handful of characters and its
+// example sentence is a clause, so the shortest Japanese column is the word and
+// the longest is the example — same on the English side for meaning vs
+// translation. Reading is the giveaway case: kana with essentially no kanji.
 export function detectColumns(rows: string[][]): ColumnMap {
   const width = Math.max(...rows.map((r) => r.length));
   const columns: string[][] = [];
@@ -152,50 +171,83 @@ export function detectColumns(rows: string[][]): ColumnMap {
 
   const kanji = columns.map((col) => ratio(col, KANJI));
   const kana = columns.map((col) => ratio(col, KANA));
+  const length = columns.map(avgLength);
+  const indices = Array.from({ length: width }, (_, c) => c);
 
-  let japanese: number | null = null;
-  for (let c = 0; c < width; c++) {
-    if (kanji[c] > 0.5 && (japanese === null || kanji[c] > kanji[japanese])) {
-      japanese = c;
-    }
-  }
+  const isJapanese = (c: number) => kanji[c] > 0.3 || kana[c] > 0.5;
+  const byLength = (a: number, b: number) => length[a] - length[b];
 
-  let reading: number | null = null;
-  for (let c = 0; c < width; c++) {
-    if (c === japanese) continue;
-    if (kana[c] > 0.5 && kanji[c] < 0.2 && (reading === null || kana[c] > kana[reading])) {
-      reading = c;
-    }
-  }
+  // Anki exports are full of columns that are neither Japanese nor prose:
+  // frequency ranks, note ids, media filenames. Left in, the shortest of them
+  // gets picked as the meaning — a numeric rank column beats "water" on length
+  // every time. Require actual words.
+  const looksLikeText = (col: string[]) => {
+    const nonEmpty = col.filter((v) => v.trim() !== "");
+    if (nonEmpty.length === 0) return false;
+    const texty = nonEmpty.filter(
+      (v) =>
+        /[a-z]/i.test(v) &&
+        !/^\d+(\.\d+)?$/.test(v.trim()) &&
+        !/\.(mp3|ogg|wav|m4a|jpe?g|png|gif|webp|svg)$/i.test(v.trim()),
+    );
+    return texty.length > nonEmpty.length / 2;
+  };
 
-  // A kana-only deck (no kanji anywhere) still needs a Japanese side: promote the
-  // best kana column rather than leaving the deck unable to reach My Words.
-  if (japanese === null && reading !== null) {
-    japanese = reading;
-    reading = null;
-  }
+  const japaneseCols = indices.filter(isJapanese).sort(byLength);
+  const otherAll = indices.filter((c) => !isJapanese(c)).sort(byLength);
+  const textual = otherAll.filter((c) => looksLikeText(columns[c]));
+  // Fall back to everything if nothing looks like prose, so a file we can't read
+  // still imports rather than coming in empty.
+  const otherCols = textual.length > 0 ? textual : otherAll;
 
-  let english: number | null = null;
-  for (let c = 0; c < width; c++) {
-    if (c === japanese || c === reading) continue;
-    if (kanji[c] < 0.2 && kana[c] < 0.2) {
-      english = c;
-      break;
-    }
-  }
+  // A reading column is kana and almost never kanji. Take the shortest such
+  // column so an all-kana *example* sentence can't be mistaken for one.
+  const readingCandidates = japaneseCols.filter(
+    (c) => kana[c] > 0.5 && kanji[c] < 0.2,
+  );
+  const reading: number | null =
+    readingCandidates.length > 0 && japaneseCols.length > 1
+      ? readingCandidates[0]
+      : null;
 
-  // Both sides must end up assigned. A deck that isn't Japanese at all, or that
-  // the checks above couldn't read, still has to import as plain two-sided cards
-  // — leaving either side null means every row is missing a side and the deck
-  // comes in empty.
+  const restJapanese = japaneseCols.filter((c) => c !== reading);
+  let word: number | null = restJapanese[0] ?? null;
+  // Only call the longest column an example when it's clearly a sentence rather
+  // than a second short field, or a deck with two term-like columns would get a
+  // nonsense example. The absolute floor is low because Japanese is compact —
+  // 水を飲む。is a whole sentence in five characters, so an English-sized
+  // threshold would miss most of them.
+  const longestJapanese = restJapanese[restJapanese.length - 1] ?? null;
+  const example: number | null =
+    longestJapanese !== null &&
+    longestJapanese !== word &&
+    length[longestJapanese] > 2 * length[word ?? longestJapanese] &&
+    length[longestJapanese] >= 4
+      ? longestJapanese
+      : null;
+
+  let meaning: number | null = otherCols[0] ?? null;
+  const longestOther = otherCols[otherCols.length - 1] ?? null;
+  const exampleEn: number | null =
+    longestOther !== null &&
+    longestOther !== meaning &&
+    length[longestOther] > 2 * length[meaning ?? longestOther] &&
+    length[longestOther] >= 12
+      ? longestOther
+      : null;
+
+  // word and meaning are what a card is made of, so both must end up assigned. A
+  // deck that isn't Japanese at all, or that the checks above couldn't read, still
+  // has to import as plain two-sided cards — leaving either null means every row
+  // is missing a side and the deck comes in empty.
   const firstUnused = (...taken: (number | null)[]) => {
     for (let c = 0; c < width; c++) if (!taken.includes(c)) return c;
     return null;
   };
-  english ??= firstUnused(japanese, reading);
-  japanese ??= firstUnused(english, reading);
+  meaning ??= firstUnused(word, reading, example, exampleEn);
+  word ??= firstUnused(meaning, reading, example, exampleEn);
 
-  return { japanese, english, reading };
+  return { word, reading, meaning, example, exampleEn };
 }
 
 // --- Ids --------------------------------------------------------------------
@@ -213,8 +265,16 @@ function fnv(input: string, seed: number): string {
   return hash.toString(16).padStart(8, "0");
 }
 
-export function cardId(front: string, back: string): string {
-  const key = `${front}${back}`;
+// Keyed on word + meaning only. The example sentences are deliberately excluded:
+// a deck author fixing a sentence in an updated export must not orphan the review
+// history of a card whose word and meaning are unchanged.
+//
+// The separator keeps field boundaries meaningful: without one, ("ab","c") and
+// ("a","bc") would hash identically. Written as an escape rather than a raw
+// control character, which is invisible in the source and easy to delete by
+// accident.
+export function cardId(word: string, meaning: string): string {
+  const key = `${word}\u001f${meaning}`;
   return fnv(key, 0x811c9dc5) + fnv(key, 0x9e3779b9);
 }
 
@@ -243,9 +303,10 @@ export function previewImport(text: string): ImportPreview {
   return { rows, columns: detectColumns(rows) };
 }
 
-// Assemble the deck. Cards missing either side are dropped rather than imported
-// half-blank, and duplicates (same front and back) collapse to one — Anki decks
-// routinely contain the same note twice.
+// Assemble the deck, keeping only the five mapped fields — every other column in
+// the file is dropped here and never stored. Cards missing a word or a meaning
+// are skipped rather than imported half-blank, and duplicates collapse to one:
+// Anki decks routinely contain the same note twice.
 export function buildDeck(
   name: string,
   rows: string[][],
@@ -259,30 +320,36 @@ export function buildDeck(
   const cards: DeckCard[] = [];
 
   for (const row of rows) {
-    const back = pick(row, columns.japanese);
-    const front = pick(row, columns.english);
-    if (!front || !back) continue;
+    const word = pick(row, columns.word);
+    const meaning = pick(row, columns.meaning);
+    if (!word || !meaning) continue;
 
-    const id = cardId(front, back);
+    const id = cardId(word, meaning);
     if (seen.has(id)) continue;
     seen.add(id);
 
+    const card: DeckCard = { id, word, meaning };
     const reading = pick(row, columns.reading);
-    cards.push(reading ? { id, front, back, reading } : { id, front, back });
+    const example = pick(row, columns.example);
+    const exampleEn = pick(row, columns.exampleEn);
+    if (reading) card.reading = reading;
+    if (example) card.example = example;
+    if (exampleEn) card.exampleEn = exampleEn;
+    cards.push(card);
   }
 
   if (cards.length === 0) {
     throw new Error(
-      "No usable cards — every row was missing one of the two sides. Check the column choices.",
+      "No usable cards — every row was missing a word or a meaning. Check the column choices.",
     );
   }
 
   // Judged from the cards themselves, not from whether a column was assigned:
-  // detectColumns falls back to "column 1 is the answer" for files it can't read,
-  // and trusting that would let a non-Japanese deck offer "Add to My Words" and
-  // write nonsense into the word list.
+  // detectColumns falls back to "the leftover column is the word" for files it
+  // can't read, and trusting that would let a non-Japanese deck offer "Add to My
+  // Words" and write nonsense into the word list.
   const withJapanese = cards.filter(
-    (c) => KANJI.test(c.back) || KANA.test(c.back),
+    (c) => KANJI.test(c.word) || KANA.test(c.word),
   ).length;
 
   return {

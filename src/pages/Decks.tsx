@@ -4,8 +4,7 @@ import "../styles/Decks.css";
 import type { ColumnMap } from "../lib/deckImport";
 import { previewImport, buildDeck } from "../lib/deckImport";
 import { loadDecks, saveDecks } from "../storage/decks";
-import { deckBoxes, clearDeckProgress } from "../storage/deckProgress";
-import { clearDeckStats } from "../storage/deckStats";
+import { deckBoxes } from "../storage/deckProgress";
 import { deckCounts } from "../lib/deckSrs";
 import { loadUserVocab } from "../storage/userVocab";
 import { isVocabAvailable } from "../lib/vocab";
@@ -21,12 +20,14 @@ export const MY_WORDS_ID = "my-words";
 
 type Pending = { rows: string[][]; columns: ColumnMap; name: string };
 
-// Which column a select is choosing for. `reading` is optional, the other two
-// are what a card is made of.
+// The five fields kept from a file. Word and meaning make the card; the rest are
+// optional. Every other column in the import is discarded.
 const FIELDS: { key: keyof ColumnMap; label: string }[] = [
-  { key: "english", label: "Front (meaning)" },
-  { key: "japanese", label: "Back (Japanese)" },
-  { key: "reading", label: "Reading (optional)" },
+  { key: "word", label: "Word (Japanese)" },
+  { key: "reading", label: "Reading" },
+  { key: "meaning", label: "Meaning (English)" },
+  { key: "example", label: "Example sentence" },
+  { key: "exampleEn", label: "Example translation" },
 ];
 
 function sampleOf(rows: string[][], column: number): string {
@@ -104,21 +105,6 @@ export default function Decks() {
     setError("");
   };
 
-  const removeDeck = (id: string, name: string) => {
-    if (
-      !confirm(
-        `Delete "${name}", its review progress and its study history? This can't be undone.`,
-      )
-    ) {
-      return;
-    }
-    const next = decks.filter((d) => d.id !== id);
-    setDecks(next);
-    saveDecks(next);
-    clearDeckProgress(id);
-    clearDeckStats(id);
-  };
-
   const setColumn = (key: keyof ColumnMap, value: number | null) => {
     if (!pending) return;
     setPending({ ...pending, columns: { ...pending.columns, [key]: value } });
@@ -154,13 +140,13 @@ export default function Decks() {
                   {counts.due} due · {counts.fresh} new · {counts.total} cards
                 </span>
               </Link>
-              <button
-                className="deck-row-delete"
-                onClick={() => removeDeck(deck.id, deck.name)}
-                aria-label={`Delete ${deck.name}`}
+              <Link
+                className="deck-row-settings"
+                to={`/cards/${deck.id}/settings`}
+                aria-label={`${deck.name} settings`}
               >
-                ✕
-              </button>
+                ⚙
+              </Link>
             </div>
           );
         })}
@@ -171,7 +157,8 @@ export default function Decks() {
           <strong>Import deck</strong>
 
           <p className="settings-description">
-            {pending.rows.length} rows found. Check the columns look right.
+            {pending.rows.length} rows found. Check the columns look right — only
+            these five are kept.
           </p>
 
           <label className="deck-field">
@@ -228,8 +215,9 @@ export default function Decks() {
 
           <p className="settings-description">
             In Anki: File → Export → Notes in Plain Text. Tab or comma separated
-            files both work. Decks stay on this device — only your review progress
-            is backed up.
+            files both work. Only the five fields below are kept — everything else
+            in the file is discarded. Decks stay on this device; only your review
+            progress is backed up.
           </p>
 
           {error && <p className="deck-error">{error}</p>}

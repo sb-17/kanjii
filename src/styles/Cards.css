@@ -101,6 +101,19 @@
     color: var(--accent);
 }
 
+/* Example sentence under the prompt/answer. Deliberately quieter and smaller than
+   the word itself — it's supporting context, and a long sentence must not push
+   the word off a fixed-height card face, hence the capped, scrollable height. */
+.card-example {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: var(--space-3) 0 0;
+    max-width: 90%;
+    max-height: 5.5em;
+    overflow-y: auto;
+}
+
 .tap-hint {
     position: absolute;
     bottom: var(--space-4);

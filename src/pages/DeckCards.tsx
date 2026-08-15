@@ -78,17 +78,21 @@ export default function DeckCards() {
     if (!current) return;
     const reading = current.reading ?? "";
     const list = loadUserVocab();
-    if (list.some((v) => wordKey(v.word, v.reading) === wordKey(current.back, reading))) {
+    if (list.some((v) => wordKey(v.word, v.reading) === wordKey(current.word, reading))) {
       setAddState("duplicate");
       return;
     }
     saveUserVocab([
       ...list,
       {
-        word: current.back,
+        word: current.word,
         reading,
-        meanings: [current.front],
-        kanji: extractKanji(current.back),
+        meanings: [current.meaning],
+        kanji: extractKanji(current.word),
+        // The deck's example sentence lands in `context`, which is exactly what
+        // that field is for — so the sentence follows the word into Practice
+        // rather than being left behind in the deck.
+        ...(current.example ? { context: current.example } : {}),
         addedAt: Date.now(),
       },
     ]);
@@ -124,16 +128,22 @@ export default function DeckCards() {
             onFlip={() => setIsFlipped((f) => !f)}
             front={
               <>
-                <span className="card-label">Front</span>
-                <p className="card-text">{current.front}</p>
+                <span className="card-label">English</span>
+                <p className="card-text">{current.meaning}</p>
+                {current.exampleEn && (
+                  <p className="card-example">{current.exampleEn}</p>
+                )}
               </>
             }
             back={
               <>
-                <span className="card-label">Back</span>
-                <h1 className="japanese-word">{current.back}</h1>
+                <span className="card-label">Japanese</span>
+                <h1 className="japanese-word">{current.word}</h1>
                 {current.reading && (
                   <p className="japanese-reading">（{current.reading}）</p>
+                )}
+                {current.example && (
+                  <p className="card-example">{current.example}</p>
                 )}
                 {deck.japanese && (
                   <button
