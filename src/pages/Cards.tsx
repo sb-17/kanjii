@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Cards.css";
 import "../styles/Decks.css";
@@ -58,17 +58,19 @@ export default function Cards() {
     [vocab, progress],
   );
 
-  // The flip-back pause must not outlive the component — grading and navigating
-  // away inside the window would otherwise swap the card on a page that's gone.
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  useEffect(() => {
-    const timers = timersRef.current;
-    return () => timers.forEach(clearTimeout);
-  }, []);
+  // The word just graded, kept only to go on being drawn on the *back* face while
+  // the flip-back plays.
+  //
+  // Swapping both faces at once leaked the next answer: the flip runs 600ms and
+  // the card is still at 137° after 150ms, so the back is square-on to you when
+  // the new word lands. Timing the swap for the 90° crossing is no good either —
+  // the window where neither face is readable is barely 40ms wide, narrower than
+  // a dropped frame. Instead the front takes the new word immediately (it's
+  // hidden for the first half of the turn) while the back keeps showing the
+  // answer you just graded until it has turned away.
+  const [gradedBack, setGradedBack] = useState<Vocab | null>(null);
 
-  // Move to the next card, picked from the latest vocab + current scope. Flips
-  // back first, then swaps the word once it's face-down (so the answer doesn't
-  // flash on the way out).
+  // Move to the next card, picked from the latest vocab + current scope.
   const advance = (source: Vocab[]) => {
     const pool = scopeVocab(
       source.filter((v) => isVocabAvailable(v, progress)),
@@ -76,20 +78,16 @@ export default function Cards() {
       now,
       remainingNewToday(settings.newPerDay),
     );
+    setGradedBack(current);
     setIsFlipped(false);
-    timersRef.current.push(
-      setTimeout(() => {
-        setCurrent(
-          pickWord(pool, scope, current ? keyOf(current) : undefined, now),
-        );
-      }, 150),
-    );
+    setCurrent(pickWord(pool, scope, current ? keyOf(current) : undefined, now));
   };
 
   const changeScope = (next: PracticeScope) => {
     const updated = { ...settings, practiceScope: next };
     setSettings(updated);
     saveSettings(updated);
+    setGradedBack(current);
     setIsFlipped(false);
     const pool = scopeVocab(
       available,
@@ -115,7 +113,16 @@ export default function Cards() {
     advance(next);
   };
 
-  const handleFlip = () => setIsFlipped((f) => !f);
+  // Flipping to the answer releases the held-back card: the front is face-on for
+  // the first half of *that* turn, so swapping the hidden back face is equally
+  // invisible then.
+  const handleFlip = () => {
+    if (!isFlipped) setGradedBack(null);
+    setIsFlipped((f) => !f);
+  };
+
+  // The back face lags the front by one card while a flip-back is playing.
+  const backCard = gradedBack ?? current;
 
   if (vocab.length === 0) {
     return (
@@ -177,21 +184,23 @@ export default function Cards() {
               </>
             }
             back={
-              <>
-                <span className="card-label">Japanese</span>
-                <h1 className="japanese-word">{current.word}</h1>
-                <p className="japanese-reading">（{current.reading}）</p>
-                {current.context && (
-                  <p className="card-context">{current.context}</p>
-                )}
-                <Link
-                  className="card-word-link"
-                  to={`/word/${encodeURIComponent(keyOf(current))}`}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View word →
-                </Link>
-              </>
+              backCard && (
+                <>
+                  <span className="card-label">Japanese</span>
+                  <h1 className="japanese-word">{backCard.word}</h1>
+                  <p className="japanese-reading">（{backCard.reading}）</p>
+                  {backCard.context && (
+                    <p className="card-context">{backCard.context}</p>
+                  )}
+                  <Link
+                    className="card-word-link"
+                    to={`/word/${encodeURIComponent(keyOf(backCard))}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    View word →
+                  </Link>
+                </>
+              )
             }
           />
 

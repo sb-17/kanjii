@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import "../styles/Cards.css";
 import "../styles/Decks.css";
@@ -47,14 +47,17 @@ export default function DeckCards() {
   // changes so the confirmation can't linger onto the next one.
   const [addState, setAddState] = useState<"added" | "duplicate" | null>(null);
 
-  // Same reason as the My Words player: the flip-back pause must not outlive the
-  // component, or grading and navigating away inside the window swaps the card on
-  // a page that's gone.
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  useEffect(() => {
-    const timers = timersRef.current;
-    return () => timers.forEach(clearTimeout);
-  }, []);
+  // The card just graded, kept only to go on being drawn on the *back* face while
+  // the flip-back plays.
+  //
+  // Swapping both faces at once leaked the next answer: the flip runs 600ms and
+  // the card is still at 137° after 150ms, so the back is square-on to you when
+  // the new card lands. Timing the swap for the 90° crossing is no good either —
+  // the window where neither face is readable is barely 40ms wide, narrower than
+  // a dropped frame. Instead the front takes the new card immediately (it's
+  // hidden for the first half of the turn) while the back keeps showing the
+  // answer you just graded until it has turned away.
+  const [gradedBack, setGradedBack] = useState<DeckCard | null>(null);
 
   if (!deck) {
     return (
@@ -69,6 +72,8 @@ export default function DeckCards() {
   }
 
   const counts = deckCounts(deck.cards, boxes, now);
+  // The back face lags the front by one card while a flip-back is playing.
+  const backCard = gradedBack ?? current;
 
   const grade = (correct: boolean) => {
     if (!current) return;
@@ -78,18 +83,24 @@ export default function DeckCards() {
     setCardBox(deck.id, current.id, box);
     recordDeckReview(deck.id, correct);
 
+    setGradedBack(current);
     setIsFlipped(false);
     setAddState(null);
-    timersRef.current.push(
-      setTimeout(() => {
-        setCurrent(pickDeckCard(deck.cards, next, scope, Date.now(), current.id));
-      }, 150),
-    );
+    setCurrent(pickDeckCard(deck.cards, next, scope, Date.now(), current.id));
+  };
+
+  // Flipping to the answer is where the held-back card is released: the front is
+  // face-on for the first half of *that* turn, so swapping the hidden back face
+  // then is equally invisible.
+  const flip = () => {
+    if (!isFlipped) setGradedBack(null);
+    setIsFlipped((f) => !f);
   };
 
   const changeScope = (next: DeckScope) => {
     setScope(next);
     saveSettings({ ...loadSettings(), deckScope: next });
+    setGradedBack(current);
     setIsFlipped(false);
     setAddState(null);
     // Re-pick immediately rather than waiting for the next answer, so the tab
@@ -174,7 +185,7 @@ export default function DeckCards() {
         <>
           <Flashcard
             flipped={isFlipped}
-            onFlip={() => setIsFlipped((f) => !f)}
+            onFlip={flip}
             front={
               <>
                 <span className="card-label">English</span>
@@ -185,14 +196,15 @@ export default function DeckCards() {
               </>
             }
             back={
+              backCard && (
               <>
                 <span className="card-label">Japanese</span>
-                <h1 className="japanese-word">{current.word}</h1>
-                {current.reading && (
-                  <p className="japanese-reading">（{current.reading}）</p>
+                <h1 className="japanese-word">{backCard.word}</h1>
+                {backCard.reading && (
+                  <p className="japanese-reading">（{backCard.reading}）</p>
                 )}
-                {current.example && (
-                  <p className="card-example">{current.example}</p>
+                {backCard.example && (
+                  <p className="card-example">{backCard.example}</p>
                 )}
                 {deck.japanese && (
                   <button
@@ -210,14 +222,11 @@ export default function DeckCards() {
                   </button>
                 )}
               </>
+              )
             }
           />
 
-          <CardActions
-            flipped={isFlipped}
-            onShow={() => setIsFlipped(true)}
-            onGrade={grade}
-          />
+          <CardActions flipped={isFlipped} onShow={flip} onGrade={grade} />
         </>
       )}
     </div>
