@@ -1,21 +1,83 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Home.css";
-import { statusBreakdown } from "../lib/analytics";
+import {
+  statusBreakdown,
+  srsStats,
+  writingStats,
+  newWordsIntroducedToday,
+} from "../lib/analytics";
+import { deckCounts } from "../lib/deckSrs";
 import { loadUserVocab } from "../storage/userVocab";
+import { loadKanjiSkill } from "../storage/kanjiSkill";
+import { loadEvents } from "../storage/events";
+import { loadSettings } from "../storage/settings";
+import { loadDecks } from "../storage/decks";
+import { loadDeckProgress } from "../storage/deckProgress";
 import { useProgress } from "../context/ProgressContext";
+import { useNow } from "../lib/useNow";
 
 export default function Home() {
   const { progress } = useProgress();
+  const now = useNow();
+  const vocab = loadUserVocab();
+
   // Same counter Analytics uses. The old one tallied the progress *map*, so any
   // character not in kanji.json (an older import, a dataset change) inflated the
   // totals here relative to Analytics and could drive "new" negative.
   const statusCounts = statusBreakdown(progress);
-  const wordCount = loadUserVocab().length;
+  const wordCount = vocab.length;
+
+  // Every figure below comes from the same helper as the page it links to —
+  // srsStats().due is "words Practice's Due scope would offer right now", and
+  // writingStats().due likewise for Write. A count computed independently here
+  // would eventually advertise work the page doesn't hand you.
+  const newBudget = Math.max(
+    0,
+    loadSettings().newPerDay - newWordsIntroducedToday(loadEvents(), now),
+  );
+  const srs = useMemo(
+    () => srsStats(vocab, progress, now, newBudget),
+    [vocab, progress, now, newBudget],
+  );
+  const writing = useMemo(
+    () => writingStats(loadKanjiSkill(), progress, now),
+    [progress, now],
+  );
+  const decksDue = useMemo(() => {
+    const boxes = loadDeckProgress();
+    return loadDecks().reduce(
+      (n, deck) => n + deckCounts(deck.cards, boxes[deck.id] ?? {}, now).due,
+      0,
+    );
+  }, [now]);
+
+  // Zero is shown rather than hidden: a row that changes shape as counts empty
+  // out makes the page jump, and "nothing waiting" is worth seeing plainly.
+  const due = [
+    { to: "/practice", count: srs.due, label: srs.due === 1 ? "word due" : "words due" },
+    { to: "/write", count: writing.due, label: "to write" },
+    { to: "/cards", count: decksDue, label: "deck cards" },
+  ];
 
   return (
     <div className="page page-center">
       <h1 className="page-title">Kanjii</h1>
 
+      <h2 className="home-section">Today</h2>
+      <div className="home-due">
+        {due.map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className={`home-due-card surface-card${item.count === 0 ? " home-due-empty" : ""}`}
+          >
+            <strong>{item.count}</strong> {item.label}
+          </Link>
+        ))}
+      </div>
+
+      <h2 className="home-section">Progress</h2>
       <div className="home-progress">
         <div className="home-stat surface-card">
           <strong>{statusCounts.known}</strong> known
@@ -38,11 +100,19 @@ export default function Home() {
         <Link to="/write" className="home-link-card surface-card">
           Write
         </Link>
+        <Link to="/practice" className="home-link-card surface-card">
+          Practice
+        </Link>
+        <Link to="/cards" className="home-link-card surface-card">
+          Cards
+        </Link>
         <Link to="/words" className="home-link-card surface-card">
           My words
         </Link>
-        <Link to="/practice" className="home-link-card surface-card">
-          Practice
+        {/* Six links, not five: the grid is 2 or 3 columns, and both divide into
+            six. Removing one strands the last tile again. */}
+        <Link to="/analytics" className="home-link-card surface-card">
+          Analytics
         </Link>
       </div>
     </div>

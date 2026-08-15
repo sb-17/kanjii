@@ -1,14 +1,71 @@
-.home-progress {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-4);
+/* Two rows of tiles sit on this page — what's waiting today, and overall
+   progress. Without a label each they read as one undifferentiated grid of
+   numbers, so both get a quiet heading. */
+.home-section {
     width: 100%;
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Grid rather than flex: flex-grow sized tiles by how many landed on each row, so
+   the last row came out wider than the rest.
+
+   Column counts are fixed per breakpoint rather than `repeat(auto-fit, minmax())`.
+   auto-fit only collapses tracks that are empty across the *entire* grid, so a
+   count that doesn't divide by the column count leaves the final item stranded
+   at one column's width with a hole beside it. Fixed counts let the item totals
+   be chosen to divide evenly: 3 due tiles in 3 columns, 4 stats and 6 links in
+   2 or 3. Adding a tile to any row means keeping those totals divisible. */
+.home-due,
+.home-progress,
+.home-links {
+    display: grid;
+    width: 100%;
+    gap: var(--space-3);
+}
+
+.home-due {
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: var(--space-5);
+}
+
+.home-due-card {
+    text-align: center;
+    padding: var(--space-4) var(--space-3);
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.home-due-card:hover {
+    background-color: var(--surface-strong-hover);
+}
+
+.home-due-card strong {
+    display: block;
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.1;
+    margin-bottom: var(--space-1);
+}
+
+/* Nothing waiting: still a link, just not asking for attention. */
+.home-due-empty strong {
+    color: var(--text-faint);
+}
+
+.home-progress {
+    grid-template-columns: repeat(4, 1fr);
     margin-bottom: var(--space-5);
 }
 
 .home-stat {
-    flex: 1 1 120px;
     text-align: center;
     padding: var(--space-4);
     color: var(--text-muted);
@@ -25,15 +82,10 @@
 }
 
 .home-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-3);
-    width: 100%;
+    grid-template-columns: repeat(3, 1fr);
 }
 
 .home-link-card {
-    flex: 1 1 140px;
     text-align: center;
     background-color: var(--surface-strong);
     color: var(--text-strong);
@@ -50,4 +102,21 @@
 
 .home-link-card:active {
     transform: translateY(1px);
+}
+
+/* Phone: halve the wider rows. 4 stats become 2×2 and 6 links 2×3 — both still
+   divide evenly, so no row is left part-empty. */
+@media (max-width: 720px) {
+    .home-progress,
+    .home-links {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .home-due-card {
+        padding: var(--space-4) var(--space-2);
+    }
+
+    .home-link-card {
+        padding: var(--space-4) var(--space-3);
+    }
 }
