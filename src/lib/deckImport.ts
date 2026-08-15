@@ -201,6 +201,14 @@ export function parseDelimited(text: string): string[][] {
 const KANA = /[぀-ヿ]/;
 const KANJI = /[一-鿿㐀-䶿]/;
 
+// Rows examined when guessing column roles. Plenty to characterise a column, and
+// it keeps detection cheap on a several-thousand-card deck.
+const DETECT_SAMPLE = 300;
+
+// A column has to carry content on at least this share of the sampled rows to be
+// considered for any field.
+const MIN_FILLED = 0.5;
+
 function ratio(values: string[], re: RegExp): number {
   const nonEmpty = values.filter((v) => v.trim() !== "");
   if (nonEmpty.length === 0) return 0;
@@ -238,15 +246,33 @@ export const COLUMN_KEYS: (keyof ColumnMap)[] = [
 // example sentence is a clause, so the shortest Japanese column is the word and
 // the longest is the example — same on the English side for meaning vs
 // translation. Reading is the giveaway case: kana with essentially no kanji.
+//
+// Everything is measured on *cleaned* text, i.e. what would actually be stored.
+// Judging raw fields let markup masquerade as content: an `<img src="…" />` cell
+// is 50 characters of nothing, which beat a real 33-character English sentence
+// and got picked as the translation.
 export function detectColumns(rows: string[][]): ColumnMap {
   const width = Math.max(...rows.map((r) => r.length));
+  // Sampled: detection only needs enough rows to characterise a column, and
+  // cleaning every cell of a few-thousand-card deck to answer that is wasteful.
+  const sample = rows.slice(0, DETECT_SAMPLE);
   const columns: string[][] = [];
-  for (let c = 0; c < width; c++) columns.push(rows.map((r) => r[c] ?? ""));
+  for (let c = 0; c < width; c++) {
+    columns.push(sample.map((r) => cleanField(r[c] ?? "")));
+  }
 
   const kanji = columns.map((col) => ratio(col, KANJI));
   const kana = columns.map((col) => ratio(col, KANA));
   const length = columns.map(avgLength);
-  const indices = Array.from({ length: width }, (_, c) => c);
+  const filled = columns.map(
+    (col) => col.filter((v) => v.trim() !== "").length / Math.max(sample.length, 1),
+  );
+  const indices = Array.from({ length: width }, (_, c) => c).filter(
+    // A field present on a handful of cards is not the deck's example sentence.
+    // Core 2.3k carries a second, 14%-filled copy of its sentence column that
+    // was beating the real one on average length by a fraction of a character.
+    (c) => filled[c] >= MIN_FILLED,
+  );
 
   const isJapanese = (c: number) => kanji[c] > 0.3 || kana[c] > 0.5;
   const byLength = (a: number, b: number) => length[a] - length[b];
@@ -314,7 +340,10 @@ export function detectColumns(rows: string[][]): ColumnMap {
   // deck that isn't Japanese at all, or that the checks above couldn't read, still
   // has to import as plain two-sided cards — leaving either null means every row
   // is missing a side and the deck comes in empty.
+  // Prefer a populated column, but fall back to any column at all — an unreadable
+  // file should still import rather than come in empty.
   const firstUnused = (...taken: (number | null)[]) => {
+    for (const c of indices) if (!taken.includes(c)) return c;
     for (let c = 0; c < width; c++) if (!taken.includes(c)) return c;
     return null;
   };
@@ -339,16 +368,23 @@ function fnv(input: string, seed: number): string {
   return hash.toString(16).padStart(8, "0");
 }
 
-// Keyed on word + meaning only. The example sentences are deliberately excluded:
-// a deck author fixing a sentence in an updated export must not orphan the review
-// history of a card whose word and meaning are unchanged.
+// Keyed on word + reading + meaning.
+//
+// Reading is part of a card's identity: Core 2.3k teaches 何 twice, as なに and
+// なん, and 家 as いえ and うち. Leave it out and those collide, so one of each
+// pair is silently dropped at import. It also matches how the rest of the app
+// identifies a word — `mergeVocab` and both card players key on `word|reading`.
+//
+// The example sentences stay excluded: a deck author fixing a sentence in an
+// updated export must not orphan the review history of a card that hasn't
+// otherwise changed. Readings don't get edited in that casual way.
 //
 // The separator keeps field boundaries meaningful: without one, ("ab","c") and
 // ("a","bc") would hash identically. Written as an escape rather than a raw
 // control character, which is invisible in the source and easy to delete by
 // accident.
-export function cardId(word: string, meaning: string): string {
-  const key = `${word}\u001f${meaning}`;
+export function cardId(word: string, reading: string, meaning: string): string {
+  const key = `${word}\u001f${reading}\u001f${meaning}`;
   return fnv(key, 0x811c9dc5) + fnv(key, 0x9e3779b9);
 }
 
@@ -398,12 +434,12 @@ export function buildDeck(
     const meaning = pick(row, columns.meaning);
     if (!word || !meaning) continue;
 
-    const id = cardId(word, meaning);
+    const reading = pick(row, columns.reading);
+    const id = cardId(word, reading, meaning);
     if (seen.has(id)) continue;
     seen.add(id);
 
     const card: DeckCard = { id, word, meaning };
-    const reading = pick(row, columns.reading);
     const example = pick(row, columns.example);
     const exampleEn = pick(row, columns.exampleEn);
     if (reading) card.reading = reading;
