@@ -11,6 +11,7 @@ const DEFAULTS: Settings = {
   romajiInput: true,
   partialAvailability: false,
   newPerDay: 10,
+  deckScope: "due",
 };
 
 // In-memory source of truth, hydrated once at startup (see hydrateSettings).

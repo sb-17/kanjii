@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import "../styles/Cards.css";
 import "../styles/Decks.css";
-import type { DeckCard } from "../types/deckType";
+import type { DeckCard, DeckScope } from "../types/deckType";
 import { getDeck } from "../storage/decks";
 import { deckBoxes, setCardBox } from "../storage/deckProgress";
 import { recordDeckReview } from "../storage/deckStats";
+import { loadSettings, saveSettings } from "../storage/settings";
 import { deckCounts, pickDeckCard } from "../lib/deckSrs";
 import { applyReview } from "../lib/srs";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
@@ -17,15 +18,30 @@ import CardActions from "../components/flashcard/CardActions";
 
 const wordKey = (word: string, reading: string) => `${word}|${reading}`;
 
+const SCOPES: { id: DeckScope; label: string }[] = [
+  { id: "due", label: "Due" },
+  { id: "new", label: "New" },
+  { id: "random", label: "Random" },
+  { id: "all", label: "All" },
+];
+
 export default function DeckCards() {
   const { deckId = "" } = useParams();
   const now = useNow();
   const deck = getDeck(deckId);
 
   const [boxes, setBoxes] = useState(() => deckBoxes(deckId));
+  const [scope, setScope] = useState<DeckScope>(() => loadSettings().deckScope);
   const [isFlipped, setIsFlipped] = useState(false);
   const [current, setCurrent] = useState<DeckCard | null>(() =>
-    deck ? pickDeckCard(deck.cards, deckBoxes(deckId), Date.now()) : null,
+    deck
+      ? pickDeckCard(
+          deck.cards,
+          deckBoxes(deckId),
+          loadSettings().deckScope,
+          Date.now(),
+        )
+      : null,
   );
   // "added" | "duplicate" for the card on screen; cleared whenever the card
   // changes so the confirmation can't linger onto the next one.
@@ -66,9 +82,22 @@ export default function DeckCards() {
     setAddState(null);
     timersRef.current.push(
       setTimeout(() => {
-        setCurrent(pickDeckCard(deck.cards, next, Date.now(), current.id));
+        setCurrent(pickDeckCard(deck.cards, next, scope, Date.now(), current.id));
       }, 150),
     );
+  };
+
+  const changeScope = (next: DeckScope) => {
+    setScope(next);
+    saveSettings({ ...loadSettings(), deckScope: next });
+    setIsFlipped(false);
+    setAddState(null);
+    // Re-pick immediately rather than waiting for the next answer, so the tab
+    // visibly does something. `current.id` is passed so switching mode doesn't
+    // hand back the card already on screen when the new scope still contains it.
+    // `now` from useNow rather than Date.now(), matching the My Words player.
+    // A due date a minute stale can't change which card is offered.
+    setCurrent(pickDeckCard(deck.cards, boxes, next, now, current?.id));
   };
 
   // Copy the card into My Words so it joins the kanji-aware side of the app —
@@ -111,13 +140,33 @@ export default function DeckCards() {
         </span>
       </div>
 
+      <div className="scope-tabs">
+        {SCOPES.map((s) => (
+          <button
+            key={s.id}
+            className={`scope-tab${scope === s.id ? " active" : ""}`}
+            onClick={() => changeScope(s.id)}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
       {!current ? (
         <EmptyState
-          title="Nothing due right now"
+          title={
+            counts.total === 0
+              ? "This deck has no cards"
+              : scope === "new"
+                ? "No new cards left"
+                : "Nothing due right now"
+          }
           message={
             counts.total === 0
-              ? "This deck has no cards."
-              : "Every card in this deck is scheduled for later. Come back when something's due."
+              ? "Import the deck file again to add cards."
+              : scope === "new"
+                ? "Every card in this deck has been studied at least once. Switch to Due to review them, or Random to shuffle."
+                : "Every card is scheduled for later. Switch to Random or All to keep going."
           }
           actions={[{ to: "/cards", label: "Back to decks" }]}
         />

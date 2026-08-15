@@ -41,3 +41,10 @@ export type Deck = {
 // Leitner state per card, keyed by deck then card. Reuses the vocab box shape, so
 // lib/srs `applyReview` grades it unchanged.
 export type DeckProgress = Record<string, Record<string, SrsBox>>;
+
+// How the deck player chooses what to show next.
+//   due    — reviews that have come round, then never-studied cards (default)
+//   new    — never-studied only, in deck order
+//   random — anything, shuffled, ignoring the schedule
+//   all    — everything, in deck order
+export type DeckScope = "due" | "new" | "random" | "all";

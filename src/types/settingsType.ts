@@ -1,3 +1,5 @@
+import type { DeckScope } from "./deckType";
+
 export type WriteMode = "screen" | "paper";
 
 // "due" is a skill-SRS filter, not a status one: learning/known kanji whose
@@ -21,4 +23,7 @@ export type Settings = {
   // are never capped — this only paces how fast a backlog (a big import) is fed
   // in, so it can't bury the reviews. 0 = never introduce new words.
   newPerDay: number;
+  // How imported-deck cards are chosen. Shared across decks rather than stored
+  // per deck — it's a study preference, not a property of any one deck.
+  deckScope: DeckScope;
 };
