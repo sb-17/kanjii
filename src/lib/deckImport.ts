@@ -11,22 +11,96 @@ import type { Deck, DeckCard } from "../types/deckType";
 
 // --- Text cleanup -----------------------------------------------------------
 
-// Anki stores fields as HTML. Cards render as plain text here, so tags become
-// nothing (a <br> becomes a space) and entities are decoded. `&amp;` is decoded
-// last: doing it first would turn "&amp;lt;" into a literal "<".
+const ENTITIES: Record<string, string> = {
+  nbsp: " ",
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  mdash: "—",
+  ndash: "–",
+  hellip: "…",
+  lsquo: "‘",
+  rsquo: "’",
+  ldquo: "“",
+  rdquo: "”",
+  middot: "·",
+  times: "×",
+};
+
+// Decode every entity in ONE pass. Chained per-entity replaces double-decode:
+// running `&amp;` before `&lt;` turns "&amp;lt;" into a literal "<" rather than
+// the text "&lt;" the author wrote. A single pass can't re-read its own output.
+// Unknown entities are left alone rather than silently deleted.
+function decodeEntities(input: string): string {
+  return input.replace(
+    /&(#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);/gi,
+    (match, body: string) => {
+      if (body[0] === "#") {
+        const code =
+          body[1] === "x" || body[1] === "X"
+            ? parseInt(body.slice(2), 16)
+            : Number(body.slice(1));
+        return Number.isInteger(code) && code > 0 && code <= 0x10ffff
+          ? String.fromCodePoint(code)
+          : match;
+      }
+      return ENTITIES[body.toLowerCase()] ?? match;
+    },
+  );
+}
+
+// Strip tags with a scanner rather than /<[^>]*>/, which ends a tag at the first
+// `>` even when it sits inside a quoted attribute — leaving fragments like `b">`
+// in the text. Quote-aware and linear time, so no catastrophic backtracking
+// either.
+function stripTags(input: string): string {
+  let out = "";
+  let i = 0;
+  while (i < input.length) {
+    if (input[i] !== "<") {
+      out += input[i++];
+      continue;
+    }
+    i++;
+    let quote = "";
+    while (i < input.length) {
+      const c = input[i++];
+      if (quote) {
+        if (c === quote) quote = "";
+      } else if (c === '"' || c === "'") {
+        quote = c;
+      } else if (c === ">") {
+        break;
+      }
+    }
+  }
+  return out;
+}
+
+// Anki stores fields as HTML, plus a few markup conventions of its own. Cards
+// render as plain text here, so all of it has to come off at import: the text is
+// stored in the deck, searched in the card editor, and copied into a word's
+// `context` when added to My Words. Markup that merely *looks* harmless on a card
+// still surfaces in one of those.
 export function cleanField(raw: string): string {
-  return raw
+  const withoutMarkup = raw
+    // Elements whose content isn't prose. Stripping only their tags would leave
+    // the CSS or script body behind as visible text.
+    .replace(/<(style|script)\b[^>]*>[\s\S]*?<\/\1>/gi, "")
+    // Ruby readings. <rt> holds the furigana, so removing just the tags splices
+    // it into the sentence — <ruby>水<rt>みず</rt></ruby> became "水みず".
+    .replace(/<(rt|rp)\b[^>]*>[\s\S]*?<\/\1>/gi, "")
     .replace(/\[sound:[^\]]*\]/g, "")
     .replace(/\[anki:[^\]]*\]/g, "")
+    // Block boundaries become spaces so two lines don't fuse into one word.
     .replace(/<br\s*\/?>/gi, " ")
-    .replace(/<\/(div|p|li|tr)>/gi, " ")
-    .replace(/<[^>]*>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, "&")
+    .replace(/<\/(div|p|li|tr)>/gi, " ");
+
+  return decodeEntities(stripTags(withoutMarkup))
+    // Anki cloze deletions: keep the answer, drop the marker and any hint.
+    .replace(/\{\{c\d+::([\s\S]*?)(?:::[\s\S]*?)?\}\}/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
 }
