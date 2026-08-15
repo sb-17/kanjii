@@ -15,6 +15,9 @@ export default function DeckSettings() {
   const now = useNow();
   const deck = getDeck(deckId);
   const [name, setName] = useState(deck?.name ?? "");
+  // Held in state so the counts above update the moment progress is reset,
+  // rather than only after navigating away and back.
+  const [boxes, setBoxes] = useState(() => deckBoxes(deckId));
 
   if (!deck) {
     return (
@@ -28,8 +31,9 @@ export default function DeckSettings() {
     );
   }
 
-  const counts = deckCounts(deck.cards, deckBoxes(deck.id), now);
+  const counts = deckCounts(deck.cards, boxes, now);
   const studied = deckTotals(loadDeckStats())[deck.id];
+  const studiedCards = Object.keys(boxes).length;
 
   // Renaming keeps the deck's id. The id is derived from the *original* name and
   // is what backed-up progress is filed under, so recomputing it here would
@@ -41,11 +45,33 @@ export default function DeckSettings() {
     updateDeck({ ...deck, name: next });
   };
 
+  // Clears the Leitner boxes only. The study counters behind the Analytics
+  // "Decks" section are left alone on purpose: they record what you actually did
+  // on given days, and un-scheduling the cards doesn't make that untrue. Deleting
+  // the whole deck does clear both, since then there's nothing left to attribute
+  // them to.
+  const resetProgress = () => {
+    if (studiedCards === 0) return;
+    if (
+      !confirm(
+        `Reset progress for "${deck.name}"?\n\n` +
+          `${studiedCards} of ${deck.cards.length} cards go back to new, so the whole deck starts over. The cards themselves are kept, and your study history in Analytics is not affected.\n\n` +
+          "This cannot be undone.",
+      )
+    ) {
+      return;
+    }
+    clearDeckProgress(deck.id);
+    setBoxes({});
+  };
+
   const remove = () => {
     if (
       !confirm(
         `Delete "${deck.name}"?\n\n` +
-          `${deck.cards.length} cards, their review progress and their study history are removed from this device. This cannot be undone.`,
+          `${deck.cards.length} cards, their review progress and their study history are removed from this device. This cannot be undone.\n\n` +
+          "To update this deck with a newer file instead, just import it again " +
+          `under the name "${deck.name}" — that replaces the cards and keeps your progress.`,
       )
     ) {
       return;
@@ -103,12 +129,32 @@ export default function DeckSettings() {
       </div>
 
       <div className="settings-card surface-card">
+        <strong>Reset progress</strong>
+
+        <p className="settings-description">
+          {studiedCards === 0
+            ? "Nothing to reset — no card in this deck has been studied yet."
+            : `Sends all ${studiedCards} studied cards back to new so the deck starts over. The cards stay, and your study history in Analytics is kept.`}
+        </p>
+
+        <div className="settings-actions">
+          <button
+            className="settings-button"
+            onClick={resetProgress}
+            disabled={studiedCards === 0}
+          >
+            <strong>↺ Reset progress</strong>
+          </button>
+        </div>
+      </div>
+
+      <div className="settings-card surface-card">
         <strong>Remove deck</strong>
 
         <p className="settings-description">
-          Deletes the cards, their review progress and their study history from
-          this device. Re-importing the same file later restores progress only if
-          you keep the deck name the same.
+          Deletes the cards, their review progress and their study history. To
+          update this deck from a newer file, don't delete it — import the file
+          again under the same name and your progress is kept.
         </p>
 
         <div className="settings-actions">

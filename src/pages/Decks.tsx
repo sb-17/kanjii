@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Decks.css";
 import type { ColumnMap } from "../lib/deckImport";
-import { previewImport, buildDeck } from "../lib/deckImport";
+import { previewImport, buildDeck, deckId } from "../lib/deckImport";
 import { loadDecks, saveDecks } from "../storage/decks";
 import { deckBoxes } from "../storage/deckProgress";
 import { deckCounts } from "../lib/deckSrs";
@@ -114,6 +114,12 @@ export default function Decks() {
     ? Math.max(...pending.rows.map((r) => r.length))
     : 0;
 
+  // The deck this import would overwrite, if the name resolves to one already
+  // here. Matched on the derived id, not the raw name, since that's what decides.
+  const replacing = pending
+    ? decks.find((d) => d.id === deckId(pending.name.trim()))
+    : undefined;
+
   return (
     <div className="page">
       <h1 className="page-title">Cards</h1>
@@ -160,6 +166,18 @@ export default function Decks() {
             {pending.rows.length} rows found. Check the columns look right — only
             these five are kept.
           </p>
+
+          {/* Re-importing under an existing name is the *safe* way to update a
+              deck: the cards are replaced and progress stays, because it's filed
+              under content-derived card ids. Deleting first is the destructive
+              path, and it's the one people reach for by instinct — so say plainly
+              which one is happening. */}
+          {replacing && (
+            <p className="settings-description deck-replacing">
+              Replaces the {replacing.cards.length} cards in “{replacing.name}”
+              and keeps your review progress.
+            </p>
+          )}
 
           <label className="deck-field">
             <span>Deck name</span>

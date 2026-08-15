@@ -156,6 +156,10 @@
     flex-shrink: 0;
 }
 
+.deck-replacing {
+    color: var(--accent);
+}
+
 .deck-error {
     font-size: var(--text-sm);
     color: var(--error);
