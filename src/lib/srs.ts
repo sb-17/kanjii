@@ -34,6 +34,22 @@ export function startOfStudyDay(t: number): number {
   return d.getTime();
 }
 
+// The start of the study *week* containing `t`: Monday at the same 04:00 cutoff.
+//
+// Chart weeks are calendar weeks, not a rolling 7-day window anchored to now. A
+// rolling window silently rewrites history: every bar shifts as the day passes,
+// so a bar labelled "3 weeks ago" covers different days each time you look at it,
+// and finishing a kanji can change a bar from a month back. Anchoring to Monday
+// means a week keeps the same contents forever once it has passed.
+export function startOfStudyWeek(t: number): number {
+  const d = new Date(startOfStudyDay(t));
+  // getDay(): 0 = Sunday, so this is days elapsed since the most recent Monday.
+  const sinceMonday = (d.getDay() + 6) % 7;
+  // setDate rather than subtracting milliseconds, so DST and month ends stay right.
+  d.setDate(d.getDate() - sinceMonday);
+  return d.getTime();
+}
+
 // When something reviewed at `now` should next come up.
 //
 // Day-length intervals land on the *start of a day*, not on the clock time you
@@ -80,6 +96,23 @@ export function isNew(v: Vocab): boolean {
 // directions are strong, which is the whole point of tracking them separately.
 export function isDue(v: Vocab, now: number): boolean {
   return DIRECTIONS.some((d) => isDirDue(v, d, now));
+}
+
+// A player that only ever tests one direction has to scope by that direction.
+// Cards is E→J: it shows the meaning and you recall the Japanese, and it grades
+// only `etj`. Judged by the both-directions rules above, such a word is due
+// forever — `jte` never gets a box, an unpractised direction always counts as
+// due, and `reviewDueKey` pins it at `now`. A word graded to box 5 came straight
+// back, which is what made the Cards queue cycle the same handful of words.
+//
+// Practice alternates via `pickDirection`, so it passes no direction and keeps
+// the both-directions semantics: a word isn't finished until both sides are strong.
+export function isNewFor(v: Vocab, dir?: ReviewDirection): boolean {
+  return dir ? !v.srs?.[dir] : isNew(v);
+}
+
+export function isDueFor(v: Vocab, now: number, dir?: ReviewDirection): boolean {
+  return dir ? isDirDue(v, dir, now) : isDue(v, now);
 }
 
 export function isRecent(v: Vocab, now: number): boolean {
@@ -133,12 +166,12 @@ export function dueCount(list: Vocab[], now: number): number {
 // at 0 and sorted ahead of every real review (and, being tied, stayed in file
 // order); meanwhile a word added today keyed on `Date.now()` and sorted behind
 // everything. New words are a separate queue now — see `pickNewWord`.
-function reviewDueKey(v: Vocab, now: number): number {
+function reviewDueKey(v: Vocab, now: number, dir?: ReviewDirection): number {
   const keyOf = (d: ReviewDirection) => {
     const s = v.srs?.[d];
     return s ? s.due : now;
   };
-  return Math.min(keyOf("etj"), keyOf("jte"));
+  return dir ? keyOf(dir) : Math.min(keyOf("etj"), keyOf("jte"));
 }
 
 const addedDay = (v: Vocab) => Math.floor((v.addedAt ?? 0) / DAY);
@@ -169,15 +202,16 @@ export function scopeVocab(
   scope: PracticeScope,
   now: number,
   newBudget = Number.POSITIVE_INFINITY,
+  dir?: ReviewDirection,
 ): Vocab[] {
   switch (scope) {
     case "smart": {
       // Reviews first — words you've actually studied, coming back on schedule.
-      const reviews = list.filter((v) => !isNew(v) && isDue(v, now));
+      const reviews = list.filter((v) => !isNewFor(v, dir) && isDueFor(v, now, dir));
       if (reviews.length > 0) return reviews;
       // Then today's allowance of new words.
       if (newBudget > 0) {
-        const fresh = list.filter(isNew);
+        const fresh = list.filter((v) => isNewFor(v, dir));
         if (fresh.length > 0) return fresh;
       }
       // Nothing due and no allowance left: extra practice (the "caught up" case).
@@ -186,7 +220,7 @@ export function scopeVocab(
     case "recent":
       return list.filter((v) => isRecent(v, now));
     case "new":
-      return list.filter((v) => isNew(v));
+      return list.filter((v) => isNewFor(v, dir));
     case "all":
     default:
       return list;
@@ -202,6 +236,7 @@ export function pickWord(
   scope: PracticeScope,
   exceptKey?: string,
   now: number = Date.now(),
+  dir?: ReviewDirection,
 ): Vocab | null {
   if (pool.length === 0) return null;
 
@@ -212,10 +247,10 @@ export function pickWord(
   }
 
   if (scope === "smart" || scope === "recent") {
-    const reviews = candidates.filter((v) => !isNew(v));
+    const reviews = candidates.filter((v) => !isNewFor(v, dir));
     if (reviews.length > 0) {
       const sorted = [...reviews].sort(
-        (a, b) => reviewDueKey(a, now) - reviewDueKey(b, now),
+        (a, b) => reviewDueKey(a, now, dir) - reviewDueKey(b, now, dir),
       );
       const topK = sorted.slice(0, Math.min(5, sorted.length));
       return topK[Math.floor(Math.random() * topK.length)];

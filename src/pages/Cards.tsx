@@ -26,6 +26,14 @@ const SCOPES: { id: PracticeScope; label: string }[] = [
 
 const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
 
+// This player only ever tests E→J: it shows the meaning and you recall the
+// Japanese, and `grade` writes only the `etj` box. Scheduling therefore has to be
+// judged on `etj` alone. Scoped by the both-directions rules, a word graded here
+// stayed due forever — `jte` never gets a box and an unpractised direction always
+// counts as due — so the queue cycled the same few words no matter how well you
+// knew them. Practice alternates directions and keeps the stricter semantics.
+const CARD_DIR = "etj" as const;
+
 // New words still allowed today — shared budget with Practice, since both grade
 // into the same boxes and log the same events.
 const remainingNewToday = (perDay: number) =>
@@ -46,10 +54,12 @@ export default function Cards() {
         scope,
         Date.now(),
         remainingNewToday(loadSettings().newPerDay),
+        CARD_DIR,
       ),
       scope,
       undefined,
       Date.now(),
+      CARD_DIR,
     ),
   );
 
@@ -77,10 +87,13 @@ export default function Cards() {
       scope,
       now,
       remainingNewToday(settings.newPerDay),
+      CARD_DIR,
     );
     setGradedBack(current);
     setIsFlipped(false);
-    setCurrent(pickWord(pool, scope, current ? keyOf(current) : undefined, now));
+    setCurrent(
+      pickWord(pool, scope, current ? keyOf(current) : undefined, now, CARD_DIR),
+    );
   };
 
   const changeScope = (next: PracticeScope) => {
@@ -94,9 +107,10 @@ export default function Cards() {
       next,
       now,
       remainingNewToday(updated.newPerDay),
+      CARD_DIR,
     );
     setCurrent(
-      pickWord(pool, next, current ? keyOf(current) : undefined, now),
+      pickWord(pool, next, current ? keyOf(current) : undefined, now, CARD_DIR),
     );
   };
 
@@ -105,7 +119,7 @@ export default function Cards() {
   // now actually clears reviewed cards instead of showing them forever.
   const grade = (correct: boolean) => {
     if (!current) return;
-    const srs = gradeDirection(current, "etj", correct, Date.now());
+    const srs = gradeDirection(current, CARD_DIR, correct, Date.now());
     const next = vocab.map((v) => (keyOf(v) === keyOf(current) ? { ...v, srs } : v));
     setVocab(next);
     saveUserVocab(next);

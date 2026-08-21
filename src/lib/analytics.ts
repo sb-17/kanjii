@@ -9,7 +9,7 @@ import type { Vocab } from "../types/vocabType";
 import type { KanjiSkillMap } from "../types/kanjiSkill";
 import { isKnownOrLearning } from "../storage/kanjiProgress";
 import { isVocabAvailable } from "./vocab";
-import { MAX_BOX, isDue, startOfStudyDay } from "./srs";
+import { MAX_BOX, isDue, startOfStudyDay, startOfStudyWeek } from "./srs";
 import { isSkillDue } from "./kanjiSkill";
 import type { AppEvent } from "../storage/events";
 import type { DeckStats, DayDeckStat } from "../storage/deckStats";
@@ -231,6 +231,22 @@ export type VocabGrowth = { buckets: GrowthBucket[]; older: number; untracked: n
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
+// How many whole calendar weeks back `t` falls, counting from the Monday-anchored
+// week containing `now`. 0 is the current week.
+//
+// Rounded, not floored: a week spanning a DST change is 167 or 169 hours long, so
+// dividing the raw millisecond gap would land an hour either side of the boundary
+// in the wrong bucket twice a year.
+function weeksAgo(t: number, now: number): number {
+  return Math.round((startOfStudyWeek(now) - startOfStudyWeek(t)) / WEEK_MS);
+}
+
+// Bucket labels for the week charts. "this" rather than "now": these are calendar
+// weeks, and the current one is a week in progress, not an instant.
+function weekLabel(n: number): string {
+  return n === 0 ? "this" : `${n}w`;
+}
+
 // Words added per week over the last `weeks` weeks (uses the addedAt timestamp).
 export function vocabGrowth(
   vocab: Vocab[],
@@ -239,8 +255,7 @@ export function vocabGrowth(
 ): VocabGrowth {
   const buckets: GrowthBucket[] = [];
   for (let j = 0; j < weeks; j++) {
-    const weeksAgo = weeks - 1 - j;
-    buckets.push({ label: weeksAgo === 0 ? "now" : `${weeksAgo}w`, count: 0 });
+    buckets.push({ label: weekLabel(weeks - 1 - j), count: 0 });
   }
 
   let older = 0;
@@ -251,11 +266,11 @@ export function vocabGrowth(
       untracked++;
       continue;
     }
-    const ageWeeks = Math.floor((now - v.addedAt) / WEEK_MS);
-    if (ageWeeks < 0) {
-      buckets[weeks - 1].count++; // added "now"/future-dated clock skew
-    } else if (ageWeeks < weeks) {
-      buckets[weeks - 1 - ageWeeks].count++;
+    const age = weeksAgo(v.addedAt, now);
+    if (age < 0) {
+      buckets[weeks - 1].count++; // future-dated clock skew: count as this week
+    } else if (age < weeks) {
+      buckets[weeks - 1 - age].count++;
     } else {
       older++;
     }
@@ -277,8 +292,7 @@ export function knownPerWeek(
 ): { buckets: SignedWeek[]; hasData: boolean } {
   const buckets: SignedWeek[] = [];
   for (let j = 0; j < weeks; j++) {
-    const weeksAgo = weeks - 1 - j;
-    buckets.push({ label: weeksAgo === 0 ? "now" : `${weeksAgo}w`, net: 0 });
+    buckets.push({ label: weekLabel(weeks - 1 - j), net: 0 });
   }
 
   let hasData = false;
@@ -286,12 +300,12 @@ export function knownPerWeek(
     if (e.k !== "kanji") continue;
     const delta = (e.to === "known" ? 1 : 0) - (e.f === "known" ? 1 : 0);
     if (delta === 0) continue;
-    const ageWeeks = Math.floor((now - e.t) / WEEK_MS);
-    if (ageWeeks < 0) {
+    const age = weeksAgo(e.t, now);
+    if (age < 0) {
       buckets[weeks - 1].net += delta;
       hasData = true;
-    } else if (ageWeeks < weeks) {
-      buckets[weeks - 1 - ageWeeks].net += delta;
+    } else if (age < weeks) {
+      buckets[weeks - 1 - age].net += delta;
       hasData = true;
     }
   }

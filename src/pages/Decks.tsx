@@ -8,7 +8,7 @@ import { deckBoxes } from "../storage/deckProgress";
 import { deckCounts } from "../lib/deckSrs";
 import { loadUserVocab } from "../storage/userVocab";
 import { isVocabAvailable } from "../lib/vocab";
-import { isDue, isNew } from "../lib/srs";
+import { isDueFor, isNewFor } from "../lib/srs";
 import { useProgress } from "../context/ProgressContext";
 import { useNow } from "../lib/useNow";
 
@@ -47,8 +47,12 @@ export default function Decks() {
   const myWords = useMemo(() => {
     const available = loadUserVocab().filter((v) => isVocabAvailable(v, progress));
     return {
-      due: available.filter((v) => !isNew(v) && isDue(v, now)).length,
-      fresh: available.filter(isNew).length,
+      // Counted on the same direction the My Words player schedules by (E→J).
+      // Judged on both directions this row advertised every started word as due
+      // forever, against a player that would not offer them.
+      due: available.filter((v) => !isNewFor(v, "etj") && isDueFor(v, now, "etj"))
+        .length,
+      fresh: available.filter((v) => isNewFor(v, "etj")).length,
       total: available.length,
     };
   }, [progress, now]);
