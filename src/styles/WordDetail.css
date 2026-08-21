@@ -48,7 +48,9 @@
     line-height: 1.5;
 }
 
-/* Japanese source text — upright, for the reason given on .mw-item-example. */
+/* Japanese source text. Upright, unlike .word-note below: most Japanese fonts
+   have no italic, so browsers fake one by slanting the glyphs, which looks wrong
+   for kana and kanji. */
 .word-example {
     margin: var(--space-3) 0 0;
     font-size: var(--text-base);

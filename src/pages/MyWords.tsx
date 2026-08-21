@@ -270,7 +270,6 @@ export default function MyWords() {
                   {v.reading && <span className="mw-reading">{v.reading}</span>}
                   <span className="mw-meaning">{v.meanings.join(", ")}</span>
                 </div>
-                {v.example && <p className="mw-item-example">{v.example}</p>}
                 {v.context && <p className="mw-item-context">{v.context}</p>}
               </Link>
               <div className="mw-item-actions">

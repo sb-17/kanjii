@@ -19,6 +19,7 @@ import Practice from "./pages/Practice";
 import Write from "./pages/Write";
 import KanjiLearn from "./pages/KanjiLearn";
 import MyWords from "./pages/MyWords";
+import Read from "./pages/Read";
 import WordDetail from "./pages/WordDetail";
 import Print from "./pages/Print";
 import SetDetail from "./pages/SetDetail";
@@ -197,6 +198,7 @@ export default function App() {
             <Route path="/write" element={<Write />} />
             <Route path="/print" element={<Print />} />
             <Route path="/words" element={<MyWords />} />
+            <Route path="/read" element={<Read />} />
             <Route path="/word/:key" element={<WordDetail />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />

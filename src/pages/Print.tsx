@@ -7,11 +7,20 @@ import { ALL_KANJI, getKanji } from "../lib/kanjiIndex";
 
 type Source = "set" | "learning" | "known" | "custom";
 
+// Order as shown. Learning leads because it is what you actually print sheets
+// for; Set trails because it's the least-used source and Sets are parked.
+const SOURCES: { id: Source; label: string }[] = [
+  { id: "learning", label: "Learning" },
+  { id: "known", label: "Known" },
+  { id: "custom", label: "Custom" },
+  { id: "set", label: "Set" },
+];
+
 const MAX_ROWS = 200;
 
 export default function Print() {
   const { progress } = useProgress();
-  const [source, setSource] = useState<Source>("set");
+  const [source, setSource] = useState<Source>("learning");
   const [setId, setSetId] = useState<number>(sets[0]?.id ?? 1);
   const [custom, setCustom] = useState("");
   const [columns, setColumns] = useState(10);
@@ -70,19 +79,13 @@ export default function Print() {
         <div className="print-control">
           <span className="print-control-label">Kanji from</span>
           <div className="print-source">
-            {(["set", "learning", "known", "custom"] as Source[]).map((s) => (
+            {SOURCES.map((s) => (
               <button
-                key={s}
-                className={`print-source-btn${source === s ? " active" : ""}`}
-                onClick={() => setSource(s)}
+                key={s.id}
+                className={`print-source-btn${source === s.id ? " active" : ""}`}
+                onClick={() => setSource(s.id)}
               >
-                {s === "set"
-                  ? "Set"
-                  : s === "learning"
-                    ? "Learning"
-                    : s === "known"
-                      ? "Known"
-                      : "Custom"}
+                {s.label}
               </button>
             ))}
           </div>

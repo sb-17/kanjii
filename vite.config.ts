@@ -54,10 +54,25 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "apple-touch-icon.png"],
       workbox: {
+        // The word list (~433 KB gzipped) is only needed by the Read page. Left
+        // in the precache it more than doubled the install — 1,049 KB to 2,499 KB
+        // — for every user, including those who never open it. Excluded here and
+        // cached at runtime below instead, the same deal the stroke files get.
+        globIgnores: ["**/dictionary-*.js"],
         // 6,700+ KanjiVG stroke files (~44 MB) are too many to precache, so they
         // are fetched on demand. Cache each one the first time it's requested so
         // writing/stroke practice for any kanji you've opened works offline too.
         runtimeCaching: [
+          {
+            // Fetched once, when Read is first opened; offline from then on.
+            urlPattern: /\/assets\/dictionary-.*\.js$/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "kanjii-dictionary",
+              expiration: { maxEntries: 2, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             urlPattern: /\/kanjiVG\/.*\.svg$/,
             handler: "CacheFirst",

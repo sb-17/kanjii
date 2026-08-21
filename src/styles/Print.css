@@ -17,8 +17,14 @@
     color: var(--text-muted);
 }
 
+/* Grid, not flex: grid-auto-columns sizes every segment alike, which flex:1
+   can't do in a fit-content container — it splits the total by content and
+   leaves them uneven. minmax(0, 1fr) rather than a bare 1fr so the segments can
+   share a narrow screen instead of each demanding the widest label's width. */
 .print-source {
-    display: inline-flex;
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
     align-self: flex-start;
     width: fit-content;
     max-width: 100%;
@@ -36,8 +42,20 @@
     font-size: var(--text-sm);
     font-weight: 600;
     white-space: nowrap;
+    /* Truncate rather than letting the container's overflow:hidden chop a glyph
+       in half, which reads as a rendering fault. */
+    overflow: hidden;
+    text-overflow: ellipsis;
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* Phone: four equal segments of a ~358px width, so the side padding is what
+   decides whether "Learning" fits. */
+@media (max-width: 720px) {
+    .print-source-btn {
+        padding: var(--space-2) var(--space-2);
+    }
 }
 
 .print-source-btn:not(:last-child) {

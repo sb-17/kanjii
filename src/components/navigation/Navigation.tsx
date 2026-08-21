@@ -30,6 +30,7 @@ const navGroups: NavGroup[] = [
       { id: "words", label: "My words", path: "/words" },
       { id: "cards", label: "Cards", path: "/cards" },
       { id: "practice", label: "Practice", path: "/practice" },
+      { id: "read", label: "Read", path: "/read" },
     ],
   },
   {

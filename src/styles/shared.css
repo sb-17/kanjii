@@ -37,8 +37,19 @@
     font-size: var(--text-sm);
     font-weight: 600;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* Phone: the segments are equal thirds of a ~358px content width, so the side
+   padding is what decides whether a label like "Unknown kanji" fits at all.
+   Trimming it buys ~16px per segment, which is the difference. */
+@media (max-width: 720px) {
+    .scope-tab {
+        padding: var(--space-2) var(--space-2);
+    }
 }
 
 .scope-tab:not(:last-child) {

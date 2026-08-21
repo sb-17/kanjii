@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "build:graph": "node scripts/build-kanji-graph.mjs",
     "build:strokes": "node scripts/build-stroke-index.mjs",
+    "build:dict": "node scripts/build-dictionary.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

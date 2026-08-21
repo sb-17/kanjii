@@ -1,0 +1,157 @@
+.read-intro {
+    margin: 0 0 var(--space-4);
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+}
+
+.read-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-3);
+    background: var(--surface-sunken);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-strong);
+    font-family: inherit;
+    /* Japanese needs more line spacing than Latin to stay readable, and the
+       browser's default textarea size is too small for a pasted paragraph. */
+    font-size: var(--text-base);
+    line-height: 1.8;
+    resize: vertical;
+}
+
+.read-input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+}
+
+.read-status {
+    margin: var(--space-3) 0;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+.read-status-error {
+    color: var(--error);
+}
+
+.read-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.read-row {
+    padding: var(--space-4);
+}
+
+.read-row-head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+}
+
+.read-word {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--text-strong);
+}
+
+.read-reading {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+/* Shown only when the text had an inflected form, so you can see why 面白い came
+   from 面白くなかった rather than wondering where it appeared. */
+.read-surface {
+    color: var(--text-faint);
+    font-size: var(--text-sm);
+}
+
+.read-count {
+    margin-left: auto;
+    color: var(--text-faint);
+    font-size: var(--text-sm);
+}
+
+.read-meaning {
+    margin: var(--space-2) 0 var(--space-3);
+    color: var(--text);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+}
+
+.read-row-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.read-kanji {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+/* The status colours match the kanji rows on the word page: a left border for
+   learning/known rather than a fill, so an untagged kanji stays visually quiet
+   and the ones you've made progress on stand out. */
+.read-kanji-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    padding: var(--space-1) var(--space-2);
+    background: var(--surface-strong);
+    border-left: 3px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-strong);
+    font-size: var(--text-md);
+    text-decoration: none;
+    transition: background 0.15s ease;
+}
+
+.read-kanji-chip:hover {
+    background: var(--surface-strong-hover);
+}
+
+.read-kanji-chip.status-learning {
+    border-left-color: var(--warning);
+}
+
+.read-kanji-chip.status-known {
+    border-left-color: var(--success);
+}
+
+.read-add {
+    flex: 0 0 auto;
+    padding: var(--space-2) var(--space-4);
+    background: var(--surface-strong);
+    color: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.read-add:hover {
+    background: var(--surface-strong-hover);
+}
+
+.read-add:active {
+    transform: translateY(1px);
+}
+
+.read-have {
+    flex: 0 0 auto;
+    color: var(--success);
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
