@@ -100,12 +100,18 @@
 }
 
 .kw-button {
+    /* Equal share of the row, so the buttons are the same width whatever their
+       labels say. min-width:0 lets them shrink below their text width rather
+       than pushing the row wider than the canvas. */
+    flex: 1 1 0;
+    min-width: 0;
     background: var(--surface-strong);
     color: var(--text-strong);
     border: none;
     border-radius: var(--radius);
-    padding: var(--space-3) var(--space-5);
-    font-size: var(--text-sm);
+    padding: var(--space-3) var(--space-4);
+    /* Matches .write-action (Write.css) — these sit in the same visual stack. */
+    font-size: var(--text-base);
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s ease;

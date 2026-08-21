@@ -359,17 +359,6 @@ export default function Write() {
             Paper
           </button>
         </div>
-
-        {writeMode === "screen" && (
-          <label className="write-guide">
-            <input
-              type="checkbox"
-              checked={guide}
-              onChange={(e) => updateSettings({ guide: e.target.checked })}
-            />
-            <span>Guide</span>
-          </label>
-        )}
       </div>
 
       {!single && (
@@ -388,6 +377,19 @@ export default function Write() {
         </div>
       )}
 
+      {writeMode === "screen" && (
+        <div className="write-toggles">
+          <label className="write-guide">
+            <input
+              type="checkbox"
+              checked={guide}
+              onChange={(e) => updateSettings({ guide: e.target.checked })}
+            />
+            <span>Guide</span>
+          </label>
+        </div>
+      )}
+
       {!current ? (
         <EmptyState
           title="Nothing to write yet"
@@ -403,6 +405,11 @@ export default function Write() {
           kanji={current}
           guide={guide}
           onComplete={handleComplete}
+          extraAction={
+            promoteSuggest
+              ? undefined
+              : { label: single ? "Again" : "Skip", onClick: pickNext }
+          }
         />
       ) : (
         <div className="write-paper">
@@ -451,15 +458,12 @@ export default function Write() {
         </div>
       )}
 
-      {current && !promoteSuggest && (
-        // One row, so Skip and Show answer sit side by side rather than stacking
-        // in two separate containers as they used to.
+      {/* Paper mode only. In screen mode Skip is handed to KanjiWriter instead,
+          so it shares one row with Hint and Clear rather than sitting in a
+          second container below them at a different size. */}
+      {current && !promoteSuggest && writeMode === "paper" && (
         <div className="write-actions">
-          {writeMode !== "paper" ? (
-            <button className="write-action" onClick={pickNext}>
-              {single ? "Again" : "Skip"}
-            </button>
-          ) : revealed ? (
+          {revealed ? (
             <>
               <button
                 className="write-action"

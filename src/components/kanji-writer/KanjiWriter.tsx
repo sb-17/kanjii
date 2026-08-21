@@ -27,9 +27,20 @@ type Props = {
   kanji: string;
   guide: boolean;
   onComplete: (result: WriteResult) => void;
+  // One extra button for the action row below the canvas. Write puts Skip here
+  // so it shares a row with Hint and Clear instead of stacking in a second
+  // container underneath at a different size. Passed as label + handler rather
+  // than a ReactNode so the button keeps this component's own styling — the
+  // whole point is that all three match.
+  extraAction?: { label: string; onClick: () => void };
 };
 
-export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
+export default function KanjiWriter({
+  kanji,
+  guide,
+  onComplete,
+  extraAction,
+}: Props) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const pointsRef = useRef<Point[]>([]);
 
@@ -259,6 +270,11 @@ export default function KanjiWriter({ kanji, guide, onComplete }: Props) {
       </div>
 
       <div className="kanji-writer-actions">
+        {extraAction && (
+          <button className="kw-button" onClick={extraAction.onClick}>
+            {extraAction.label}
+          </button>
+        )}
         <button className="kw-button" onClick={handleHint} disabled={done}>
           Hint
         </button>

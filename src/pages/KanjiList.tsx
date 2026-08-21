@@ -36,6 +36,9 @@ const SORTS: { id: SortKey; label: string }[] = [
 // (browser back → same location.key) lands where you left off, while a fresh
 // open of the list (new key) starts at the top.
 const listScroll = new Map<string, number>();
+// History keys are never reused, so one entry per visit grew for as long as the
+// tab lived. Only recent entries are ever returned to, so keep an LRU window.
+const MAX_REMEMBERED_SCROLLS = 20;
 
 export default function KanjiList() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -74,7 +77,16 @@ export default function KanjiList() {
     const el = document.querySelector<HTMLElement>(".app-content");
     if (!el) return;
     el.scrollTop = listScroll.get(location.key) ?? 0;
-    const onScroll = () => listScroll.set(location.key, el.scrollTop);
+    const onScroll = () => {
+      // delete-then-set moves this key to the end, so the eviction below always
+      // drops the least recently scrolled entry and never the current one.
+      listScroll.delete(location.key);
+      listScroll.set(location.key, el.scrollTop);
+      if (listScroll.size > MAX_REMEMBERED_SCROLLS) {
+        const oldest = listScroll.keys().next().value;
+        if (oldest !== undefined) listScroll.delete(oldest);
+      }
+    };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
   }, [location.key]);
@@ -333,9 +345,9 @@ export default function KanjiList() {
         </p>
       )}
 
-      {rows.map(({ kanji: k }, i) => (
+      {rows.map(({ kanji: k }) => (
         <KanjiCard
-          key={`${k.character}-${i}`}
+          key={k.character}
           kanji={{
             character: k.character,
             meanings: k.meanings || [],

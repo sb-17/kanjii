@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import "../styles/WordDetail.css";
 import { loadUserVocab } from "../storage/userVocab";
 import { getKanji } from "../lib/kanjiIndex";
@@ -9,6 +9,7 @@ import EmptyState from "../components/empty-state/EmptyState";
 const keyOf = (word: string, reading: string) => `${word}|${reading}`;
 
 export default function WordDetail() {
+  const navigate = useNavigate();
   const { key } = useParams<{ key: string }>();
   const { progress } = useProgress();
   const decoded = key ? decodeURIComponent(key) : "";
@@ -28,6 +29,10 @@ export default function WordDetail() {
 
   return (
     <div className="page">
+      <button type="button" className="word-back" onClick={() => navigate(-1)}>
+        ← Back
+      </button>
+
       <div className="word-header">
         <h1 className="word-title">{word.word}</h1>
         {word.reading && <div className="word-reading">{word.reading}</div>}

@@ -8,6 +8,8 @@
   color-scheme: dark;
 
   /* ---- Color (dark, default) ---- */
+  /* Mirrored in index.html's pre-paint script, which sets <meta theme-color>
+     before this sheet exists. Change both together. */
   --bg: #242424;
   --surface-sunken: #1c1c1c; /* canvases, flashcards, inset wells */
   --text: rgba(255, 255, 255, 0.92);
@@ -66,7 +68,7 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --bg: #f6f7f9;
+  --bg: #f6f7f9; /* mirrored in index.html — see the dark --bg above */
   --surface-sunken: #eceef1;
   --text: #1f2329;
   --text-strong: #0e1116;

@@ -6,6 +6,7 @@
       name="viewport"
       content="initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, width=device-width"
     />
+    <meta name="theme-color" content="#242424" />
     <!-- Apply the saved theme before first paint to avoid a flash. -->
     <script>
       (function () {
@@ -17,12 +18,18 @@
               window.matchMedia &&
               window.matchMedia("(prefers-color-scheme: light)").matches);
           document.documentElement.dataset.theme = light ? "light" : "dark";
+          // Also set the chrome colour now. applyTheme() keeps this in sync
+          // afterwards by reading --bg, but it can't run until the stylesheet
+          // and modules have loaded, and a light-mode user would see dark
+          // chrome until then. These two must match --bg in index.css.
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute("content", light ? "#f6f7f9" : "#242424");
         } catch (e) {}
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="/kanjii/favicon.svg" />
     <link rel="apple-touch-icon" href="/kanjii/apple-touch-icon.png" />
-    <meta name="theme-color" content="#242424" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Kanjii" />
@@ -43,10 +50,10 @@
       data-goatcounter="https://kanjii.goatcounter.com/count"
       async src="//gc.zgo.at/count.js">
     </script>
-    <script type="module" crossorigin src="/kanjii/assets/index-CugxplqV.js"></script>
-    <link rel="stylesheet" crossorigin href="/kanjii/assets/index-BjSDInSK.css">
+    <script type="module" crossorigin src="/kanjii/assets/index-C0xBQKKp.js"></script>
+    <link rel="stylesheet" crossorigin href="/kanjii/assets/index-CVDwLdDk.css">
   <link rel="manifest" href="/kanjii/manifest.webmanifest"></head>
   <body>
-    <div id="root"></div>
+    <div id="root"></div>
   </body>
 </html>

@@ -55,16 +55,37 @@ export default function Home() {
   // Zero is shown rather than hidden: a row that changes shape as counts empty
   // out makes the page jump, and "nothing waiting" is worth seeing plainly.
   const due = [
-    { to: "/practice", count: srs.due, label: srs.due === 1 ? "word due" : "words due" },
     { to: "/write", count: writing.due, label: "to write" },
+    { to: "/practice", count: srs.due, label: srs.due === 1 ? "word due" : "words due" },
     { to: "/cards", count: decksDue, label: "deck cards" },
   ];
+
+  // "Study now" takes the first of these with anything waiting. Fixed priority,
+  // not the largest count: the three are different units — kanji, words, cards —
+  // so there is no honest way to compare 3 kanji against 12 deck cards. Writing
+  // leads because kanji are what the app is for; vocabulary reviews then decks.
+  // The array order *is* that priority, so the row below can't drift from it.
+  const next = due.find((item) => item.count > 0);
 
   return (
     <div className="page page-center">
       <h1 className="page-title">Kanjii</h1>
 
       <h2 className="home-section">Today</h2>
+
+      {next ? (
+        <Link to={next.to} className="home-study-now surface-card">
+          Study now
+          <span>
+            {next.count} {next.label}
+          </span>
+        </Link>
+      ) : (
+        <p className="home-study-clear">
+          Nothing due right now — everything's up to date.
+        </p>
+      )}
+
       <div className="home-due">
         {due.map((item) => (
           <Link

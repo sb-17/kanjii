@@ -34,11 +34,27 @@
     gap: var(--space-3);
     margin-bottom: var(--space-3);
     flex-wrap: wrap;
+    /* Same cap as the canvas below, so every control on the page lines up with
+       the writing panel's edges. Each control gets its own row: a full-width
+       picker leaves no room beside it. */
+    width: 100%;
+    max-width: 360px;
 }
 
-/* segmented control: rounded outer shell, clean rectangular segments inside */
+/* Segmented control: rounded outer shell, clean rectangular segments inside.
+   grid, not flex: grid-auto-columns sizes every segment alike. flex:1 splits the
+   container's total width by content, which leaves the segments uneven.
+
+   minmax(0, 1fr) rather than a bare 1fr. A bare 1fr is minmax(auto, 1fr): every
+   column takes the *widest* label's width and refuses to shrink, so the four pool
+   tabs (Due/Both/Learning/Known) came out ~440px against a 360px canvas. The 0
+   minimum lets them share the panel width evenly instead. */
 .write-modes {
-    display: inline-flex;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: 360px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
@@ -49,9 +65,12 @@
     color: var(--text-muted);
     border: none;
     border-radius: 0;
-    padding: var(--space-2) var(--space-5);
+    /* space-3, not space-5: the grid sets segment width now, so generous side
+       padding only eats the room the label needs once four tabs share the cap. */
+    padding: var(--space-2) var(--space-3);
     font-size: var(--text-sm);
     font-weight: 600;
+    white-space: nowrap;
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
 }
@@ -108,19 +127,30 @@
 .write-actions {
     display: flex;
     justify-content: center;
-    /* Two buttons share this row in paper mode; wrap rather than overflow if a
-       narrow phone can't fit them side by side. */
-    flex-wrap: wrap;
     gap: var(--space-3);
     margin-top: var(--space-4);
+    /* Line the row up with the writing surface above it (.write-paper and
+       .kanji-writer share this cap), so the buttons don't run wider than the
+       thing they act on. Centred by .page-center's align-items. */
+    width: 100%;
+    max-width: 360px;
 }
 
 .write-action {
+    /* Equal share of the row rather than text width — no wrap needed, they
+       shrink together instead of one dropping to a second line. */
+    flex: 1 1 0;
+    min-width: 0;
     background: var(--surface-strong);
     color: var(--text-strong);
     border: none;
     border-radius: var(--radius);
-    padding: var(--space-3) var(--space-6);
+    /* space-4, not space-6: flex:1 sets the width now, so this is only the
+       minimum inset. space-6 (2rem a side) left "Mark Known" ~76px of text room
+       in the 340px promote modal and wrapped it onto two lines. Same spec as
+       .kw-button (KanjiWriter.css), which shares a row with these in screen
+       mode. */
+    padding: var(--space-3) var(--space-4);
     font-size: var(--text-base);
     font-weight: 600;
     cursor: pointer;
@@ -211,12 +241,8 @@
     .write-actions {
         margin-top: var(--space-3);
     }
-    /* Paper mode puts two buttons on this row — trim the generous side padding
-       so they stay on one line on a narrow phone. */
-    .write-action {
-        padding: var(--space-3) var(--space-4);
-    }
-    .write-paper {
+    .write-paper,
+    .write-actions {
         max-width: min(360px, 52vh);
     }
 }

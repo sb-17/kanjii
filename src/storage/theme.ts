@@ -33,6 +33,21 @@ export function effectiveTheme(pref: ThemePref = getThemePref()): "light" | "dar
 
 export function applyTheme(pref: ThemePref = getThemePref()): void {
   document.documentElement.dataset.theme = effectiveTheme(pref);
+
+  // Keep the browser chrome (and the PWA status bar, where it's most visible)
+  // in step with the theme — otherwise light mode runs under dark chrome.
+  //
+  // The colour is read back off `--bg` rather than written here, so each theme's
+  // background has one definition (index.css) instead of two that drift apart.
+  // Reading it after setting data-theme is what makes that work: getComputedStyle
+  // forces the recalc, so this is already the new theme's value.
+  const bg = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bg")
+    .trim();
+  if (!bg) return; // stylesheet not applied yet; the next call will catch it
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content", bg);
 }
 
 export function setThemePref(pref: ThemePref): void {

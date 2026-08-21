@@ -11,6 +11,50 @@
     letter-spacing: 0.06em;
 }
 
+/* The one-tap entry point. Same card language as the link tiles below, with
+   accent *text* as the only thing marking it primary — that's how emphasis is
+   already spelled on this page (.home-due-card strong). An accent fill was tried
+   first and was far too loud: it was the one solid block of colour on a page of
+   quiet surfaces. */
+.home-study-now {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: var(--space-3);
+    padding: var(--space-4) var(--space-3);
+    text-align: center;
+    background-color: var(--surface-strong);
+    color: var(--accent);
+    font-size: var(--text-md);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.home-study-now:hover {
+    background-color: var(--surface-strong-hover);
+}
+
+.home-study-now:active {
+    transform: translateY(1px);
+}
+
+.home-study-now span {
+    display: block;
+    margin-top: var(--space-1);
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    font-weight: 400;
+}
+
+/* Nothing waiting: say so quietly rather than leaving a dead button. */
+.home-study-clear {
+    width: 100%;
+    margin-bottom: var(--space-3);
+    text-align: center;
+    color: var(--text-faint);
+    font-size: var(--text-sm);
+}
+
 /* Grid rather than flex: flex-grow sized tiles by how many landed on each row, so
    the last row came out wider than the rest.
 

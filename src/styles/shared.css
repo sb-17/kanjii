@@ -14,7 +14,12 @@
 
 /* reusable segmented control (Practice/Cards scope tabs, etc.) */
 .scope-tabs {
-    display: inline-flex;
+    /* inline-grid so grid-auto-columns:1fr makes every tab the width of the
+       widest label. Shared by the deck player, Practice, KanjiList sort and the
+       Map, so they all get even segments. */
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
     align-self: center;
     max-width: 100%;
     border: 1px solid var(--border);

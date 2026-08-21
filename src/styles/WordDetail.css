@@ -1,3 +1,20 @@
+/* Mirrors .kanji-back. Not shared: Kanji.css ships in a code-split chunk that
+   isn't loaded until a kanji page is opened, so this page can't rely on it. */
+.word-back {
+    display: inline-block;
+    margin-bottom: var(--space-3);
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    cursor: pointer;
+}
+
+.word-back:hover {
+    color: var(--accent);
+}
+
 .word-header {
     margin-bottom: var(--space-6);
 }
