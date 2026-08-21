@@ -20,7 +20,7 @@ import {
 } from "../lib/answer";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
 import { logReview, loadEvents } from "../storage/events";
-import { newWordsIntroducedToday } from "../lib/analytics";
+import { newWordAllowance } from "../lib/analytics";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { useProgress } from "../context/ProgressContext";
 import { useNow } from "../lib/useNow";
@@ -35,8 +35,16 @@ const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
 // New words still allowed today. Read live from the event cache rather than held
 // in state: each new word graded consumes one, and the pool is recomputed on
 // every advance, so the allowance has to be current at that moment.
-const remainingNewToday = (perDay: number) =>
-  Math.max(0, perDay - newWordsIntroducedToday(loadEvents()));
+// New words allowed into the pool right now. Paced against reviews *answered*
+// rather than the size of the queue, so a backlog can't push introductions past
+// the end of the session — see analytics `newWordAllowance`.
+const remainingNewToday = (perDay: number, list: Vocab[], now: number) =>
+  newWordAllowance(
+    loadEvents(),
+    perDay,
+    list.some((v) => !isNew(v) && isDue(v, now)),
+    now,
+  );
 
 // The "smart" id is kept (it's the stored setting value); only the label changed
 // to "Due" to line up with writing practice. It still falls back to extra cards
@@ -61,7 +69,11 @@ export default function Practice() {
         loadUserVocab().filter((v) => isVocabAvailable(v, progress)),
         scope,
         Date.now(),
-        remainingNewToday(loadSettings().newPerDay),
+        remainingNewToday(
+          loadSettings().newPerDay,
+          loadUserVocab().filter((v) => isVocabAvailable(v, progress)),
+          Date.now(),
+        ),
       ),
       scope,
       undefined,
@@ -103,15 +115,19 @@ export default function Practice() {
     scope === "smart" &&
     available.length > 0 &&
     !available.some((v) => !isNew(v) && isDue(v, now)) &&
-    (remainingNewToday(settings.newPerDay) <= 0 || !available.some(isNew));
+    (remainingNewToday(settings.newPerDay, available, now) <= 0 ||
+      !available.some(isNew));
 
   // Move to the next word, picked from the latest vocab + current scope.
+  const availableIn = (list: Vocab[]) =>
+    list.filter((v) => isVocabAvailable(v, progress));
+
   const advance = (source: Vocab[]) => {
     const pool = scopeVocab(
-      source.filter((v) => isVocabAvailable(v, progress)),
+      availableIn(source),
       scope,
       now,
-      remainingNewToday(settings.newPerDay),
+      remainingNewToday(settings.newPerDay, availableIn(source), now),
     );
     const nextWord = pickWord(
       pool,
@@ -136,7 +152,7 @@ export default function Practice() {
       available,
       next,
       now,
-      remainingNewToday(updated.newPerDay),
+      remainingNewToday(updated.newPerDay, available, now),
     );
     const nextWord = pickWord(
       pool,

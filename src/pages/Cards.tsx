@@ -5,10 +5,10 @@ import "../styles/Decks.css";
 import type { Vocab } from "../types/vocabType";
 import type { PracticeScope, Settings } from "../types/settingsType";
 import { isVocabAvailable } from "../lib/vocab";
-import { scopeVocab, pickWord, gradeDirection } from "../lib/srs";
+import { scopeVocab, pickWord, gradeDirection, isNewFor, isDueFor } from "../lib/srs";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
 import { logReview, loadEvents } from "../storage/events";
-import { newWordsIntroducedToday } from "../lib/analytics";
+import { newWordAllowance } from "../lib/analytics";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { useProgress } from "../context/ProgressContext";
 import { useNow } from "../lib/useNow";
@@ -34,10 +34,16 @@ const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
 // knew them. Practice alternates directions and keeps the stricter semantics.
 const CARD_DIR = "etj" as const;
 
-// New words still allowed today — shared budget with Practice, since both grade
-// into the same boxes and log the same events.
-const remainingNewToday = (perDay: number) =>
-  Math.max(0, perDay - newWordsIntroducedToday(loadEvents()));
+// New words allowed into the pool right now — paced against reviews answered,
+// not queue size (analytics `newWordAllowance`). Due-ness is judged on CARD_DIR,
+// the one direction this player tests.
+const remainingNewToday = (perDay: number, list: Vocab[], now: number) =>
+  newWordAllowance(
+    loadEvents(),
+    perDay,
+    list.some((v) => !isNewFor(v, CARD_DIR) && isDueFor(v, now, CARD_DIR)),
+    now,
+  );
 
 export default function Cards() {
   const { progress } = useProgress();
@@ -53,7 +59,11 @@ export default function Cards() {
         loadUserVocab().filter((v) => isVocabAvailable(v, progress)),
         scope,
         Date.now(),
-        remainingNewToday(loadSettings().newPerDay),
+        remainingNewToday(
+          loadSettings().newPerDay,
+          loadUserVocab().filter((v) => isVocabAvailable(v, progress)),
+          Date.now(),
+        ),
         CARD_DIR,
       ),
       scope,
@@ -81,12 +91,15 @@ export default function Cards() {
   const [gradedBack, setGradedBack] = useState<Vocab | null>(null);
 
   // Move to the next card, picked from the latest vocab + current scope.
+  const availableIn = (list: Vocab[]) =>
+    list.filter((v) => isVocabAvailable(v, progress));
+
   const advance = (source: Vocab[]) => {
     const pool = scopeVocab(
-      source.filter((v) => isVocabAvailable(v, progress)),
+      availableIn(source),
       scope,
       now,
-      remainingNewToday(settings.newPerDay),
+      remainingNewToday(settings.newPerDay, availableIn(source), now),
       CARD_DIR,
     );
     setGradedBack(current);
@@ -106,7 +119,7 @@ export default function Cards() {
       available,
       next,
       now,
-      remainingNewToday(updated.newPerDay),
+      remainingNewToday(updated.newPerDay, available, now),
       CARD_DIR,
     );
     setCurrent(

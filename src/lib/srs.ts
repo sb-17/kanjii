@@ -176,6 +176,42 @@ function reviewDueKey(v: Vocab, now: number, dir?: ReviewDirection): number {
 
 const addedDay = (v: Vocab) => Math.floor((v.addedAt ?? 0) / DAY);
 
+// The never-practised words allowed into today's pool, newest-added first and
+// capped by the caller's remaining allowance.
+//
+// That cap is the whole safety mechanism: new words are mixed *through* the
+// review queue below, so an uncapped budget would let a 2,000-word import crowd
+// out the reviews — the exact failure this scope was built to avoid. Callers pass
+// `newWordsIntroducedToday`-derived budgets; don't rely on the infinite default.
+function freshForPool(
+  list: Vocab[],
+  newBudget: number,
+  dir?: ReviewDirection,
+): Vocab[] {
+  if (newBudget <= 0) return [];
+  const fresh = list.filter((v) => isNewFor(v, dir));
+  if (fresh.length <= newBudget) return fresh;
+  return [...fresh]
+    .sort((a, b) => addedDay(b) - addedDay(a))
+    .slice(0, newBudget);
+}
+
+// The most overdue review, with a little randomness among the front runners so
+// the order isn't identical every session. Null when there are no reviews.
+function pickMostOverdue(
+  reviews: Vocab[],
+  now: number,
+  dir?: ReviewDirection,
+): Vocab | null {
+  const started = reviews.filter((v) => !isNewFor(v, dir));
+  if (started.length === 0) return null;
+  const sorted = [...started].sort(
+    (a, b) => reviewDueKey(a, now, dir) - reviewDueKey(b, now, dir),
+  );
+  const topK = sorted.slice(0, Math.min(5, sorted.length));
+  return topK[Math.floor(Math.random() * topK.length)];
+}
+
 // Which never-practised word to introduce next: the most recently added, at
 // day granularity. A word you deliberately added today therefore comes before a
 // bulk import — and because a whole import shares one day (one timestamp, even),
@@ -206,16 +242,17 @@ export function scopeVocab(
 ): Vocab[] {
   switch (scope) {
     case "smart": {
-      // Reviews first — words you've actually studied, coming back on schedule.
+      // Due reviews and today's allowance of new words go into the pool together;
+      // `pickWord` interleaves them. Serving every review first meant a backlog
+      // hid new words for an entire session — 500 answers before the first one.
       const reviews = list.filter((v) => !isNewFor(v, dir) && isDueFor(v, now, dir));
-      if (reviews.length > 0) return reviews;
-      // Then today's allowance of new words.
-      if (newBudget > 0) {
-        const fresh = list.filter((v) => isNewFor(v, dir));
-        if (fresh.length > 0) return fresh;
-      }
-      // Nothing due and no allowance left: extra practice (the "caught up" case).
-      return list;
+      const fresh = freshForPool(list, newBudget, dir);
+      if (reviews.length > 0 || fresh.length > 0) return [...reviews, ...fresh];
+      // Nothing due and no allowance left: extra practice over words you've
+      // actually started. New words are excluded here so the daily allowance
+      // can't be sidestepped by simply clearing the queue.
+      const started = list.filter((v) => !isNewFor(v, dir));
+      return started.length > 0 ? started : list;
     }
     case "recent":
       return list.filter((v) => isRecent(v, now));
@@ -246,15 +283,20 @@ export function pickWord(
     if (filtered.length > 0) candidates = filtered;
   }
 
-  if (scope === "smart" || scope === "recent") {
+  if (scope === "smart") {
+    // A new word in the pool has already passed the pacing gate — the caller only
+    // admits one once `NEW_WORD_EVERY_REVIEWS` reviews have been answered since
+    // the last one (see analytics `newWordAllowance`). So serve it now rather
+    // than rolling dice: the decision was made upstream, where it can be counted
+    // against the event log instead of guessed from queue sizes.
+    const fresh = candidates.filter((v) => isNewFor(v, dir));
+    if (fresh.length > 0) return pickNewWord(fresh);
+    return pickMostOverdue(candidates, now, dir);
+  }
+
+  if (scope === "recent") {
     const reviews = candidates.filter((v) => !isNewFor(v, dir));
-    if (reviews.length > 0) {
-      const sorted = [...reviews].sort(
-        (a, b) => reviewDueKey(a, now, dir) - reviewDueKey(b, now, dir),
-      );
-      const topK = sorted.slice(0, Math.min(5, sorted.length));
-      return topK[Math.floor(Math.random() * topK.length)];
-    }
+    if (reviews.length > 0) return pickMostOverdue(reviews, now, dir);
     return pickNewWord(candidates);
   }
   return candidates[Math.floor(Math.random() * candidates.length)];

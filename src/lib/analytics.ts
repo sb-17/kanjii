@@ -105,6 +105,50 @@ export function newWordsIntroducedToday(
   return n;
 }
 
+// Roughly how many reviews should pass between one new word and the next.
+//
+// A rate, not a proportion. Mixing new words in proportion to the *queue* ties
+// the pace to how big your backlog is: with 500 reviews waiting, a 10-a-day
+// allowance works out at one new word per 50 answers, so a 100-answer session
+// delivers two of them. Pacing by reviews *done* is independent of the backlog
+// and is what "one new word every N reviews" actually means. At 20 and a typical
+// 100-answer day that works out at 5 new words; `settings.newPerDay` is still the
+// ceiling, and only binds past ~200 answers in a day.
+export const NEW_WORD_EVERY_REVIEWS = 20;
+
+// Reviews answered so far today.
+export function reviewsToday(events: AppEvent[], now = Date.now()): number {
+  const startMs = startOfStudyDay(now);
+  let n = 0;
+  for (const e of events) if (e.k === "review" && e.t >= startMs) n++;
+  return n;
+}
+
+// How many never-practised words may enter the pool right now: 0 or 1 while
+// there are reviews to interleave with, the rest of the day's allowance when
+// there are none. `settings.newPerDay` stays the daily ceiling; this only decides
+// when within the day each one arrives.
+//
+// Earned by *counting* today's answers rather than by timing the gap since the
+// last introduction. The log records a review, not whether the word was new, so
+// "time since the last new word" has to be inferred from first-ever-review
+// timestamps — and then reviewing a word whose history predates the log looks
+// like an introduction and resets the spacing, which stalled new words entirely.
+export function newWordAllowance(
+  events: AppEvent[],
+  perDay: number,
+  hasDueReviews: boolean,
+  now = Date.now(),
+): number {
+  const introduced = newWordsIntroducedToday(events, now);
+  const remaining = Math.max(0, perDay - introduced);
+  if (remaining === 0) return 0;
+  // Caught up on reviews — nothing to pace against, so don't stall the learner.
+  if (!hasDueReviews) return remaining;
+  const earned = Math.floor(reviewsToday(events, now) / NEW_WORD_EVERY_REVIEWS);
+  return earned > introduced ? 1 : 0;
+}
+
 // When each kanji entered the status it holds *now*, from the event log.
 //
 // A kanji can be re-marked (learning → known → back to learning), so the answer
