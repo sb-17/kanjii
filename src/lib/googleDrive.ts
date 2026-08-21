@@ -73,6 +73,8 @@ export function isDriveConfigured(): boolean {
 // fine when the user just clicked "Back up", impossible from a timer. That's a
 // standing reason backup is a button and not a background sync.
 
+const CANCELLED = "Google sign-in was cancelled.";
+
 let client: TokenClient | null = null;
 let pending: { resolve: (t: string) => void; reject: (e: Error) => void } | null =
   null;
@@ -143,7 +145,7 @@ async function ensureClient(): Promise<TokenClient> {
       settle(
         new Error(
           error.type === "popup_closed"
-            ? "Google sign-in was cancelled."
+            ? CANCELLED
             : "Google sign-in couldn't open. If your browser blocked the popup, allow it and try again.",
         ),
       );
@@ -178,10 +180,24 @@ export function isConnected(): boolean {
   return Boolean(token) && Date.now() < tokenExpiry;
 }
 
-// Interactive: shows Google's account chooser / consent. Must be called from a
-// user gesture or the popup will be blocked.
+// Interactive: may show Google's account chooser / consent. Must be called from
+// a user gesture or the popup will be blocked.
+//
+// `prompt: ""` shows those screens only the first time the app asks for access;
+// afterwards it reuses the existing grant. `"consent"` re-runs the grant *every*
+// time, and each new grant makes Google mail the user a "new access to your
+// account" security alert — so an hour-long token turned into several alerts a
+// day. Consent is kept only as the fallback for when the silent path genuinely
+// can't complete (no Google session, partitioned third-party cookies), which is
+// the case it was there for. A cancellation is not that case: re-prompting
+// someone who just closed the popup is the opposite of what they asked for.
 export async function connect(): Promise<void> {
-  await requestToken("consent");
+  try {
+    await requestToken("");
+  } catch (err) {
+    if ((err as Error).message === CANCELLED) throw err;
+    await requestToken("consent");
+  }
 }
 
 // There is deliberately no "reconnect on load" helper. `prompt: ""` is only
