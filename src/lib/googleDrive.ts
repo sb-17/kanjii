@@ -156,7 +156,9 @@ async function ensureClient(): Promise<TokenClient> {
 
 // `prompt: ""` asks Google to reuse an existing session without showing anything;
 // it fails when there's no session, which is the caller's cue to go interactive.
-function requestToken(prompt: "" | "consent"): Promise<string> {
+//
+// Note there is deliberately no `"consent"` here. See connect().
+function requestToken(prompt: "" | "select_account"): Promise<string> {
   // Concurrent callers share one request rather than the later ones failing.
   // Google only has one answer to give at a time anyway, and a spurious failure
   // here reads to the user as "not connected".
@@ -180,23 +182,31 @@ export function isConnected(): boolean {
   return Boolean(token) && Date.now() < tokenExpiry;
 }
 
-// Interactive: may show Google's account chooser / consent. Must be called from
-// a user gesture or the popup will be blocked.
+// Interactive: may show Google's account chooser. Must be called from a user
+// gesture or the popup will be blocked.
 //
-// `prompt: ""` shows those screens only the first time the app asks for access;
-// afterwards it reuses the existing grant. `"consent"` re-runs the grant *every*
-// time, and each new grant makes Google mail the user a "new access to your
-// account" security alert — so an hour-long token turned into several alerts a
-// day. Consent is kept only as the fallback for when the silent path genuinely
-// can't complete (no Google session, partitioned third-party cookies), which is
-// the case it was there for. A cancellation is not that case: re-prompting
-// someone who just closed the popup is the opposite of what they asked for.
+// **Never ask for `prompt: "consent"` here.** Every value of `prompt` except
+// `"none"` still shows the consent screen when the app has no valid grant —
+// Google decides that, not us. So `"consent"` never *enables* anything; all it
+// does is force a re-grant in the case where a perfectly good grant already
+// exists. A new grant is precisely what makes Google mail the user a "was
+// granted access to your Google Account" security alert, so forcing it turned an
+// hour-long token into several alerts a day. `"select_account"` reaches the same
+// screens by the same popup and reuses the existing grant instead of replacing
+// it.
+//
+// `prompt: ""` first, because it shows nothing at all once the grant exists. It
+// can't be relied on alone: it only stays silent while Google can reuse a
+// session, and third-party-cookie partitioning (an installed PWA especially)
+// often means it can't. A cancellation is not a failure of that kind —
+// re-prompting someone who just closed the popup is the opposite of what they
+// asked for.
 export async function connect(): Promise<void> {
   try {
     await requestToken("");
   } catch (err) {
     if ((err as Error).message === CANCELLED) throw err;
-    await requestToken("consent");
+    await requestToken("select_account");
   }
 }
 

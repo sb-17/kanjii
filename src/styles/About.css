@@ -36,3 +36,19 @@
     font-family: ui-monospace, monospace;
     user-select: all;
 }
+
+.about-privacy {
+    margin-top: var(--space-6);
+}
+
+.about-privacy-link {
+    color: var(--text-faint);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--text-faint);
+}
+
+.about-privacy-link:hover {
+    color: var(--text-muted);
+    border-bottom-color: var(--text-muted);
+}

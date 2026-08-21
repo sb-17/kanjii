@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import "../styles/About.css";
 
 // The build actually running, so a stale service worker is obvious rather than
@@ -68,6 +69,14 @@ export default function About() {
         licence. The stroke files Kanjii ships, and the connection and
         stroke-signature data derived from them, are shared under that same
         licence.
+      </p>
+
+      {/* Deliberately quiet and out of the navigation: the page exists mainly
+          so the Google OAuth consent screen has a privacy policy URL to link. */}
+      <p className="about-privacy">
+        <Link to="/privacy" className="about-privacy-link">
+          Privacy
+        </Link>
       </p>
 
       <p className="about-version">
