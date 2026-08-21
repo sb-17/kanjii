@@ -2,6 +2,12 @@
 // Pages and components used to each rebuild their own Map or run a linear .find
 // over ~2,136 entries per render; this is the one shared lookup they all reuse.
 
+// `data/kanji.json` derives from KANJIDIC, a project of the Electronic Dictionary
+// Research and Development Group (EDRDG), distributed under CC BY-SA 4.0. It
+// reached this project via an intermediary that had dropped the licence notice;
+// the okurigana notation and the 1–2501 frequency ranking identify the source.
+// See README.md.
+
 import kanjiData from "../data/kanji.json";
 import type { Kanji } from "../types/kanjiType";
 

@@ -71,6 +71,29 @@ export default function About() {
         licence.
       </p>
 
+      <p className="about-text">
+        Kanji meanings, readings and frequency rankings come from{" "}
+        <a
+            href="https://www.edrdg.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="github-link"
+        >
+            KANJIDIC
+        </a>
+        , a project of the Electronic Dictionary Research and Development Group,
+        distributed under the{" "}
+        <a
+            href="https://creativecommons.org/licenses/by-sa/4.0/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="github-link"
+        >
+            Creative Commons Attribution-Share Alike 4.0
+        </a>{" "}
+        licence.
+      </p>
+
       {/* Deliberately quiet and out of the navigation: the page exists mainly
           so the Google OAuth consent screen has a privacy policy URL to link. */}
       <p className="about-privacy">
