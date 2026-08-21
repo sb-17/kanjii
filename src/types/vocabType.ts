@@ -15,8 +15,14 @@ export type Vocab = {
   reading: string;
   meanings: string[];
   kanji: string[];
-  // Optional, user-added: freeform context / notes / example sentence.
+  // Optional, user-added: freeform notes. Your own words about the word.
   context?: string;
+  // Optional: a sentence using the word, in Japanese. Distinct from `context`
+  // because it isn't a note — it's source material, filled in automatically when
+  // a word arrives from a deck card or the text reader, and it is the thing you
+  // want to re-read later. Keeping the two apart also means an auto-filled
+  // sentence can never overwrite something you wrote yourself.
+  example?: string;
   // Optional: epoch ms when the word was first added (used for "recently added").
   addedAt?: number;
   // Optional spaced-repetition state, per direction. Legacy data stored a single

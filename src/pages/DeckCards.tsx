@@ -129,10 +129,11 @@ export default function DeckCards() {
         reading,
         meanings: [current.meaning],
         kanji: extractKanji(current.word),
-        // The deck's example sentence lands in `context`, which is exactly what
-        // that field is for — so the sentence follows the word into Practice
-        // rather than being left behind in the deck.
-        ...(current.example ? { context: current.example } : {}),
+        // The sentence follows the word out of the deck rather than being left
+        // behind. It goes to `example`, not `context`: `context` is for notes
+        // you write, and an auto-filled sentence landing there would overwrite
+        // them and blur what the field means.
+        ...(current.example ? { example: current.example } : {}),
         addedAt: Date.now(),
       },
     ]);

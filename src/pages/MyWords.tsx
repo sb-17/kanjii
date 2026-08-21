@@ -18,6 +18,7 @@ export default function MyWords() {
   const [reading, setReading] = useState("");
   const [meanings, setMeanings] = useState("");
   const [context, setContext] = useState("");
+  const [example, setExample] = useState("");
   const [editKey, setEditKey] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [shown, setShown] = useState(PAGE_SIZE);
@@ -39,6 +40,7 @@ export default function MyWords() {
     setReading("");
     setMeanings("");
     setContext("");
+    setExample("");
     setEditKey(null);
   };
 
@@ -57,6 +59,7 @@ export default function MyWords() {
         .filter(Boolean),
       kanji: extractKanji(w),
       context: context.trim() || undefined,
+      example: example.trim() || undefined,
     };
     const key = `${w}|${r}`;
     // The entry we're updating (when editing, or re-adding an existing key).
@@ -92,6 +95,7 @@ export default function MyWords() {
     setReading(v.reading);
     setMeanings(v.meanings.join(", "));
     setContext(v.context ?? "");
+    setExample(v.example ?? "");
     setEditKey(keyOf(v));
   };
 
@@ -130,7 +134,8 @@ export default function MyWords() {
         v.word.toLowerCase().includes(t) ||
         v.reading.toLowerCase().includes(t) ||
         v.meanings.some((m) => m.toLowerCase().includes(t)) ||
-        (v.context ?? "").toLowerCase().includes(t),
+        (v.context ?? "").toLowerCase().includes(t) ||
+        (v.example ?? "").toLowerCase().includes(t),
     );
   }, [list, search]);
 
@@ -177,6 +182,20 @@ export default function MyWords() {
               placeholder="Context / notes (optional)"
               value={context}
               onChange={(e) => setContext(e.target.value)}
+            />
+          </ClearableField>
+          <ClearableField
+            show={example.length > 0}
+            onClear={() => setExample("")}
+            align="top"
+            label="Clear example sentence"
+          >
+            <textarea
+              className="mw-input mw-context"
+              rows={2}
+              placeholder="Example sentence (optional)"
+              value={example}
+              onChange={(e) => setExample(e.target.value)}
             />
           </ClearableField>
         </div>
@@ -251,6 +270,7 @@ export default function MyWords() {
                   {v.reading && <span className="mw-reading">{v.reading}</span>}
                   <span className="mw-meaning">{v.meanings.join(", ")}</span>
                 </div>
+                {v.example && <p className="mw-item-example">{v.example}</p>}
                 {v.context && <p className="mw-item-context">{v.context}</p>}
               </Link>
               <div className="mw-item-actions">

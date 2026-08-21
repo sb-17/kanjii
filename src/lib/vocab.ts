@@ -109,6 +109,8 @@ export function mergeVocab(
         : extractKanji(word);
     const context =
       typeof r.context === "string" && r.context.trim() ? r.context.trim() : undefined;
+    const example =
+      typeof r.example === "string" && r.example.trim() ? r.example.trim() : undefined;
     const importedAddedAt = typeof r.addedAt === "number" ? r.addedAt : undefined;
     const importedSrs = normalizeVocabSrs(r.srs);
 
@@ -122,6 +124,7 @@ export function mergeVocab(
       kanji,
       // keep an existing context unless the import provides one
       context: context ?? existing?.context,
+      example: example ?? existing?.example,
       // keep the original add time; fall back to the imported one, then to now
       addedAt: existing?.addedAt ?? importedAddedAt ?? importedAt,
       // keep existing review progress; otherwise take the imported state

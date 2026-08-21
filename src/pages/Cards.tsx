@@ -216,6 +216,9 @@ export default function Cards() {
                   <span className="card-label">Japanese</span>
                   <h1 className="japanese-word">{backCard.word}</h1>
                   <p className="japanese-reading">（{backCard.reading}）</p>
+                  {backCard.example && (
+                    <p className="card-context">{backCard.example}</p>
+                  )}
                   {backCard.context && (
                     <p className="card-context">{backCard.context}</p>
                   )}

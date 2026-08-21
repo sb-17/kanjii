@@ -133,6 +133,7 @@ export default function KanjiLearn() {
       // Naming a word you already have is a fine answer — update it in place
       // rather than duplicating, and never reset its review progress.
       context: prev?.context,
+      example: prev?.example,
       addedAt: prev?.addedAt ?? Date.now(),
       srs: prev?.srs,
     };

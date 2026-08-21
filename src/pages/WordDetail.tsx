@@ -37,6 +37,7 @@ export default function WordDetail() {
         <h1 className="word-title">{word.word}</h1>
         {word.reading && <div className="word-reading">{word.reading}</div>}
         <div className="word-meanings">{word.meanings.join(", ")}</div>
+        {word.example && <p className="word-example">{word.example}</p>}
         {word.context && <p className="word-note">{word.context}</p>}
       </div>
 
