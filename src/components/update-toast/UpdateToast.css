@@ -1,0 +1,61 @@
+/* Anchored to .app-container, never `fixed` — the same rule the nav toggle
+   follows. A viewport-anchored element separates from the content when a mobile
+   browser scrolls the document to reveal a focused field, and the shell's scroll
+   lock means that offset can't be undone by hand. Anchored to the shell, the
+   toast travels with the page under any offset. */
+.update-toast {
+    position: absolute;
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: max(var(--space-3), env(safe-area-inset-bottom));
+    /* Above the nav drawer (20) and its backdrop (15), and above the nav toggle
+       (30): it's transient, and it must not end up under the thing it's asking
+       you to act on. */
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: auto;
+    max-width: 420px;
+    margin: 0 auto;
+    padding: var(--space-3) var(--space-4);
+    box-sizing: border-box;
+    background-color: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+}
+
+.update-toast-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--text);
+    font-size: var(--text-sm);
+}
+
+.update-toast-apply {
+    flex: 0 0 auto;
+    padding: var(--space-2) var(--space-4);
+    background-color: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    border-radius: var(--radius);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.update-toast-dismiss {
+    flex: 0 0 auto;
+    padding: var(--space-2);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    line-height: 1;
+    cursor: pointer;
+}
+
+.update-toast-dismiss:hover {
+    color: var(--text-strong);
+}

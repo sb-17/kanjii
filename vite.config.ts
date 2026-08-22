@@ -55,7 +55,15 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: "autoUpdate",
+      // "prompt", not "autoUpdate". The registration vite-plugin-pwa generates
+      // for autoUpdate listens for the new worker activating and immediately
+      // calls window.location.reload() — so pushing a deploy reloaded every open
+      // tab mid-session, losing a graded card, a half-typed word or a half-drawn
+      // kanji with no warning. With "prompt" the waiting worker is announced
+      // instead (main.tsx → lib/swUpdate → components/update-toast) and the user
+      // chooses when. Nothing auto-injects a registration at this setting, so
+      // main.tsx's registerSW stays the only one.
+      registerType: "prompt",
       includeAssets: ["favicon.svg", "apple-touch-icon.png"],
       workbox: {
         // The word list (~433 KB gzipped) is only needed by the Read page. Left

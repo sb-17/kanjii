@@ -8,6 +8,7 @@ import {
   useNavigationType,
 } from "react-router-dom";
 import Navigation from "./components/navigation/Navigation";
+import UpdateToast from "./components/update-toast/UpdateToast";
 import Home from "./pages/Home";
 import Learn from "./pages/Learn";
 import Cards from "./pages/Cards";
@@ -211,6 +212,11 @@ export default function App() {
             </Routes>
             </Suspense>
           </main>
+
+          {/* Inside .app-container, not next to it: the toast is positioned
+              against the shell rather than the viewport (see UpdateToast.css).
+              Renders nothing until a new build is waiting. */}
+          <UpdateToast />
         </div>
       </Router>
     </ProgressProvider>
