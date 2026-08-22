@@ -123,28 +123,6 @@
    2 or 3. Adding a tile to any row means keeping those totals divisible. */
 .home-due,
 .home-progress,
-/* Deliberately a line of text, not a card or a banner: it should register as a
-   note, not an alert. It only appears when it's true, and backing up removes it. */
-.home-backup-warning {
-    width: 100%;
-    margin: 0 0 var(--space-5);
-    color: var(--text-muted);
-    font-size: var(--text-sm);
-    line-height: 1.6;
-}
-
-.home-backup-warning a {
-    color: var(--accent);
-    font-weight: 600;
-    text-decoration: none;
-    border-bottom: 1px dashed var(--accent);
-}
-
-.home-backup-warning a:hover {
-    color: var(--accent-hover);
-    border-bottom-style: solid;
-}
-
 .home-links {
     display: grid;
     width: 100%;
@@ -225,6 +203,28 @@
 
 .home-link-card:active {
     transform: translateY(1px);
+}
+
+/* Deliberately a line of text, not a card or a banner: it should register as a
+   note, not an alert. It only appears when it's true, and backing up removes it. */
+.home-backup-warning {
+    width: 100%;
+    margin: 0 0 var(--space-5);
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+}
+
+.home-backup-warning a {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--accent);
+}
+
+.home-backup-warning a:hover {
+    color: var(--accent-hover);
+    border-bottom-style: solid;
 }
 
 /* Phone: halve the wider rows. 4 stats become 2×2 and 6 links 2×3 — both still
