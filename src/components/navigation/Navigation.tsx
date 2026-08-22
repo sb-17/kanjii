@@ -26,11 +26,15 @@ const navGroups: NavGroup[] = [
   },
   {
     title: "Vocabulary",
+    // Ordered as the workflow runs, not alphabetically: My words and Read are
+    // the two ways vocabulary gets in, Practice is what comes back out, Cards
+    // last as the separate deck player. Same sequence the welcome guide teaches
+    // (`pages/Onboarding.tsx`) — if one changes, change the other.
     items: [
       { id: "words", label: "My words", path: "/words" },
-      { id: "cards", label: "Cards", path: "/cards" },
-      { id: "practice", label: "Practice", path: "/practice" },
       { id: "read", label: "Read", path: "/read" },
+      { id: "practice", label: "Practice", path: "/practice" },
+      { id: "cards", label: "Cards", path: "/cards" },
     ],
   },
   {
