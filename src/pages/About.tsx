@@ -46,8 +46,7 @@ export default function About() {
       <h2 className="about-heading">Credits</h2>
 
       <p className="about-text">
-        Stroke order, writing practice, the handwriting checker and drawing to
-        search are all built on{" "}
+        Stroke data from{" "}
         <a
             href="http://kanjivg.tagaini.net"
             target="_blank"
@@ -56,22 +55,20 @@ export default function About() {
         >
             KanjiVG
         </a>
-        , copyright © 2009–2011 Ulrich Apel, distributed under the{" "}
+        , © 2009–2011 Ulrich Apel —{" "}
         <a
             href="http://creativecommons.org/licenses/by-sa/3.0/"
             target="_blank"
             rel="noopener noreferrer"
             className="github-link"
         >
-            Creative Commons Attribution-Share Alike 3.0
-        </a>{" "}
-        licence. The stroke files Kanjii ships, and the connection and
-        stroke-signature data derived from them, are shared under that same
-        licence.
+            CC BY-SA 3.0
+        </a>
+        , shared under the same licence.
       </p>
 
       <p className="about-text">
-        Kanji meanings, readings and frequency rankings come from{" "}
+        Kanji meanings and readings from{" "}
         <a
             href="https://www.edrdg.org/"
             target="_blank"
@@ -79,22 +76,21 @@ export default function About() {
             className="github-link"
         >
             KANJIDIC
-        </a>
-        , a project of the Electronic Dictionary Research and Development Group,
-        distributed under the{" "}
+        </a>{" "}
+        (EDRDG) —{" "}
         <a
             href="https://creativecommons.org/licenses/by-sa/4.0/"
             target="_blank"
             rel="noopener noreferrer"
             className="github-link"
         >
-            Creative Commons Attribution-Share Alike 4.0
-        </a>{" "}
-        licence.
+            CC BY-SA 4.0
+        </a>
+        .
       </p>
 
       <p className="about-text">
-        The mincho typeface used for the large kanji is{" "}
+        Type set in{" "}
         <a
             href="https://github.com/googlefonts/sawarabi-mincho"
             target="_blank"
@@ -103,18 +99,16 @@ export default function About() {
         >
             Sawarabi Mincho
         </a>
-        , copyright 2024 The Sawarabi Mincho Project Authors, distributed under
-        the{" "}
+        , © 2024 the Sawarabi Mincho Project Authors —{" "}
         <a
             href="https://openfontlicense.org"
             target="_blank"
             rel="noopener noreferrer"
             className="github-link"
         >
-            SIL Open Font License 1.1
+            OFL 1.1
         </a>
-        . It is bundled with the app rather than fetched from a font host, so it
-        works offline and no third party sees your visits.
+        .
       </p>
 
       {/* Quiet and out of the navigation. A real <a>, not a <Link>: /privacy/ is
