@@ -27,7 +27,6 @@ import SetDetail from "./pages/SetDetail";
 import KanjiList from "./pages/KanjiList";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
-import Privacy from "./pages/Privacy";
 import Support from "./pages/Support";
 import Analytics from "./pages/Analytics";
 import { ProgressProvider } from "./context/ProgressContext";
@@ -204,7 +203,6 @@ export default function App() {
             <Route path="/word/:key" element={<WordDetail />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
-            <Route path="/privacy" element={<Privacy />} />
             <Route path="/support" element={<Support />} />
             {/* redirects from the old paths */}
             <Route path="/kanji-list" element={<Navigate to="/kanji" replace />} />

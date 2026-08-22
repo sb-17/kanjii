@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import "../styles/About.css";
 
 // The build actually running, so a stale service worker is obvious rather than
@@ -94,12 +93,15 @@ export default function About() {
         licence.
       </p>
 
-      {/* Deliberately quiet and out of the navigation: the page exists mainly
-          so the Google OAuth consent screen has a privacy policy URL to link. */}
+      {/* Quiet and out of the navigation. A real <a>, not a <Link>: /privacy/ is
+          a static file in public/, not a route, so the router must not intercept
+          it. It's static because GitHub Pages serves SPA deep links via 404.html
+          — a 404 status with no policy text in the HTML, which is exactly what
+          Google's OAuth review fetches. */}
       <p className="about-privacy">
-        <Link to="/privacy" className="about-privacy-link">
+        <a href="/privacy/" className="about-privacy-link">
           Privacy
-        </Link>
+        </a>
       </p>
 
       <p className="about-version">
