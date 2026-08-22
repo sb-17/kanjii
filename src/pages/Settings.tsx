@@ -193,8 +193,12 @@ export default function Settings() {
       getThemePref(),
     );
 
-  const handleBackupExport = () =>
+  const handleBackupExport = () => {
     downloadJson(currentBackup(), "kanjii-backup.json");
+    // A downloaded file counts as a backup, same as a Drive push — both are what
+    // the Home reminder is asking for.
+    saveCloudConfig({ ...loadCloudConfig(), lastBackupAt: Date.now() });
+  };
 
   const handleBackupImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     readFile(e.target, (text) => {
@@ -270,7 +274,11 @@ export default function Settings() {
 
       const backup = currentBackup();
       await pushBackup(backup);
-      saveCloudConfig({ ...loadCloudConfig(), lastSyncedAt: backup.exportedAt });
+      saveCloudConfig({
+        ...loadCloudConfig(),
+        lastSyncedAt: backup.exportedAt,
+        lastBackupAt: Date.now(),
+      });
       return `✅ Backed up ${backup.vocab.length} words and ${Object.keys(backup.progress).length} kanji statuses to Drive.`;
     });
 

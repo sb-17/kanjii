@@ -12,10 +12,17 @@ import { loadUserVocab } from "../storage/userVocab";
 import { loadKanjiSkill } from "../storage/kanjiSkill";
 import { loadEvents } from "../storage/events";
 import { loadSettings, saveSettings } from "../storage/settings";
+import { loadCloudConfig } from "../storage/cloudSync";
 import { loadDecks } from "../storage/decks";
 import { loadDeckProgress } from "../storage/deckProgress";
 import { useProgress } from "../context/ProgressContext";
 import { useNow } from "../lib/useNow";
+
+// Days without a backup before Home says so, and the amount of work that has to
+// exist before it's worth saying. Two weeks is short enough that you can't lose a
+// season of study, long enough not to nag someone who studies daily.
+const BACKUP_WARN_DAYS = 14;
+const BACKUP_MIN_ITEMS = 20;
 
 export default function Home() {
   const { progress } = useProgress();
@@ -36,6 +43,20 @@ export default function Home() {
   );
   const showSetup =
     !promptDismissed && statusCounts.known + statusCounts.learning === 0;
+
+  // Backup reminder. Local-first with no accounts means clearing browser data is
+  // total, unrecoverable loss — the one outcome that would lose someone months of
+  // work and never bring them back. Not dismissible on purpose: backing up is
+  // what makes it go away, and a dismiss button only teaches people to dismiss it.
+  //
+  // Gated on there being something worth losing, so a first-day user with three
+  // tagged kanji isn't lectured about backups.
+  const lastBackupAt = loadCloudConfig().lastBackupAt;
+  const worthLosing =
+    statusCounts.known + statusCounts.learning + vocab.length >= BACKUP_MIN_ITEMS;
+  const daysSinceBackup = Math.floor((now - lastBackupAt) / 86_400_000);
+  const showBackupWarning =
+    worthLosing && (lastBackupAt === 0 || daysSinceBackup >= BACKUP_WARN_DAYS);
 
   const dismissSetup = () => {
     saveSettings({ ...loadSettings(), onboardingDismissed: true });
@@ -150,6 +171,16 @@ export default function Home() {
           <strong>{wordCount}</strong> {wordCount === 1 ? "word" : "words"}
         </div>
       </div>
+
+      {showBackupWarning && (
+        <p className="home-backup-warning">
+          {lastBackupAt === 0
+            ? "You haven't backed up yet."
+            : `No backup in ${daysSinceBackup} days.`}{" "}
+          Everything is stored in this browser only — clearing its data would
+          delete it. <Link to="/settings">Back up</Link>
+        </p>
+      )}
 
       <div className="home-links">
         <Link to="/kanji" className="home-link-card surface-card">

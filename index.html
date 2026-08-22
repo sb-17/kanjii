@@ -40,6 +40,29 @@
     />
     <title>Kanjii</title>
 
+    <!-- Search results and link previews. Absolute URLs are required: crawlers
+         resolve og:image against nothing, so a relative path silently yields no
+         preview image. Keep the three descriptions identical — they are the same
+         sentence in three formats, and letting them drift is how one of them ends
+         up stale. -->
+    <link rel="canonical" href="https://kanjii.org/" />
+    <meta name="description" content="Most kanji apps make you follow their order. Kanjii tracks what you actually know: tag each kanji, build your own word list, practise writing by hand." />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Kanjii" />
+    <meta property="og:url" content="https://kanjii.org/" />
+    <meta property="og:title" content="Kanjii — a kanji app that tracks what you know" />
+    <meta property="og:description" content="Most kanji apps make you follow their order. Kanjii tracks what you actually know: tag each kanji, build your own word list, practise writing by hand." />
+    <!-- Square, so summary rather than summary_large_image: the only artwork
+         that exists is the 512px PWA icon, and claiming a wide card would render
+         it letterboxed. Swap both if a 1200x630 banner is ever made. -->
+    <meta property="og:image" content="https://kanjii.org/pwa-512x512.png" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Kanjii — a kanji app that tracks what you know" />
+    <meta name="twitter:description" content="Most kanji apps make you follow their order. Kanjii tracks what you actually know: tag each kanji, build your own word list, practise writing by hand." />
+    <meta name="twitter:image" content="https://kanjii.org/pwa-512x512.png" />
+
     <script>
       window.goatcounter = {
         no_onload: true
