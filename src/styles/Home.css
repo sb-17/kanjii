@@ -11,6 +11,63 @@
     letter-spacing: 0.06em;
 }
 
+/* First-run prompt. Sits above everything because on a fresh install the rest of
+   the page is all zeros, and this is the one action that changes that. */
+.home-setup {
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-4);
+    margin-bottom: var(--space-5);
+    text-align: left;
+}
+
+.home-setup-title {
+    display: block;
+    margin-bottom: var(--space-2);
+    color: var(--text-strong);
+    font-size: var(--text-md);
+    font-weight: 700;
+}
+
+.home-setup-text {
+    margin: 0 0 var(--space-4);
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+}
+
+.home-setup-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.home-setup-go {
+    padding: var(--space-3) var(--space-5);
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: var(--radius);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* The decline is a quiet text button, not a second card-sized choice: it is a
+   valid answer, but it shouldn't compete with the one that sets the app up. */
+.home-setup-skip {
+    padding: var(--space-3) var(--space-2);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.home-setup-skip:hover {
+    color: var(--text-strong);
+}
+
 /* The one-tap entry point. Same card language as the link tiles below, with
    accent *text* as the only thing marking it primary — that's how emphasis is
    already spelled on this page (.home-due-card strong). An accent fill was tried

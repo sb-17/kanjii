@@ -23,6 +23,11 @@ export type Settings = {
   // are never capped — this only paces how fast a backlog (a big import) is fed
   // in, so it can't bury the reviews. 0 = never introduce new words.
   newPerDay: number;
+  // Whether the first-run prompt on Home has been answered or dismissed. Lives
+  // in settings so it rides along in a backup: restoring onto a second device
+  // shouldn't ask again. Shown only while this is false *and* nothing is tagged
+  // yet, so existing users never see it.
+  onboardingDismissed: boolean;
   // How imported-deck cards are chosen. Shared across decks rather than stored
   // per deck — it's a study preference, not a property of any one deck.
   deckScope: DeckScope;

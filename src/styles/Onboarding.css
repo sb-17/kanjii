@@ -1,0 +1,105 @@
+.onb-lead {
+    max-width: 46ch;
+    margin: 0 0 var(--space-5);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: var(--text-base);
+    line-height: 1.6;
+}
+
+/* Fixed six columns rather than auto-fit: a batch of 30 divides evenly by 6 and
+   by 3, so no row is ever left part-empty. Changing the batch size means keeping
+   that divisible (see Home.css for the same rule on its tile rows).
+
+   minmax(0, 1fr), not a bare 1fr. A bare 1fr is minmax(auto, 1fr): the columns
+   refuse to shrink below the cells' min-content, so on a narrow phone the grid
+   overflowed its container to the right — page padding visible on the left, none
+   on the right. Same trap as the segmented controls. */
+.onb-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-2);
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: var(--space-4);
+}
+
+.onb-cell {
+    aspect-ratio: 1 / 1;
+    /* Both needed to let a cell shrink: grid items default to min-width:auto, and
+       a button carries user-agent padding that inflates its min-content width. */
+    min-width: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-strong);
+    border: 2px solid transparent;
+    border-radius: var(--radius);
+    color: var(--text-strong);
+    /* Scales with the cell so the glyph stays legible at six-per-row on a narrow
+       phone, where a fixed size would either overflow or look lost. */
+    font-size: clamp(1.1rem, 5vw, 1.6rem);
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.onb-cell:hover {
+    background: var(--surface-strong-hover);
+}
+
+/* Picked = "I know this". Filled rather than merely outlined: at a glance you
+   need to read the screen as "these ones", and an outline reads as a cursor. */
+.onb-cell.picked {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+}
+
+.onb-count {
+    margin: 0 0 var(--space-4);
+    color: var(--text-faint);
+    font-size: var(--text-sm);
+}
+
+.onb-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+    width: 100%;
+    max-width: 420px;
+}
+
+.onb-button {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-strong);
+    color: var(--text-strong);
+    border: none;
+    border-radius: var(--radius);
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.onb-button:hover {
+    background: var(--surface-strong-hover);
+}
+
+.onb-button:active {
+    transform: translateY(1px);
+}
+
+.onb-button-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
+.onb-button-primary:hover {
+    background: var(--accent);
+    filter: brightness(1.08);
+}

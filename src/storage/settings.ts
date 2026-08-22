@@ -12,6 +12,7 @@ const DEFAULTS: Settings = {
   partialAvailability: false,
   newPerDay: 10,
   deckScope: "due",
+  onboardingDismissed: false,
 };
 
 // In-memory source of truth, hydrated once at startup (see hydrateSettings).

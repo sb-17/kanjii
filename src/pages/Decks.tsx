@@ -171,11 +171,11 @@ export default function Decks() {
             these five are kept.
           </p>
 
-          {/* Re-importing under an existing name is the *safe* way to update a
-              deck: the cards are replaced and progress stays, because it's filed
-              under content-derived card ids. Deleting first is the destructive
-              path, and it's the one people reach for by instinct — so say plainly
-              which one is happening. */}
+          {/* Re-importing under an existing name replaces the cards and keeps
+              progress, because it's filed under content-derived card ids. As of
+              2026-08-22 deleting first is no longer destructive either — delete
+              leaves the boxes behind and a later import re-attaches them — but
+              this is still the direct route, so say plainly what's happening. */}
           {replacing && (
             <p className="settings-description deck-replacing">
               Replaces the {replacing.cards.length} cards in “{replacing.name}”

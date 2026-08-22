@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import "../styles/Decks.css";
 import { getDeck, loadDecks, saveDecks, updateDeck } from "../storage/decks";
 import { deckBoxes, clearDeckProgress } from "../storage/deckProgress";
-import { clearDeckStats, loadDeckStats } from "../storage/deckStats";
+import { loadDeckStats } from "../storage/deckStats";
 import { deckCounts } from "../lib/deckSrs";
 import { deckTotals } from "../lib/analytics";
 import { useNow } from "../lib/useNow";
@@ -69,16 +69,21 @@ export default function DeckSettings() {
     if (
       !confirm(
         `Delete "${deck.name}"?\n\n` +
-          `${deck.cards.length} cards, their review progress and their study history are removed from this device. This cannot be undone.\n\n` +
-          "To update this deck with a newer file instead, just import it again " +
-          `under the name "${deck.name}" — that replaces the cards and keeps your progress.`,
+          `${deck.cards.length} cards are removed from this device.\n\n` +
+          "Your review progress and study history are kept, so importing this " +
+          `deck again under the name "${deck.name}" picks up where you left off.`,
       )
     ) {
       return;
     }
+    // Only the cards go. The Leitner boxes and the daily counters record work
+    // actually done, and clearing them made "delete then re-import" — the path
+    // people reach for by instinct — silently irreversible. They cost a few KB,
+    // they re-attach on import because deck and card ids both derive from
+    // content, and Analytics already falls back to the raw id for a deck it
+    // can't name. "Reset progress" above is the deliberate way to clear boxes;
+    // nothing should do it as a side effect of removing cards.
     saveDecks(loadDecks().filter((d) => d.id !== deck.id));
-    clearDeckProgress(deck.id);
-    clearDeckStats(deck.id);
     void navigate("/cards");
   };
 

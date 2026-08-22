@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Home.css";
 import {
@@ -11,7 +11,7 @@ import { deckCounts } from "../lib/deckSrs";
 import { loadUserVocab } from "../storage/userVocab";
 import { loadKanjiSkill } from "../storage/kanjiSkill";
 import { loadEvents } from "../storage/events";
-import { loadSettings } from "../storage/settings";
+import { loadSettings, saveSettings } from "../storage/settings";
 import { loadDecks } from "../storage/decks";
 import { loadDeckProgress } from "../storage/deckProgress";
 import { useProgress } from "../context/ProgressContext";
@@ -26,6 +26,21 @@ export default function Home() {
   // character not in kanji.json (an older import, a dataset change) inflated the
   // totals here relative to Analytics and could drive "new" negative.
   const statusCounts = statusBreakdown(progress);
+
+  // First-run prompt. Gated on *both* the dismissal flag and there being nothing
+  // tagged: the flag alone would show this to every existing user on the next
+  // deploy, and the tag count alone would bring it back for someone who dismissed
+  // it and then did nothing. Held in state so dismissing hides it immediately.
+  const [promptDismissed, setPromptDismissed] = useState(
+    () => loadSettings().onboardingDismissed,
+  );
+  const showSetup =
+    !promptDismissed && statusCounts.known + statusCounts.learning === 0;
+
+  const dismissSetup = () => {
+    saveSettings({ ...loadSettings(), onboardingDismissed: true });
+    setPromptDismissed(true);
+  };
   const wordCount = vocab.length;
 
   // Every figure below comes from the same helper as the page it links to —
@@ -70,6 +85,28 @@ export default function Home() {
   return (
     <div className="page page-center">
       <h1 className="page-title">Kanjii</h1>
+
+      {showSetup && (
+        <div className="home-setup surface-card">
+          <strong className="home-setup-title">Start with what you know</strong>
+          <p className="home-setup-text">
+            Kanjii works from your own tags — practice, writing and the reader all
+            key off them. Marking the kanji you can already read takes a minute
+            and everything else follows from it.
+          </p>
+          <div className="home-setup-actions">
+            {/* Deliberately doesn't dismiss: if you abandon the flow having
+                tagged nothing, the prompt should still be here. Tagging anything
+                hides it on its own, via the count above. */}
+            <Link to="/start" className="home-setup-go">
+              Get started
+            </Link>
+            <button className="home-setup-skip" onClick={dismissSetup}>
+              I don't know any kanji yet
+            </button>
+          </div>
+        </div>
+      )}
 
       <h2 className="home-section">Today</h2>
 

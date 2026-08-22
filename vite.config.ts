@@ -23,7 +23,7 @@ const commit = (() => {
 })();
 
 // GitHub Pages has no SPA rewrite, so deep links / refreshes on client routes
-// (e.g. /kanjii/kanji) would 404. Serving a 404.html that's a copy of index.html
+// (e.g. /kanji) would 404. Serving a 404.html that's a copy of index.html
 // lets the app boot and React Router resolve the route. Runs after the bundle is
 // written so it picks up the current hashed asset names.
 const spaFallback = () => ({
@@ -43,7 +43,11 @@ const spaFallback = () => ({
 });
 
 export default defineConfig({
-  base: "/kanjii/",
+  // Served from the apex of kanjii.org, so the app sits at the root. It used to
+  // be "/kanjii/" for the sb-17.github.io project page; `public/CNAME` is what
+  // keeps the custom domain attached across rebuilds, since the build wipes
+  // docs/ and GitHub stores the domain in that file.
+  base: "/",
   define: {
     __APP_COMMIT__: JSON.stringify(commit),
     __APP_BUILT__: JSON.stringify(new Date().toISOString()),
@@ -95,8 +99,8 @@ export default defineConfig({
         background_color: "#242424",
         display: "standalone",
 
-        start_url: "/kanjii/",
-        scope: "/kanjii/",
+        start_url: "/",
+        scope: "/",
 
         icons: [
           {
