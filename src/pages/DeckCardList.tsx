@@ -110,7 +110,7 @@ export default function DeckCardList() {
               className="deck-card-summary"
               onClick={() => setOpenId(openId === card.id ? null : card.id)}
             >
-              <span className="deck-card-word">{card.word}</span>
+              <span className="deck-card-word" lang="ja">{card.word}</span>
               <span className="deck-card-meaning">{card.meaning}</span>
             </button>
 

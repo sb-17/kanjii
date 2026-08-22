@@ -26,7 +26,7 @@ export default function KanjiCard({
           onClick={handleClick}
           aria-label={`View ${kanji.character} (${kanji.meanings.join(", ")})`}
         >
-          <div className="kanji-card-char">{kanji.character}</div>
+          <div className="kanji-card-char" lang="ja">{kanji.character}</div>
           <div className="kanji-card-meanings">{kanji.meanings.join(", ")}</div>
         </button>
 

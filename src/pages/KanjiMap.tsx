@@ -127,7 +127,7 @@ export default function KanjiMap() {
                     className="map-search-result"
                     onClick={() => pickFromSearch(m.char)}
                   >
-                    <span className="map-search-char">{m.char}</span>
+                    <span className="map-search-char" lang="ja">{m.char}</span>
                     <span className="map-search-meaning">
                       {m.meanings.slice(0, 3).join(", ")}
                     </span>

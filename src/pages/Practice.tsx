@@ -282,9 +282,13 @@ export default function Practice() {
                 ? "Translate to Japanese: "
                 : "Translate to English: "}
             </strong>
-            {direction === "jte"
-              ? `${current.word} (${current.reading})`
-              : current.meanings.join(", ")}
+            {/* J→E shows the word, E→J shows the English meaning — so only the
+                first branch carries Japanese. */}
+            {direction === "jte" ? (
+              <span lang="ja">{`${current.word} (${current.reading})`}</span>
+            ) : (
+              current.meanings.join(", ")
+            )}
           </div>
 
           {current.context && (

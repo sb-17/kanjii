@@ -200,12 +200,14 @@ export default function DeckCards() {
               backCard && (
               <>
                 <span className="card-label">Japanese</span>
-                <h1 className="japanese-word">{backCard.word}</h1>
+                <h1 className="japanese-word" lang="ja">{backCard.word}</h1>
                 {backCard.reading && (
-                  <p className="japanese-reading">（{backCard.reading}）</p>
+                  <p className="japanese-reading" lang="ja">（{backCard.reading}）</p>
                 )}
+                {/* The front's example is the English one; this is the Japanese
+                    sentence, so only this copy is tagged. */}
                 {backCard.example && (
-                  <p className="card-example">{backCard.example}</p>
+                  <p className="card-example" lang="ja">{backCard.example}</p>
                 )}
                 {deck.japanese && (
                   <button

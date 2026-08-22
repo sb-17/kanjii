@@ -25,7 +25,7 @@
     line-height: 1.1;
     margin: 0;
     color: var(--text-strong);
-    font-family: "Sawarabi Mincho", serif;
+    font-family: var(--font-jp-serif);
 }
 
 .word-reading {
@@ -105,7 +105,7 @@
     font-size: clamp(2rem, 8vw, 2.75rem);
     line-height: 1;
     color: var(--text-strong);
-    font-family: "Sawarabi Mincho", serif;
+    font-family: var(--font-jp-serif);
 }
 
 .word-kanji-info {

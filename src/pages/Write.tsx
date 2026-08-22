@@ -331,15 +331,21 @@ export default function Write() {
     <div className="page page-center">
       {single && (
         <button type="button" className="write-back" onClick={goBack}>
-          ← Back to {current}
+          ← Back to <span lang="ja">{current}</span>
         </button>
       )}
 
       {current && (
         <div className="write-prompt">
-          <strong>Write:</strong> {obj ? obj.meanings.join(", ") : current}
+          <strong>Write:</strong>{" "}
+          {/* The prompt is the English meaning where there is one, and falls
+              back to the character itself — so only that branch is Japanese. */}
+          {obj ? obj.meanings.join(", ") : <span lang="ja">{current}</span>}
           {readings.length > 0 && (
-            <span className="write-reading"> ({readings.join(", ")})</span>
+            <span className="write-reading" lang="ja">
+              {" "}
+              ({readings.join(", ")})
+            </span>
           )}
         </div>
       )}

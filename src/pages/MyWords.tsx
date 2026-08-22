@@ -266,8 +266,8 @@ export default function MyWords() {
                 to={`/word/${encodeURIComponent(keyOf(v))}`}
               >
                 <div className="mw-item-main">
-                  <span className="mw-word">{v.word}</span>
-                  {v.reading && <span className="mw-reading">{v.reading}</span>}
+                  <span className="mw-word" lang="ja">{v.word}</span>
+                  {v.reading && <span className="mw-reading" lang="ja">{v.reading}</span>}
                   <span className="mw-meaning">{v.meanings.join(", ")}</span>
                 </div>
                 {v.context && <p className="mw-item-context">{v.context}</p>}

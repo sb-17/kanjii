@@ -231,6 +231,7 @@ export default function KanjiGraph({ center, mode, progress, onSelect }: Props) 
                 <circle className="kanji-graph-disc" r={r} />
                 <text
                   className="kanji-graph-label"
+                  lang="ja"
                   textAnchor="middle"
                   dominantBaseline="central"
                   fontSize={

@@ -68,6 +68,24 @@ export default defineConfig({
         // writing/stroke practice for any kanji you've opened works offline too.
         runtimeCaching: [
           {
+            // The subset mincho face (~488 KB). Runtime-cached rather than
+            // precached, the same call made for the dictionary above: it is used
+            // on the kanji and word pages, not on first paint, so it shouldn't
+            // be on every install's critical path. Fetched the first time one of
+            // those pages renders, offline from then on.
+            //
+            // Unhashed (it lives in public/), so a regenerated font must be
+            // given a new filename or this CacheFirst entry will serve the old
+            // one for a year. See README "Attribution".
+            urlPattern: /\/fonts\/.*\.woff2$/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "kanjii-fonts",
+              expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             // Fetched once, when Read is first opened; offline from then on.
             urlPattern: /\/assets\/dictionary-.*\.js$/,
             handler: "CacheFirst",

@@ -34,10 +34,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Kanjii" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Sawarabi+Mincho&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Sawarabi Mincho used to be pulled from fonts.googleapis.com. It is now
+         self-hosted and subset in public/fonts/, declared by @font-face in
+         index.css: a third-party stylesheet is the one asset the service worker
+         can't dependably keep, so offline — the whole point of the PWA — silently
+         lost the display face. It also removes a request to Google on every
+         load. Don't reintroduce the link. -->
     <title>Kanjii</title>
 
     <!-- Search results and link previews. Absolute URLs are required: crawlers
@@ -73,8 +75,8 @@
       data-goatcounter="https://kanjii.goatcounter.com/count"
       async src="//gc.zgo.at/count.js">
     </script>
-    <script type="module" crossorigin src="/assets/index-D-WHIqrG.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-ISXuQEHH.css">
+    <script type="module" crossorigin src="/assets/index-37osaJX1.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-iX6z_Hwr.css">
   <link rel="manifest" href="/manifest.webmanifest"></head>
   <body>
     <div id="root"></div>

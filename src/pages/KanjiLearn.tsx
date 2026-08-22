@@ -177,7 +177,7 @@ export default function KanjiLearn() {
 
       {step === "meaning" && (
         <div className="kl-step kl-step-center">
-          <div className="kl-char">{kanjiObj.character}</div>
+          <div className="kl-char" lang="ja">{kanjiObj.character}</div>
           <p className="kl-meanings">{kanjiObj.meanings.join(", ")}</p>
           <p className="kl-facts">
             {kanjiObj.strokes} strokes
@@ -247,13 +247,13 @@ export default function KanjiLearn() {
           <div className="kl-readings surface-card">
             <div className="kl-reading-row">
               <span className="kl-reading-label">Onyomi</span>
-              <span className="kl-reading-values">
+              <span className="kl-reading-values" lang="ja">
                 {kanjiObj.on.length > 0 ? kanjiObj.on.join("、") : "—"}
               </span>
             </div>
             <div className="kl-reading-row">
               <span className="kl-reading-label">Kunyomi</span>
-              <span className="kl-reading-values">
+              <span className="kl-reading-values" lang="ja">
                 {kanjiObj.kun.length > 0 ? kanjiObj.kun.join("、") : "—"}
               </span>
             </div>
@@ -273,8 +273,9 @@ export default function KanjiLearn() {
       {step === "word" && (
         <form className="kl-step kl-form surface-card" onSubmit={handleAddWord}>
           <p className="kl-sub">
-            One word containing {kanjiObj.character}, in your own words. It goes
-            straight into My words, so it'll come back in practice.
+            One word containing <span lang="ja">{kanjiObj.character}</span>, in
+            your own words. It goes straight into My words, so it'll come back in
+            practice.
           </p>
           <div className="kl-fields">
             <ClearableField
@@ -334,11 +335,15 @@ export default function KanjiLearn() {
 
       {step === "done" && (
         <div className="kl-step kl-step-center">
-          <div className="kl-char kl-char-small">{kanjiObj.character}</div>
+          <div className="kl-char kl-char-small" lang="ja">{kanjiObj.character}</div>
           {savedWord && (
             <p className="kl-done-word">
-              Added <strong>{savedWord.word}</strong>
-              {savedWord.reading ? ` (${savedWord.reading})` : ""} to your words.
+              Added{" "}
+              <strong lang="ja">
+                {savedWord.word}
+                {savedWord.reading ? ` (${savedWord.reading})` : ""}
+              </strong>{" "}
+              to your words.
             </p>
           )}
 

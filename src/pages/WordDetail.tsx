@@ -34,10 +34,10 @@ export default function WordDetail() {
       </button>
 
       <div className="word-header">
-        <h1 className="word-title">{word.word}</h1>
-        {word.reading && <div className="word-reading">{word.reading}</div>}
+        <h1 className="word-title" lang="ja">{word.word}</h1>
+        {word.reading && <div className="word-reading" lang="ja">{word.reading}</div>}
         <div className="word-meanings">{word.meanings.join(", ")}</div>
-        {word.example && <p className="word-example">{word.example}</p>}
+        {word.example && <p className="word-example" lang="ja">{word.example}</p>}
         {word.context && <p className="word-note">{word.context}</p>}
       </div>
 
@@ -58,13 +58,13 @@ export default function WordDetail() {
                 to={`/kanji/${encodeURIComponent(ch)}`}
                 className={`word-kanji-row status-${status}`}
               >
-                <span className="word-kanji-char">{ch}</span>
+                <span className="word-kanji-char" lang="ja">{ch}</span>
                 <span className="word-kanji-info">
                   <span className="word-kanji-meaning">
                     {k ? k.meanings.join(", ") : "—"}
                   </span>
                   {readings.length > 0 && (
-                    <span className="word-kanji-readings">
+                    <span className="word-kanji-readings" lang="ja">
                       {readings.join("、")}
                     </span>
                   )}

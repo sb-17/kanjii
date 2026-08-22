@@ -32,18 +32,18 @@ export default function KanjiInfoPanel({ char, onClose }: Props) {
         <p className="map-panel-empty">No data for this character.</p>
       ) : (
         <div className="map-panel-body">
-          <div className="map-panel-glyph">{k.character}</div>
+          <div className="map-panel-glyph" lang="ja">{k.character}</div>
           <div className="map-panel-meanings">{k.meanings.join(", ")}</div>
 
           <div className="map-panel-readings">
             {k.on.length > 0 && (
               <div>
-                <strong>On:</strong> {k.on.join(", ")}
+                <strong>On:</strong> <span lang="ja">{k.on.join(", ")}</span>
               </div>
             )}
             {k.kun.length > 0 && (
               <div>
-                <strong>Kun:</strong> {k.kun.join(", ")}
+                <strong>Kun:</strong> <span lang="ja">{k.kun.join(", ")}</span>
               </div>
             )}
             <div>

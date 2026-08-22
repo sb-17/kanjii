@@ -163,10 +163,12 @@ export default function Read() {
         {shown.map((w) => (
           <div key={w.word} className="read-row surface-card">
             <div className="read-row-head">
-              <span className="read-word">{w.word}</span>
-              <span className="read-reading">{w.reading}</span>
+              <span className="read-word" lang="ja">{w.word}</span>
+              <span className="read-reading" lang="ja">{w.reading}</span>
               {w.surface !== w.word && (
-                <span className="read-surface">as {w.surface}</span>
+                <span className="read-surface">
+                  as <span lang="ja">{w.surface}</span>
+                </span>
               )}
               {w.count > 1 && <span className="read-count">×{w.count}</span>}
             </div>
@@ -180,6 +182,7 @@ export default function Read() {
                     key={ch}
                     to={`/kanji/${encodeURIComponent(ch)}`}
                     className={`read-kanji-chip status-${progress[ch] ?? "new"}`}
+                    lang="ja"
                   >
                     {ch}
                   </Link>

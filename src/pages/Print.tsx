@@ -230,10 +230,10 @@ export default function Print() {
               return (
                 <div className="print-row" key={`${ch}-${i}`}>
                   <div className="print-label">
-                    <span className="print-label-kanji">{ch}</span>
+                    <span className="print-label-kanji" lang="ja">{ch}</span>
                     {showInfo && info && (
                       <span className="print-label-info">
-                        {reading ? `${reading} ` : ""}
+                        {reading && <span lang="ja">{reading} </span>}
                         {info.meanings[0] ?? ""}
                       </span>
                     )}
@@ -247,7 +247,7 @@ export default function Print() {
                         className={`print-cell${c < guides ? " has-trace" : ""}`}
                         key={c}
                       >
-                        {c < guides && <span className="print-trace">{ch}</span>}
+                        {c < guides && <span className="print-trace" lang="ja">{ch}</span>}
                       </div>
                     ))}
                   </div>

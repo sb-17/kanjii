@@ -1,7 +1,38 @@
 @import "./styles/shared.css";
 
+/* Self-hosted rather than loaded from fonts.googleapis.com. The app must work
+   fully offline, and a webfont fetched from a third party is the one asset a
+   service worker can't reliably keep — it also meant every load told Google a
+   user was here. Subset to the ~4,000 characters the app can actually render
+   (see README "Attribution"), which is what keeps a CJK face down to ~488 KB.
+
+   `swap`: the fallback mincho shows immediately and is replaced when the file
+   lands. Never `block` — that would leave the kanji, the one thing on the page
+   that matters, invisible for up to 3s on a cold load. */
+@font-face {
+  font-family: "Sawarabi Mincho";
+  src: url("/fonts/sawarabi-mincho-subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Japanese needs naming, not just fallback. With a Latin-only stack the
+     browser picks a CJK font by *document* language, and an en-locale browser
+     can land on a Simplified Chinese face — which draws 直 骨 每 者 郎 in Chinese
+     glyph forms. Wrong shapes in an app that teaches stroke-correct handwriting.
+     Naming the Japanese faces after the Latin ones costs nothing (a CJK font is
+     only reached for characters the Latin fonts don't have) and pins the forms.
+     `lang="ja"` on the Japanese elements is the other half of this. */
+  --font-jp-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI",
+    "Yu Gothic", Meiryo, "Noto Sans JP", "Noto Sans CJK JP", sans-serif;
+  /* Sawarabi Mincho first (bundled above); the rest are for the 17 jōyō kanji
+     added in 2010 that this face predates, and for the brief pre-swap paint. */
+  --font-jp-serif: "Sawarabi Mincho", "Hiragino Mincho ProN", "Yu Mincho",
+    YuMincho, "Noto Serif JP", "Noto Serif CJK JP", serif;
+
+  font-family: system-ui, Avenir, Helvetica, Arial, var(--font-jp-sans);
   line-height: 1.5;
   font-weight: 400;
 

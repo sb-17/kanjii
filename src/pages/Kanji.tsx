@@ -50,8 +50,8 @@ export default function Kanji() {
           key={`${v.word}-${i}`}
           to={`/word/${encodeURIComponent(`${v.word}|${v.reading}`)}`}
         >
-          <span className="kanji-vocab-word">{v.word}</span>
-          <span className="kanji-vocab-reading">{v.reading}</span>
+          <span className="kanji-vocab-word" lang="ja">{v.word}</span>
+          <span className="kanji-vocab-reading" lang="ja">{v.reading}</span>
           <span className="kanji-vocab-meaning">{v.meanings.join(", ")}</span>
         </Link>
       ))
@@ -78,6 +78,7 @@ export default function Kanji() {
                   key={ch}
                   to={`/kanji/${encodeURIComponent(ch)}`}
                   className={`kanji-related-chip status-${progress[ch] || "new"}`}
+                  lang="ja"
                   title={getKanji(ch)?.meanings.join(", ")}
                 >
                   {ch}
@@ -100,20 +101,24 @@ export default function Kanji() {
       </button>
 
       <div className="kanji-top">
-        <div className="kanji-char">{kanjiObj.character}</div>
+        <div className="kanji-char" lang="ja">{kanjiObj.character}</div>
 
         <div className="kanji-info">
           <div className="kanji-meanings">{kanjiObj.meanings.join(", ")}</div>
 
           <div className="kanji-readings-frequency-strokes">
+            {/* The label is English and the readings are Japanese, so `lang`
+                goes on the value rather than the row. */}
             {kanjiObj.kun.length > 0 && (
               <div>
-                <strong>Kunyomi:</strong> {kanjiObj.kun.join(", ")}
+                <strong>Kunyomi:</strong>{" "}
+                <span lang="ja">{kanjiObj.kun.join(", ")}</span>
               </div>
             )}
             {kanjiObj.on.length > 0 && (
               <div>
-                <strong>Onyomi:</strong> {kanjiObj.on.join(", ")}
+                <strong>Onyomi:</strong>{" "}
+                <span lang="ja">{kanjiObj.on.join(", ")}</span>
               </div>
             )}
             <div>

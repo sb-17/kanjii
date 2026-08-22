@@ -93,6 +93,30 @@ export default function About() {
         licence.
       </p>
 
+      <p className="about-text">
+        The mincho typeface used for the large kanji is{" "}
+        <a
+            href="https://github.com/googlefonts/sawarabi-mincho"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="github-link"
+        >
+            Sawarabi Mincho
+        </a>
+        , copyright 2024 The Sawarabi Mincho Project Authors, distributed under
+        the{" "}
+        <a
+            href="https://openfontlicense.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="github-link"
+        >
+            SIL Open Font License 1.1
+        </a>
+        . It is bundled with the app rather than fetched from a font host, so it
+        works offline and no third party sees your visits.
+      </p>
+
       {/* Quiet and out of the navigation. A real <a>, not a <Link>: /privacy/ is
           a static file in public/, not a route, so the router must not intercept
           it. It's static because GitHub Pages serves SPA deep links via 404.html

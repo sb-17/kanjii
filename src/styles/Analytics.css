@@ -204,7 +204,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: var(--text-lg);
-  font-family: "Sawarabi Mincho", serif;
+  font-family: var(--font-jp-serif);
   color: var(--text-strong);
   text-decoration: none;
   transition: background 0.15s ease, border-color 0.15s ease;
