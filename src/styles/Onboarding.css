@@ -63,6 +63,73 @@
     font-size: var(--text-sm);
 }
 
+/* The one-time guide's four rows. Cards rather than a plain list because each
+   one is a link — a tap target has to look like one, and at this point in the
+   flow the user has only ever tapped grid cells. Same 420px column as the grid
+   and the button row above, so the three screens don't change width under you. */
+.onb-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: var(--space-5);
+}
+
+.onb-step {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    text-decoration: none;
+    /* `inherit`, not the link colour: a whole card tinted accent-blue reads as
+       one long link rather than as a row with a heading and a description. */
+    color: inherit;
+    transition: background-color 0.15s ease;
+}
+
+.onb-step:hover {
+    background-color: var(--surface-strong-hover);
+    color: inherit;
+}
+
+.onb-step-icon {
+    flex: 0 0 auto;
+    font-size: var(--text-md);
+    line-height: 1.4;
+}
+
+.onb-step-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    /* Lets the text wrap instead of forcing the row wider than its column. */
+    min-width: 0;
+}
+
+.onb-step-title {
+    color: var(--text-strong);
+    font-size: var(--text-base);
+    font-weight: 600;
+}
+
+.onb-step-text {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+}
+
+.onb-closing {
+    max-width: 46ch;
+    margin: 0 0 var(--space-5);
+    text-align: center;
+    /* --text-muted, not --text-faint: faint fails contrast on every background
+       in the light theme, and this line is the one people most need to read. */
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+}
+
 .onb-actions {
     display: flex;
     flex-wrap: wrap;
