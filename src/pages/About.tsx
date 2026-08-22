@@ -117,6 +117,14 @@ export default function About() {
           — a 404 status with no policy text in the HTML, which is exactly what
           Google's OAuth review fetches. */}
       <p className="about-privacy">
+        <a href="/features/" className="about-privacy-link">
+          Features
+        </a>
+        {" · "}
+        <a href="/faq/" className="about-privacy-link">
+          FAQ
+        </a>
+        {" · "}
         <a href="/privacy/" className="about-privacy-link">
           Privacy
         </a>

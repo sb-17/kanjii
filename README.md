@@ -1,4 +1,32 @@
-Deployed at [https://sb-17.github.io/kanjii/](https://sb-17.github.io/kanjii/).
+# Kanjii
+
+**A free, open-source Japanese kanji and vocabulary tracker.**
+
+Most kanji apps hand you an order and expect you to follow it. Kanjii assumes you
+already have a textbook, a class, or a method that works for you — and gives you
+somewhere to record what you actually know. Learn what you want; Kanjii keeps
+track of the rest.
+
+- **Kanji tracking** — tag all 2,136 jōyō kanji as new, learning or known. Every
+  other feature reads from those tags, so the app always works on what you still
+  need.
+- **Handwriting practice** — write on screen with per-stroke checking, or on
+  paper and grade yourself. Scheduled separately from vocabulary.
+- **Your own vocabulary** — no built-in word list. Add the words you actually
+  meet, and see which kanji inside them you don't know yet.
+- **Spaced repetition** — Leitner scheduling in both directions, E→J and J→E.
+- **Read** — paste Japanese text and pull the words out of it, checked against
+  your own tags.
+- **Anki import**, **printable genkō-yōshi worksheets**, and progress charts.
+- **Local-first** — everything stays in your browser. No account, no ads, works
+  fully offline. Backup to a file or your own Google Drive, when you ask it to.
+
+No streaks, no XP, no fixed path.
+
+**[kanjii.org](https://kanjii.org)** · [Features](https://kanjii.org/features/) ·
+[FAQ](https://kanjii.org/faq/)
+
+Built with Vite, React 19 and TypeScript; deployed to GitHub Pages.
 
 ## Credits and licensing
 

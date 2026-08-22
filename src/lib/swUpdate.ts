@@ -30,8 +30,19 @@ export function isUpdatePending(): boolean {
   return pending;
 }
 
-// Tells the waiting worker to take over. The generated registration reloads the
-// page once it does, so nothing here needs to.
+// How long to wait for the new worker to take control before reloading anyway.
+const TAKEOVER_GRACE_MS = 1500;
+
+// Tells the waiting worker to take over; the generated registration reloads once
+// it does.
+//
+// The timeout is the important half. `skipWaiting` is a message to a *waiting*
+// worker, and by the time the button is pressed there may not be one — the
+// update can have activated already, on a manual reload or in another tab. Then
+// no `controlling` event fires, nothing reloads, and the button is simply dead,
+// which is exactly what it did the first time this shipped. A reload is correct
+// in that case anyway: the new version is what will load.
 export function applyUpdate(): void {
   apply?.();
+  window.setTimeout(() => window.location.reload(), TAKEOVER_GRACE_MS);
 }

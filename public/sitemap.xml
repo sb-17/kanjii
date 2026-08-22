@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Only URLs that are genuinely served with a 200 belong here. Every in-app route
+  (/kanji, /practice, /write …) is answered by 404.html on GitHub Pages — the app
+  boots fine in a browser, but the status is 404 and the HTML has no content, so
+  listing them would be reporting broken URLs to Google. If a route ever needs to
+  be indexed it has to become a static file first, the way /privacy/ did.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://kanjii.org/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://kanjii.org/features/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://kanjii.org/faq/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://kanjii.org/privacy/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

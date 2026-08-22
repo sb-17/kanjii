@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import Navigation from "./components/navigation/Navigation";
 import UpdateToast from "./components/update-toast/UpdateToast";
+import EmptyState from "./components/empty-state/EmptyState";
 import Home from "./pages/Home";
 import Learn from "./pages/Learn";
 import Cards from "./pages/Cards";
@@ -209,6 +210,25 @@ export default function App() {
             <Route path="/kanji-list" element={<Navigate to="/kanji" replace />} />
             <Route path="/learn" element={<Navigate to="/sets" replace />} />
             <Route path="/my-words" element={<Navigate to="/words" replace />} />
+            {/* Without this an unknown path rendered an empty <main> — a blank
+                screen with a hamburger. 404.html serves the app for *any* path,
+                so a typo or a stale link lands here rather than on a server
+                error page. */}
+            <Route
+              path="*"
+              element={
+                <div className="page page-center">
+                  <EmptyState
+                    title="Page not found"
+                    message="That link doesn't go anywhere in Kanjii. It may be out of date."
+                    actions={[
+                      { to: "/", label: "Home" },
+                      { to: "/kanji", label: "All kanji" },
+                    ]}
+                  />
+                </div>
+              }
+            />
             </Routes>
             </Suspense>
           </main>

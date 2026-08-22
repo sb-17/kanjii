@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { execSync } from "node:child_process";
-import { copyFileSync } from "node:fs";
+import { copyFileSync, existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 // Build stamp, shown on the About page. The point is to tell at a glance whether
@@ -42,6 +42,26 @@ const spaFallback = () => ({
   },
 });
 
+// Dev only. Vite answers any directory-style URL with the app's index.html (the
+// SPA fallback), so /features/, /faq/ and /privacy/ — real files in public/ that
+// a build and `npm run preview` serve correctly — came back as the app, which
+// then showed "Page not found". robots.txt and sitemap.xml were unaffected
+// because they're exact filenames. This makes dev behave like the deploy.
+const servePublicDirIndex = () => ({
+  name: "serve-public-dir-index",
+  apply: "serve" as const,
+  configureServer(server: import("vite").ViteDevServer) {
+    server.middlewares.use((req, res, next) => {
+      const path = (req.url ?? "").split("?")[0];
+      if (!path.endsWith("/") || path.includes("..")) return next();
+      const file = resolve(__dirname, "public", `.${path}`, "index.html");
+      if (!existsSync(file)) return next();
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.end(readFileSync(file));
+    });
+  },
+});
+
 export default defineConfig({
   // Served from the apex of kanjii.org, so the app sits at the root. It used to
   // be "/kanjii/" for the sb-17.github.io project page; `public/CNAME` is what
@@ -71,6 +91,22 @@ export default defineConfig({
         // — for every user, including those who never open it. Excluded here and
         // cached at runtime below instead, the same deal the stroke files get.
         globIgnores: ["**/dictionary-*.js"],
+        // Real files in public/, not app routes. Workbox otherwise answers every
+        // navigation with the precached index.html, so once the service worker
+        // was active these URLs served the app shell instead of the page — the
+        // router found no match and showed "Page not found". /privacy/ had this
+        // from the day it was added; it just rendered blank rather than an error,
+        // so nobody noticed. Crawlers don't run service workers, which is why the
+        // pages looked fine from outside.
+        //
+        // Add any future static page here as well as to sitemap.xml.
+        navigateFallbackDenylist: [
+          /^\/privacy\//,
+          /^\/features\//,
+          /^\/faq\//,
+          /^\/robots\.txt$/,
+          /^\/sitemap\.xml$/,
+        ],
         // 6,700+ KanjiVG stroke files (~44 MB) are too many to precache, so they
         // are fetched on demand. Cache each one the first time it's requested so
         // writing/stroke practice for any kanji you've opened works offline too.
@@ -151,6 +187,7 @@ export default defineConfig({
       },
     }),
     spaFallback(),
+    servePublicDirIndex(),
   ],
   build: {
     outDir: "docs",

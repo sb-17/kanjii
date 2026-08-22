@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#242424" />
+    <title>Features · Kanjii.org</title>
+    <meta
+      name="description"
+      content="What Kanjii does: kanji tracking, handwriting practice, your own vocabulary list, spaced repetition, Anki import, text parsing and printable worksheets."
+    />
+    <link rel="canonical" href="https://kanjii.org/features/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/static-page.css" />
+
+    <!--
+      A real static page, not an app route. GitHub Pages has no rewrites, so an
+      SPA deep link is served by 404.html — a 404 status with no text in it, which
+      is useless to a crawler. A directory with its own index.html is a genuine
+      200 with the words in it, and it reads fine with JavaScript off. The same
+      reason /privacy/ is a file. See the note in that page.
+    -->
+    <script>
+      (function () {
+        try {
+          var p = localStorage.getItem("kanjii:theme") || "dark";
+          var light =
+            p === "light" ||
+            (p === "system" &&
+              window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: light)").matches);
+          document.documentElement.dataset.theme = light ? "light" : "dark";
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute("content", light ? "#f6f7f9" : "#242424");
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="/">← Kanjii</a>
+
+      <h1>Kanjii features</h1>
+
+      <p class="lead">
+        Kanjii is a free, open-source Japanese kanji and vocabulary tracker. It
+        doesn't teach you a syllabus — it keeps track of the one you already
+        follow.
+      </p>
+
+      <a class="cta" href="/">Open Kanjii</a>
+
+      <h2>Kanji tracking</h2>
+      <p>
+        Tag each of the 2,136 jōyō kanji as new, learning or known. Those tags are
+        the centre of the app: practice, writing drills and the reader all read
+        from them, so the app always works on what you personally still need. Your
+        tags are yours — nothing in Kanjii ever changes one behind your back.
+      </p>
+
+      <h2>Kanji writing practice</h2>
+      <p>
+        Write kanji by hand on screen and get each stroke checked as you draw it,
+        or switch to paper mode and grade yourself. Handwriting is scheduled
+        separately from vocabulary, so a kanji you can read but not write comes
+        back until you can.
+      </p>
+
+      <h2>Your own vocabulary</h2>
+      <p>
+        Kanjii ships with no word list on purpose. You add the words you actually
+        meet — in a textbook, a show, a conversation — with readings, meanings and
+        a note. Each word links to the kanji inside it, so you can see at a glance
+        which part of a word is the bit you don't know yet.
+      </p>
+
+      <h2>Spaced repetition</h2>
+      <p>
+        Reviews are scheduled with a Leitner system, in both directions:
+        English→Japanese for production and Japanese→English for recognition. New
+        words are mixed into reviews at a pace you set, so a large import can't
+        bury the words already waiting.
+      </p>
+
+      <h2>Vocabulary from Japanese text</h2>
+      <p>
+        Paste any Japanese text and Kanjii pulls the words out of it, each one
+        shown against your own kanji tags. It's the fastest way to turn something
+        you were reading anyway into study material, and it tells you which words
+        are hard <em>for you</em> rather than in general.
+      </p>
+
+      <h2>Anki import</h2>
+      <p>
+        Already have decks? Import an Anki text export and study it inside Kanjii
+        as its own deck, with its own review schedule. Re-importing the same deck
+        under the same name updates the cards and keeps your progress.
+      </p>
+
+      <h2>Printable worksheets</h2>
+      <p>
+        Generate genkō-yōshi practice sheets for any selection of kanji, with
+        optional tracing guides, and print them.
+      </p>
+
+      <h2>Progress you can actually see</h2>
+      <p>
+        Charts for kanji status, coverage by frequency band, review queue, writing
+        skill and vocabulary growth over time — so you can tell whether the thing
+        you're doing is working.
+      </p>
+
+      <h2>Local-first, free, open source</h2>
+      <p>
+        Everything is stored in your browser. No account, no ads, no subscription,
+        and it works fully offline once installed. Backup and restore are yours to
+        trigger, to a file or to your own Google Drive. The source is on
+        <a
+          href="https://github.com/sb-17/kanjii"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub</a
+        >.
+      </p>
+
+      <p class="footer-links">
+        <a href="/">Kanjii</a> · <a href="/faq/">FAQ</a> ·
+        <a href="/privacy/">Privacy</a>
+      </p>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#242424" />
+    <title>FAQ · Kanjii.org</title>
+    <meta
+      name="description"
+      content="Common questions about Kanjii: is it free, is there a fixed kanji order, can I track kanji I already know, does it do spaced repetition, can I import Anki decks, do I need an account?"
+    />
+    <link rel="canonical" href="https://kanjii.org/faq/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/static-page.css" />
+
+    <!-- A real static page, not an app route — see the note in /privacy/. -->
+    <script>
+      (function () {
+        try {
+          var p = localStorage.getItem("kanjii:theme") || "dark";
+          var light =
+            p === "light" ||
+            (p === "system" &&
+              window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: light)").matches);
+          document.documentElement.dataset.theme = light ? "light" : "dark";
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute("content", light ? "#f6f7f9" : "#242424");
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Mirrors the questions below. Keep the two in step: answers that differ
+         from the visible text are what gets rich results pulled. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Kanjii free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Kanjii is free to use, with no ads, no subscription and no paid tier. It is also open source."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Kanjii have a fixed kanji learning order?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Kanjii has no curriculum and no locked levels. You choose which kanji and which words you want to learn, in whatever order your own studying happens to take you."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I track kanji I already know?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, and that is the intended way to start. A short first-run setup shows you kanji in frequency order and you tap the ones you can already read. You can change any tag later."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use Kanjii alongside my textbook or class?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "That is what it is for. Kanjii does not replace a course, a textbook or a teacher. It is the layer that records what you have met and schedules the review, so your existing routine stays exactly as it is."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Kanjii use spaced repetition?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Vocabulary is reviewed with a Leitner spaced repetition system in both directions, English to Japanese and Japanese to English. Handwriting is scheduled separately."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I import Anki decks into Kanjii?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Kanjii imports Anki text exports as decks with their own review schedule. Re-importing the same deck under the same name updates the cards and keeps your progress."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can Kanjii extract vocabulary from Japanese text?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Paste any Japanese text and Kanjii lists the words in it, each shown against your own kanji tags, ready to add to your word list."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need an account to use Kanjii?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. There are no accounts and no sign-up. Everything is stored in your own browser."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Kanjii work offline?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Kanjii is an installable web app and works fully offline once it has loaded, including stroke data for the kanji you are studying."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How is Kanjii different from WaniKani or Duolingo?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Those apps decide the order and pace for you. Kanjii has no order of its own: you tag what you know, add the words you meet, and it handles the tracking and scheduling around whatever you are already doing."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="/">← Kanjii</a>
+
+      <h1>Frequently asked questions</h1>
+
+      <h2>Is Kanjii free?</h2>
+      <p>
+        Yes. Kanjii is free to use, with no ads, no subscription and no paid tier.
+        It is also open source.
+      </p>
+
+      <h2>Does Kanjii have a fixed kanji learning order?</h2>
+      <p>
+        No. Kanjii has no curriculum and no locked levels. You choose which kanji
+        and which words you want to learn, in whatever order your own studying
+        happens to take you.
+      </p>
+
+      <h2>Can I track kanji I already know?</h2>
+      <p>
+        Yes, and that is the intended way to start. A short first-run setup shows
+        you kanji in frequency order and you tap the ones you can already read.
+        You can change any tag later.
+      </p>
+
+      <h2>Can I use Kanjii alongside my textbook or class?</h2>
+      <p>
+        That is what it is for. Kanjii does not replace a course, a textbook or a
+        teacher. It is the layer that records what you have met and schedules the
+        review, so your existing routine stays exactly as it is.
+      </p>
+
+      <h2>Does Kanjii use spaced repetition?</h2>
+      <p>
+        Yes. Vocabulary is reviewed with a Leitner spaced repetition system in
+        both directions, English→Japanese and Japanese→English. Handwriting is
+        scheduled separately, so a kanji you can read but not write keeps coming
+        back.
+      </p>
+
+      <h2>Can I import Anki decks into Kanjii?</h2>
+      <p>
+        Yes. Kanjii imports Anki text exports as decks with their own review
+        schedule. Re-importing the same deck under the same name updates the cards
+        and keeps your progress.
+      </p>
+
+      <h2>Can Kanjii extract vocabulary from Japanese text?</h2>
+      <p>
+        Yes. Paste any Japanese text and Kanjii lists the words in it, each shown
+        against your own kanji tags, ready to add to your word list.
+      </p>
+
+      <h2>Do I need an account to use Kanjii?</h2>
+      <p>
+        No. There are no accounts and no sign-up. Everything is stored in your own
+        browser — see <a href="/privacy/">Privacy</a> for the details.
+      </p>
+
+      <h2>Does Kanjii work offline?</h2>
+      <p>
+        Yes. Kanjii is an installable web app and works fully offline once it has
+        loaded, including stroke data for the kanji you are studying.
+      </p>
+
+      <h2>How is Kanjii different from WaniKani or Duolingo?</h2>
+      <p>
+        Those apps decide the order and the pace for you. Kanjii has no order of
+        its own: you tag what you know, add the words you meet, and it handles the
+        tracking and scheduling around whatever you are already doing. There are
+        no streaks and no points either — levels here are scheduling, not score.
+      </p>
+
+      <a class="cta" href="/">Open Kanjii</a>
+
+      <p class="footer-links">
+        <a href="/">Kanjii</a> · <a href="/features/">Features</a> ·
+        <a href="/privacy/">Privacy</a>
+      </p>
+    </main>
+  </body>
+</html>

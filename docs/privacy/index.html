@@ -4,12 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#242424" />
-    <title>Privacy · Kanjii</title>
+    <title>Privacy · Kanjii.org</title>
     <meta
       name="description"
       content="How Kanjii handles your data: everything stays in your browser, Google Drive backup is optional and manual, and there are no accounts."
     />
+    <link rel="canonical" href="https://kanjii.org/privacy/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/static-page.css" />
 
     <!--
       A real static page, not a route in the app.
@@ -21,9 +23,9 @@
       index.html is served as a genuine 200 with the words in it, and it works with
       JavaScript switched off.
 
-      Self-contained on purpose: the app's stylesheet is content-hashed, so it
-      can't be linked from a file outside the build. The colours below are copied
-      from src/index.css — change them together.
+      Styled from /static-page.css, shared with the other static pages. The
+      app's own stylesheet is content-hashed inside the build, so it can't be
+      linked from here.
     -->
     <script>
       // Match whatever theme the app is set to, using the same key it does.
@@ -43,93 +45,6 @@
       })();
     </script>
 
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #242424;
-        --text: rgba(255, 255, 255, 0.92);
-        --text-strong: #ffffff;
-        --text-muted: #b3b3b3;
-        --text-faint: #8a8a8a;
-        --accent: #4da6ff;
-        --accent-hover: #80bfff;
-      }
-      :root[data-theme="light"] {
-        color-scheme: light;
-        --bg: #f6f7f9;
-        --text: #1f2329;
-        --text-strong: #0e1116;
-        --text-muted: #5b626c;
-        --text-faint: #888f99;
-        --accent: #1f7ae0;
-        --accent-hover: #1763c4;
-      }
-      body {
-        margin: 0;
-        padding: 1rem;
-        background: var(--bg);
-        color: var(--text);
-        font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-        line-height: 1.5;
-      }
-      main {
-        max-width: 800px;
-        margin: 0 auto;
-        padding-bottom: 3rem;
-      }
-      a.back {
-        display: inline-block;
-        margin-bottom: 1rem;
-        color: var(--text-muted);
-        font-size: 0.875rem;
-        text-decoration: none;
-      }
-      a.back:hover {
-        color: var(--accent);
-      }
-      h1 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        line-height: 1.2;
-        margin: 0 0 1.5rem;
-        color: var(--text-strong);
-      }
-      h2 {
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: var(--text-strong);
-        margin: 2rem 0 0.75rem;
-      }
-      p {
-        color: var(--text-muted);
-        line-height: 1.7;
-        margin: 0 0 1rem;
-      }
-      p.lead {
-        color: var(--text-strong);
-      }
-      code {
-        font-family: ui-monospace, monospace;
-        font-size: 0.9em;
-        color: var(--text-strong);
-      }
-      a {
-        color: var(--accent);
-        text-decoration: none;
-        font-weight: bold;
-        border-bottom: 1px dashed var(--accent);
-      }
-      a:hover {
-        color: var(--accent-hover);
-        border-bottom-style: solid;
-      }
-      .updated {
-        margin-top: 2rem;
-        color: var(--text-faint);
-        font-size: 0.875rem;
-      }
-    </style>
   </head>
   <body>
     <main>
@@ -190,10 +105,10 @@
 
       <h2>Hosting and fonts</h2>
       <p>
-        The app is served by GitHub Pages, and one typeface is loaded from Google
-        Fonts. As with any web request, those servers see your IP address and
-        browser version in their own logs. That's outside my control and I don't
-        receive it.
+        The app is served by GitHub Pages. As with any web request, their servers
+        see your IP address and browser version in their own logs. That's outside
+        my control and I don't receive it. Fonts are bundled with the app, so no
+        font host is contacted.
       </p>
 
       <h2>What I don't do</h2>
@@ -209,6 +124,11 @@
       </p>
 
       <p class="updated">Last updated 22 August 2026</p>
+
+      <p class="footer-links">
+        <a href="/">Kanjii</a> · <a href="/features/">Features</a> ·
+        <a href="/faq/">FAQ</a>
+      </p>
     </main>
   </body>
 </html>

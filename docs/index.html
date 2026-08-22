@@ -40,7 +40,7 @@
          can't dependably keep, so offline — the whole point of the PWA — silently
          lost the display face. It also removes a request to Google on every
          load. Don't reintroduce the link. -->
-    <title>Kanjii</title>
+    <title>Kanjii.org: Japanese Kanji Tracker</title>
 
     <!-- Search results and link previews. Absolute URLs are required: crawlers
          resolve og:image against nothing, so a relative path silently yields no
@@ -48,22 +48,62 @@
          sentence in three formats, and letting them drift is how one of them ends
          up stale. -->
     <link rel="canonical" href="https://kanjii.org/" />
-    <meta name="description" content="Most kanji apps make you follow their order. Kanjii tracks what you actually know: tag each kanji, build your own word list, practise writing by hand." />
+    <meta name="description" content="Free, open-source Japanese kanji and vocabulary tracker. No fixed curriculum: tag the kanji you know, build your own word list, and practise writing by hand." />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Kanjii" />
     <meta property="og:url" content="https://kanjii.org/" />
-    <meta property="og:title" content="Kanjii — a kanji app that tracks what you know" />
-    <meta property="og:description" content="Most kanji apps make you follow their order. Kanjii tracks what you actually know: tag each kanji, build your own word list, practise writing by hand." />
+    <meta property="og:title" content="Kanjii.org: Japanese Kanji Tracker" />
+    <meta property="og:description" content="Free, open-source Japanese kanji and vocabulary tracker. No fixed curriculum: tag the kanji you know, build your own word list, and practise writing by hand." />
     <!-- Square, so summary rather than summary_large_image: the only artwork
          that exists is the 512px PWA icon, and claiming a wide card would render
          it letterboxed. Swap both if a 1200x630 banner is ever made. -->
     <meta property="og:image" content="https://kanjii.org/pwa-512x512.png" />
 
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Kanjii — a kanji app that tracks what you know" />
-    <meta name="twitter:description" content="Most kanji apps make you follow their order. Kanjii tracks what you actually know: tag each kanji, build your own word list, practise writing by hand." />
+    <meta name="twitter:title" content="Kanjii.org: Japanese Kanji Tracker" />
+    <meta name="twitter:description" content="Free, open-source Japanese kanji and vocabulary tracker. No fixed curriculum: tag the kanji you know, build your own word list, and practise writing by hand." />
     <meta name="twitter:image" content="https://kanjii.org/pwa-512x512.png" />
+
+
+    <!-- Tells Google and the AI crawlers what this is in machine-readable form.
+         The description must stay in step with the meta description above. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Kanjii",
+        "url": "https://kanjii.org/",
+        "applicationCategory": "EducationalApplication",
+        "applicationSubCategory": "Japanese kanji and vocabulary tracker",
+        "operatingSystem": "Any (web browser)",
+        "browserRequirements": "Requires JavaScript.",
+        "description": "Kanjii is a free, open-source Japanese kanji and vocabulary tracker for learners who want to choose what they study instead of following a fixed curriculum. Track the kanji you know, practise writing, build your own vocabulary, and review everything with spaced repetition.",
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "inLanguage": "en",
+        "teaches": "Japanese kanji and vocabulary",
+        "featureList": [
+          "Track kanji as new, learning or known",
+          "Kanji handwriting practice with per-stroke checking",
+          "Personal vocabulary list built from words you meet",
+          "Spaced repetition in both directions",
+          "Extract vocabulary from pasted Japanese text",
+          "Anki deck import",
+          "Printable genko-yoshi worksheets",
+          "Works offline, no account required"
+        ],
+        "author": {
+          "@type": "Person",
+          "name": "Šimon"
+        },
+        "sameAs": ["https://github.com/sb-17/kanjii"]
+      }
+    </script>
 
     <script>
       window.goatcounter = {
@@ -75,10 +115,31 @@
       data-goatcounter="https://kanjii.goatcounter.com/count"
       async src="//gc.zgo.at/count.js">
     </script>
-    <script type="module" crossorigin src="/assets/index-80TvMWBB.js"></script>
+    <script type="module" crossorigin src="/assets/index-CcMF2GYA.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-DEOcwrfh.css">
   <link rel="manifest" href="/manifest.webmanifest"></head>
   <body>
+    <!-- In <noscript>, not inside #root. Rendering it in #root put the text on
+         screen for the moment boot() spends reading IndexedDB, which read as the
+         page flashing before the app appeared. Here it never renders for anyone
+         with JavaScript, but it is still in the HTML the AI crawlers read, since
+         they don't execute JS. Don't move it back into #root.
+
+         Keep it in step with /features/ and the meta description above. -->
+    <noscript>
+      <div class="page page-center">
+        <h1 class="page-title">Kanjii — a Japanese kanji and vocabulary tracker</h1>
+        <p>
+          Learn what you want. Kanjii keeps track of the rest — tag the kanji you
+          know, build your own word list, and practise writing by hand. No fixed
+          curriculum, no account, free and open source.
+        </p>
+        <p>
+          <a href="/features/">Features</a> · <a href="/faq/">FAQ</a> ·
+          <a href="/privacy/">Privacy</a>
+        </p>
+      </div>
+    </noscript>
     <div id="root"></div>
   </body>
 </html>

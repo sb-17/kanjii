@@ -22,6 +22,9 @@ import { registerSW } from "virtual:pwa-register";
 import { markUpdateReady } from "./lib/swUpdate";
 import BootFailure from "./components/boot-failure/BootFailure";
 
+// How often an open tab asks whether a new build has been deployed.
+const UPDATE_CHECK_MS = 60 * 60 * 1000;
+
 // Storage failed to open. Render an explanation instead of the app — never the
 // app itself.
 //
@@ -87,6 +90,16 @@ async function boot() {
   const updateSW = registerSW({
     immediate: true,
     onNeedRefresh: () => markUpdateReady(() => void updateSW(true)),
+    onRegisteredSW: (_url, registration) => {
+      if (!registration) return;
+      // An installed PWA can stay open for days, and the browser only checks for
+      // a new worker on navigation. Without this poll a deploy goes unnoticed
+      // until a cold start, which is why the prompt seemed not to detect new
+      // versions. Skipped while offline so it can't spin against a dead network.
+      setInterval(() => {
+        if (navigator.onLine) void registration.update();
+      }, UPDATE_CHECK_MS);
+    },
   });
 
   // Once online and the service worker is in control, warm its cache with the

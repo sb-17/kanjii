@@ -1,0 +1,141 @@
+/* Shared styling for the static pages in public/ (privacy, features, faq).
+   They can't use the app's stylesheet — it's content-hashed inside the build —
+   but a plain file in public/ is copied verbatim and keeps its name, so they can
+   all link this one instead of each carrying a copy.
+
+   Colours are duplicated from src/index.css. Change them together. */
+
+:root {
+    color-scheme: dark;
+    --bg: #242424;
+    --surface: #555555;
+    --border: rgba(255, 255, 255, 0.08);
+    --text: rgba(255, 255, 255, 0.92);
+    --text-strong: #ffffff;
+    --text-muted: #b3b3b3;
+    --text-faint: #8a8a8a;
+    --accent: #4da6ff;
+    --accent-hover: #80bfff;
+}
+
+:root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f6f7f9;
+    --surface: #e7e9ec;
+    --border: rgba(0, 0, 0, 0.12);
+    --text: #1f2329;
+    --text-strong: #0e1116;
+    --text-muted: #5b626c;
+    --text-faint: #888f99;
+    --accent: #1f7ae0;
+    --accent-hover: #1763c4;
+}
+
+body {
+    margin: 0;
+    padding: 1rem;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+}
+
+main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-bottom: 3rem;
+}
+
+a.back {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+a.back:hover {
+    color: var(--accent);
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0 0 1.5rem;
+    color: var(--text-strong);
+}
+
+h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-strong);
+    margin: 2rem 0 0.75rem;
+}
+
+h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-strong);
+    margin: 1.5rem 0 0.35rem;
+}
+
+p {
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin: 0 0 1rem;
+}
+
+p.lead {
+    color: var(--text-strong);
+}
+
+code {
+    font-family: ui-monospace, monospace;
+    font-size: 0.9em;
+    color: var(--text-strong);
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: bold;
+    border-bottom: 1px dashed var(--accent);
+}
+
+a:hover {
+    color: var(--accent-hover);
+    border-bottom-style: solid;
+}
+
+.updated {
+    margin-top: 2rem;
+    color: var(--text-faint);
+    font-size: 0.875rem;
+}
+
+/* Call to action back into the app, for someone who arrived from a search. */
+.cta {
+    display: inline-block;
+    margin: 0.5rem 0 2rem;
+    padding: 0.6rem 1.4rem;
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.cta:hover {
+    color: #ffffff;
+    border: none;
+}
+
+.footer-links {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-faint);
+    font-size: 0.875rem;
+}
