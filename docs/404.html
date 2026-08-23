@@ -28,7 +28,17 @@
         } catch (e) {}
       })();
     </script>
+    <!-- Google Search picks the site icon from the home page, and wants a square
+         whose sides are a multiple of 48px; it also fetches /favicon.ico by
+         convention. Before this there was only favicon.svg (64px, and its glyph
+         is a <text> element that needs a Japanese system font — a server-side
+         rasteriser without one renders nothing), plus a 180px apple-touch-icon.
+         Neither qualified, so search results showed the generic globe.
+         The .ico carries 16/32/48. Keep the SVG first: browsers that support it
+         prefer it, and it stays sharp at any size. -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="icon" sizes="48x48" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -115,7 +125,7 @@
       data-goatcounter="https://kanjii.goatcounter.com/count"
       async src="//gc.zgo.at/count.js">
     </script>
-    <script type="module" crossorigin src="/assets/index-CcMF2GYA.js"></script>
+    <script type="module" crossorigin src="/assets/index-D-zupihc.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-DEOcwrfh.css">
   <link rel="manifest" href="/manifest.webmanifest"></head>
   <body>
