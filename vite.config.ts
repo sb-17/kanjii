@@ -156,7 +156,11 @@ export default defineConfig({
       manifest: {
         name: "Kanjii",
         short_name: "Kanjii",
-        description: "Learn kanji efficiently!",
+        // Shown in the install prompt and the OS app listing. Kept in step with
+        // the meta description in index.html — short enough not to be truncated
+        // there, and leading with what the app is rather than a slogan.
+        description:
+          "A Japanese kanji and vocabulary tracker with no fixed curriculum. Tag the kanji you know, build your own word list, and practise writing by hand.",
         theme_color: "#242424",
         background_color: "#242424",
         display: "standalone",

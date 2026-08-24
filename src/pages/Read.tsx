@@ -84,8 +84,10 @@ export default function Read() {
       setVocab(list);
       return;
     }
+    // Newest first, matching MyWords and KanjiLearn. My words has no sort
+    // control, so array order is display order — appending hid a word you just
+    // added behind everything you already had.
     const next: Vocab[] = [
-      ...list,
       {
         word: w.word,
         reading: w.reading,
@@ -95,6 +97,7 @@ export default function Read() {
         example: w.sentence,
         addedAt: Date.now(),
       },
+      ...list,
     ];
     saveUserVocab(next);
     setVocab(next);

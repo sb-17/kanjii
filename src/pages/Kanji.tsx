@@ -7,6 +7,7 @@ import { getKanji } from "../lib/kanjiIndex";
 import { getNeighborhood, type Connector } from "../lib/kanjiGraph";
 import { useProgress } from "../context/ProgressContext";
 import KanjiStrokeViewer from "../components/kanji-stroke-viewer/KanjiStrokeViewer";
+import EmptyState from "../components/empty-state/EmptyState";
 
 export default function Kanji() {
   const { char } = useParams<{ char: string }>();
@@ -16,8 +17,25 @@ export default function Kanji() {
   // load kanji data
   const kanjiObj = getKanji(char ?? "");
 
+  // Reached more often than a typo'd URL would suggest: `extractKanji` takes any
+  // CJK ideograph out of a word, without checking it against the dataset, so a
+  // word like 味噌 or 綺麗 produces a kanji chip in My words and Read that links
+  // here. ~40% of the kanji in the reader's dictionary are outside kanji.json.
+  // Whether those should be links at all is a separate question; this at least
+  // makes the landing honest instead of a bare unstyled line of text.
   if (!kanjiObj) {
-    return <div>Kanji not found</div>;
+    return (
+      <div className="page page-center">
+        <EmptyState
+          title="Kanji not found"
+          message="Kanjii's data covers the 2,136 jōyō kanji. This character isn't one of them, so there's nothing to show for it — you can still use it inside your own words."
+          actions={[
+            { to: "/kanji", label: "All kanji" },
+            { to: "/", label: "Home" },
+          ]}
+        />
+      </div>
+    );
   }
 
   const status: KanjiStatus = progress[kanjiObj.character] || "new";

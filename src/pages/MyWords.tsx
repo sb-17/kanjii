@@ -99,7 +99,14 @@ export default function MyWords() {
     setEditKey(keyOf(v));
   };
 
+  // Confirmed because Delete sits directly beside Edit on every row, so a
+  // mis-tap on a phone destroys the word *and* its review history with nothing
+  // to undo it. Names the word rather than asking "are you sure?" — the point is
+  // to show which row is about to go, since the mis-tap is usually the wrong row
+  // rather than the wrong button.
   const handleDelete = (v: Vocab) => {
+    const label = v.reading ? `${v.word} (${v.reading})` : v.word;
+    if (!confirm(`Delete ${label}?\n\nIts review progress goes with it.`)) return;
     persist(list.filter((x) => keyOf(x) !== keyOf(v)));
     if (editKey === keyOf(v)) resetForm();
   };

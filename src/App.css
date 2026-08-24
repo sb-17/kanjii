@@ -46,7 +46,13 @@
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   box-sizing: border-box;
-  /* just enough to clear the overlaid hamburger (top 12px + 40px tall = 52px) */
+  /* 44px, which is deliberately *less* than the overlaid hamburger needs (top
+     12px + 40px tall = 52px). The last 8px come from whatever the page puts
+     inside: `.page` adds 16px of its own padding (clears by 8), and KanjiMap —
+     the one page without `.page` — has `.map-controls` with 12px (clears by 4).
+     Don't "fix" this to 3.25rem: it would add 8px to every other page, and the
+     value is duplicated in KanjiMap.css's height calc, which would then be
+     wrong. Any new page that isn't `.page` must supply its own top padding. */
   padding-top: 2.75rem;
   padding-bottom: env(safe-area-inset-bottom);
 }

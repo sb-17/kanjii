@@ -122,8 +122,11 @@ export default function DeckCards() {
       setAddState("duplicate");
       return;
     }
+    // Prepended, not appended: My words has no sort control, so the array order
+    // *is* the order you see, and MyWords/KanjiLearn both already add to the
+    // front. Appending here buried a word you just saved at the bottom of a list
+    // hundreds long.
     saveUserVocab([
-      ...list,
       {
         word: current.word,
         reading,
@@ -136,6 +139,7 @@ export default function DeckCards() {
         ...(current.example ? { example: current.example } : {}),
         addedAt: Date.now(),
       },
+      ...list,
     ]);
     setAddState("added");
   };

@@ -227,19 +227,44 @@
     border-bottom-style: solid;
 }
 
-/* Phone: halve the wider rows. 4 stats become 2×2 and 6 links 2×3 — both still
-   divide evenly, so no row is left part-empty. */
+/* Phone. The whole page has to clear a ~750px viewport without scrolling — at
+   the old sizes it came to ~835px, so the last row of links sat half off the
+   bottom of a 6.1" phone.
+
+   4 stats become 2×2. The links stay at 3 columns rather than dropping to 2:
+   six tiles then need two rows instead of three, which is ~96px of the ~128px
+   saved here and the single biggest win available. Both counts still divide
+   evenly, so no row is left part-empty (see the note on .home-due above).
+
+   The rest is trimmed padding. Don't add a tile to either row without checking
+   the height again — and a visible setup card or backup warning will still push
+   the page into scrolling, which is fine: both are temporary states. */
 @media (max-width: 720px) {
-    .home-progress,
-    .home-links {
+    .home-progress {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .home-links {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .home-due,
+    .home-progress {
+        margin-bottom: var(--space-4);
     }
 
     .home-due-card {
         padding: var(--space-4) var(--space-2);
     }
 
+    .home-stat {
+        padding: var(--space-3);
+    }
+
+    /* A step down in type so the longest label ("Analytics") still fits a
+       ~112px tile at 393px, and ~90px at 375px. */
     .home-link-card {
-        padding: var(--space-4) var(--space-3);
+        padding: var(--space-3) var(--space-2);
+        font-size: var(--text-base);
     }
 }

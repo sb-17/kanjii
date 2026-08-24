@@ -1,4 +1,7 @@
 .kanji-map {
+  /* 2.75rem is `.app-content`'s padding-top (App.css) — fill what's left of the
+     shell. The two must stay in step; changing one alone silently over- or
+     under-shoots the viewport here. */
   height: calc(100vh - 2.75rem);
   height: calc(100dvh - 2.75rem);
   display: flex;
