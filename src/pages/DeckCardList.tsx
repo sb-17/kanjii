@@ -14,7 +14,7 @@ const FIELDS: { key: keyof Omit<DeckCard, "id">; label: string }[] = [
   { key: "reading", label: "Reading" },
   { key: "meaning", label: "Meaning" },
   { key: "example", label: "Example sentence" },
-  { key: "exampleEn", label: "Example translation" },
+  { key: "exampleEn", label: "Example sentence translation" },
 ];
 
 export default function DeckCardList() {

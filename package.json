@@ -13,6 +13,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "fzstd": "^0.1.1",
     "idb-keyval": "^6.2.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

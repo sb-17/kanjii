@@ -128,9 +128,30 @@
 
 .card-actions {
     display: flex;
+    /* wrap so .card-keys below drops onto its own line under the buttons */
+    flex-wrap: wrap;
     justify-content: center;
     gap: var(--space-3);
     width: 100%;
+}
+
+/* Keyboard hint under the buttons. Hidden by default and shown only where a
+   keyboard is likely — on a phone it is pure noise, and hover/pointer is the
+   closest proxy the platform offers. --text-muted rather than --text-faint,
+   which fails contrast on every light-theme background. */
+.card-keys {
+    display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .card-keys {
+        display: block;
+        width: 100%;
+        margin: 0;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+    }
 }
 
 .card-grade {

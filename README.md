@@ -17,7 +17,8 @@ track of the rest.
 - **Spaced repetition** — Leitner scheduling in both directions, E→J and J→E.
 - **Read** — paste Japanese text and pull the words out of it, checked against
   your own tags.
-- **Anki import**, **printable genkō-yōshi worksheets**, and progress charts.
+- **Anki import** (`.apkg` or a text export), **printable genkō-yōshi
+  worksheets**, and progress charts.
 - **Local-first** — everything stays in your browser. No account, no ads, works
   fully offline. Backup to a file or your own Google Drive, when you ask it to.
 

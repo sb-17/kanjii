@@ -2,7 +2,12 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Decks.css";
 import type { ColumnMap } from "../lib/deckImport";
-import { previewImport, buildDeck, deckId } from "../lib/deckImport";
+import {
+  previewImport,
+  buildDeck,
+  deckId,
+  detectColumns,
+} from "../lib/deckImport";
 import { loadDecks, saveDecks } from "../storage/decks";
 import { deckBoxes } from "../storage/deckProgress";
 import { deckCounts } from "../lib/deckSrs";
@@ -18,7 +23,15 @@ import { useNow } from "../lib/useNow";
 // doubled the largest section of the file.
 export const MY_WORDS_ID = "my-words";
 
-type Pending = { rows: string[][]; columns: ColumnMap; name: string };
+type Pending = {
+  rows: string[][];
+  columns: ColumnMap;
+  name: string;
+  // From an .apkg only: the note type's real field names, and how many notes of
+  // the collection's other note types were left out.
+  fieldNames: string[];
+  skipped: number;
+};
 
 // The five fields kept from a file. Word and meaning make the card; the rest are
 // optional. Every other column in the import is discarded.
@@ -27,7 +40,7 @@ const FIELDS: { key: keyof ColumnMap; label: string }[] = [
   { key: "reading", label: "Reading" },
   { key: "meaning", label: "Meaning (English)" },
   { key: "example", label: "Example sentence" },
-  { key: "exampleEn", label: "Example translation" },
+  { key: "exampleEn", label: "Example sentence translation" },
 ];
 
 function sampleOf(rows: string[][], column: number): string {
@@ -41,6 +54,9 @@ export default function Decks() {
   const [decks, setDecks] = useState(loadDecks);
   const [pending, setPending] = useState<Pending | null>(null);
   const [error, setError] = useState("");
+  // Unzipping and reading a deck's database takes a noticeable moment on a large
+  // .apkg, and nothing else on the card moves while it happens.
+  const [reading, setReading] = useState(false);
 
   // Counted with the same predicates the card players use, so the numbers here
   // can't advertise work the deck won't actually hand you.
@@ -57,26 +73,30 @@ export default function Decks() {
     };
   }, [progress, now]);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
     setError("");
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const { rows, columns } = previewImport(reader.result as string);
-        setPending({
-          rows,
-          columns,
-          name: file.name.replace(/\.[^.]+$/, "") || "Imported deck",
-        });
-      } catch (err) {
-        setError((err as Error).message);
+    const name = file.name.replace(/\.[^.]+$/, "") || "Imported deck";
+    setReading(true);
+    try {
+      if (/\.apkg$/i.test(file.name)) {
+        // Loaded on demand: the ZIP, SQLite and zstd readers are only needed by
+        // someone importing an .apkg, and this page is on the main bundle.
+        const { readApkg } = await import("../lib/apkg");
+        const { rows, fieldNames, skipped } = await readApkg(file);
+        setPending({ rows, columns: detectColumns(rows), name, fieldNames, skipped });
+      } else {
+        const { rows, columns } = previewImport(await file.text());
+        setPending({ rows, columns, name, fieldNames: [], skipped: 0 });
       }
-    };
-    reader.readAsText(file);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setReading(false);
+    }
   };
 
   const confirmImport = () => {
@@ -169,6 +189,12 @@ export default function Decks() {
           <p className="settings-description">
             {pending.rows.length} rows found. Check the columns look right — only
             these five are kept.
+            {/* An .apkg holds a whole collection, which may mix note types. Only
+                the commonest one is imported, since the others' fields mean
+                something else entirely — say so rather than losing rows
+                silently. */}
+            {pending.skipped > 0 &&
+              ` ${pending.skipped} notes of another type were left out.`}
           </p>
 
           {/* Re-importing under an existing name replaces the cards and keeps
@@ -207,7 +233,14 @@ export default function Decks() {
                 <option value="">— none —</option>
                 {Array.from({ length: width }, (_, c) => (
                   <option key={c} value={c}>
-                    {c + 1}: {sampleOf(pending.rows, c)}
+                    {/* The sample content is what you actually recognise a column
+                        by. Anki's own field names mostly restate the label above
+                        the dropdown ("Word:" under "Word (Japanese)"), so they're
+                        only a fallback for a column with nothing in it — which
+                        would otherwise render as a blank, unpickable option. */}
+                    {sampleOf(pending.rows, c) ||
+                      pending.fieldNames[c] ||
+                      `Column ${c + 1}`}
                   </option>
                 ))}
               </select>
@@ -236,18 +269,24 @@ export default function Decks() {
           <strong>Add a deck</strong>
 
           <p className="settings-description">
-            In Anki: File → Export → Notes in Plain Text. Tab or comma separated
-            files both work. Only the five fields below are kept — everything else
-            in the file is discarded. Decks stay on this device; only your review
-            progress is backed up.
+            An Anki .apkg — straight from AnkiWeb, no re-export needed — or a
+            plain text export (tab or comma separated). Only the five fields below
+            are kept; everything else in the file is discarded. Decks stay on this
+            device; only your review progress is backed up.
           </p>
 
           {error && <p className="deck-error">{error}</p>}
 
           <div className="settings-actions">
             <label className="settings-import">
-              <strong>📥 Import deck file</strong>
-              <input type="file" accept=".txt,.tsv,.csv,text/*" onChange={handleFile} hidden />
+              <strong>{reading ? "Reading…" : "📥 Import deck file"}</strong>
+              <input
+                type="file"
+                accept=".apkg,.txt,.tsv,.csv,text/*"
+                onChange={handleFile}
+                disabled={reading}
+                hidden
+              />
             </label>
           </div>
         </div>
