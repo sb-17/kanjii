@@ -87,21 +87,52 @@ export function mostFrequentNew(progress: KanjiProgress, n = 12): Kanji[] {
 // "Today" is the study day (`startOfStudyDay`), the same one scheduling uses. On
 // a midnight boundary a 01:00 session would hand out a fresh allowance while the
 // SRS still considered it the previous day.
+// A word is identified by `word|reading`, as everywhere else: 日本 にほん and
+// 日本 にっぽん are two entries in the word list and two introductions.
+//
+// Reviews logged before the reading was recorded have only the word, so they
+// can't be assigned to one reading. They're kept in a second map and applied to
+// *every* reading of that word: an old review proves this word was already in
+// circulation, and the alternative — letting it match nothing — makes the first
+// review after the change look like a fresh introduction. That would have read
+// as hundreds of new words on one day and swallowed the whole allowance.
 export function newWordsIntroducedToday(
   events: AppEvent[],
   now = Date.now(),
 ): number {
   const startMs = startOfStudyDay(now);
 
+  const earliest = (map: Map<string, number>, key: string, t: number) => {
+    const prev = map.get(key);
+    if (prev === undefined || t < prev) map.set(key, t);
+  };
+
+  // Keyed by `word|reading`, and by word alone for the events that predate the
+  // reading being logged.
   const firstSeen = new Map<string, number>();
+  const legacy = new Map<string, number>();
+  const readingKnown = new Set<string>();
+
   for (const e of events) {
     if (e.k !== "review") continue;
-    const prev = firstSeen.get(e.w);
-    if (prev === undefined || e.t < prev) firstSeen.set(e.w, e.t);
+    if (e.r === undefined) {
+      earliest(legacy, e.w, e.t);
+    } else {
+      earliest(firstSeen, `${e.w}|${e.r}`, e.t);
+      readingKnown.add(e.w);
+    }
   }
 
   let n = 0;
-  for (const t of firstSeen.values()) if (t >= startMs) n++;
+  for (const [key, t] of firstSeen) {
+    const word = key.slice(0, key.lastIndexOf("|"));
+    if (Math.min(t, legacy.get(word) ?? Infinity) >= startMs) n++;
+  }
+  // A word seen only in legacy events counts on its own timestamp. Skipped once
+  // any reading of it has been reviewed, or the loop above already counted it.
+  for (const [word, t] of legacy) {
+    if (t >= startMs && !readingKnown.has(word)) n++;
+  }
   return n;
 }
 

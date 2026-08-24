@@ -21,6 +21,12 @@ export type ReviewEvent = {
   t: number;
   k: "review";
   w: string; // word
+  // Reading. A word alone doesn't identify what was reviewed — 日本 is both
+  // にほん and にっぽん, and the rest of the app keys vocabulary on `word|reading`
+  // for exactly that reason. Optional because events logged before this was
+  // recorded have no reading, and can't be given one (see
+  // `newWordsIntroducedToday`, which has to treat those as covering any reading).
+  r?: string;
   ok: boolean; // correct?
 };
 
@@ -102,8 +108,12 @@ export function logKanjiStatus(char: string, from: string | null, to: string): v
   append({ t: Date.now(), k: "kanji", c: char, f: from, to });
 }
 
-export function logReview(word: string, correct: boolean): void {
-  append({ t: Date.now(), k: "review", w: word, ok: correct });
+export function logReview(
+  word: string,
+  reading: string,
+  correct: boolean,
+): void {
+  append({ t: Date.now(), k: "review", w: word, r: reading, ok: correct });
 }
 
 export function logWrite(e: Omit<WriteEvent, "t" | "k">): void {

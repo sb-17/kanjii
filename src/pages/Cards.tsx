@@ -136,7 +136,7 @@ export default function Cards() {
     const next = vocab.map((v) => (keyOf(v) === keyOf(current) ? { ...v, srs } : v));
     setVocab(next);
     saveUserVocab(next);
-    logReview(current.word, correct);
+    logReview(current.word, current.reading, correct);
     advance(next);
   };
 

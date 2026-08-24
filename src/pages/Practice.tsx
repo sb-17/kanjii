@@ -177,7 +177,7 @@ export default function Practice() {
     const next = vocab.map((v) => (keyOf(v) === keyOf(current) ? { ...v, srs } : v));
     setVocab(next);
     saveUserVocab(next);
-    logReview(current.word, correct);
+    logReview(current.word, current.reading, correct);
     setCurrent({ ...current, srs });
     setGraded(true);
     return next;
