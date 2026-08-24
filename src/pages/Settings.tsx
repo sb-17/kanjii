@@ -8,7 +8,13 @@ import { loadDeckProgress, saveDeckProgress } from "../storage/deckProgress";
 import { loadDeckStats, saveDeckStats } from "../storage/deckStats";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { mergeVocab } from "../lib/vocab";
-import { buildBackup, parseBackup, type ParsedBackup } from "../lib/backup";
+import {
+  buildBackup,
+  parseBackup,
+  serializeBackup,
+  readBackupBlob,
+  type ParsedBackup,
+} from "../lib/backup";
 import { getThemePref, setThemePref, type ThemePref } from "../storage/theme";
 import { loadCloudConfig, saveCloudConfig } from "../storage/cloudSync";
 import {
@@ -27,11 +33,7 @@ const THEMES: { id: ThemePref; label: string }[] = [
   { id: "dark", label: "Dark" },
 ];
 
-function downloadJson(data: unknown, filename: string) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json",
-  });
-
+function download(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -41,6 +43,15 @@ function downloadJson(data: unknown, filename: string) {
   // Revoking synchronously cancels the download in some browsers — let the click
   // be handled first.
   setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+// The single-section exports stay plain, readable JSON: they're small, and being
+// openable in a text editor is half their point. Only the full backup is gzipped.
+function downloadJson(data: unknown, filename: string) {
+  download(
+    new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),
+    filename,
+  );
 }
 
 // Rough age of a backup, for "is this the one I want to restore?". Deliberately
@@ -193,37 +204,42 @@ export default function Settings() {
       getThemePref(),
     );
 
-  const handleBackupExport = () => {
-    downloadJson(currentBackup(), "kanjii-backup.json");
+  const handleBackupExport = async () => {
+    download(await serializeBackup(currentBackup()), "kanjii-backup.json.gz");
     // A downloaded file counts as a backup, same as a Drive push — both are what
     // the Home reminder is asking for.
     saveCloudConfig({ ...loadCloudConfig(), lastBackupAt: Date.now() });
   };
 
-  const handleBackupImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    readFile(e.target, (text) => {
-      let data;
-      try {
-        data = parseBackup(JSON.parse(text));
-      } catch (err) {
-        alert(
-          "Couldn't read that backup.\n\n" +
-            `${(err as Error).message}\n\n` +
-            "Nothing was changed.",
-        );
-        return;
-      }
+  // Reads the file itself rather than its text: a backup is gzipped now, and
+  // `readBackupBlob` decides by the magic bytes, so a plain-JSON backup from an
+  // older build still restores.
+  const handleBackupImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
 
-      const ok = confirm(
-        "Restore this backup?\n\n" +
-          backupSummary(data, loadUserVocab().length) +
-          "\nEverything on this device is replaced by the backup. This cannot be undone.",
+    let data;
+    try {
+      data = parseBackup(await readBackupBlob(file));
+    } catch (err) {
+      alert(
+        "Couldn't read that backup.\n\n" +
+          `${(err as Error).message}\n\n` +
+          "Nothing was changed.",
       );
-      if (!ok) return;
+      return;
+    }
 
-      applyBackup(data);
-      alert("Backup restored.");
-    });
+    const ok = confirm(
+      "Restore this backup?\n\n" +
+        backupSummary(data, loadUserVocab().length) +
+        "\nEverything on this device is replaced by the backup. This cannot be undone.",
+    );
+    if (!ok) return;
+
+    applyBackup(data);
+    alert("Backup restored.");
   };
 
   // Both cloud buttons are the same shape: block re-entry, show progress, and
@@ -422,9 +438,11 @@ export default function Settings() {
 
           <label className="settings-import">
             <strong>📥 Import backup</strong>
+            {/* Both, because backups written before compression are plain JSON
+                and must still be selectable. */}
             <input
               type="file"
-              accept="application/json"
+              accept=".gz,application/gzip,.json,application/json"
               onChange={handleBackupImport}
               hidden
             />

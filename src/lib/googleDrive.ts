@@ -11,11 +11,12 @@
 // Google's verification process, which the broader `drive`/`drive.appdata` scopes
 // would require. Don't widen it without understanding that cost.
 //
-// The blob is byte-identical to the file `buildBackup` exports, so a Drive backup
-// and a downloaded one are interchangeable — the file lands in the user's Drive
-// as kanjii-backup.json and can be downloaded by hand.
+// The blob is byte-identical to the file the Settings export writes (gzipped JSON
+// via `serializeBackup`), so a Drive backup and a downloaded one are
+// interchangeable in both directions.
 
 import type { Backup } from "./backup";
+import { serializeBackup, readBackupBlob } from "./backup";
 import { loadCloudConfig, saveCloudConfig } from "../storage/cloudSync";
 
 // OAuth client ID from Google Cloud Console (Credentials → OAuth client ID →
@@ -26,6 +27,11 @@ import { loadCloudConfig, saveCloudConfig } from "../storage/cloudSync";
 export const CLIENT_ID: string = "816088953054-bqtpadf28189524igd9jmivlh6cog2bk.apps.googleusercontent.com";
 
 const SCOPE = "https://www.googleapis.com/auth/drive.file";
+// The name is also the lookup key — `findFile` queries Drive by it — so it must
+// not change even though the contents are gzip now. Renaming it to .json.gz would
+// make every existing backup invisible to `findFile`, and an invisible backup is
+// worse than a misnamed one: the app would report "no backup in this account",
+// which invites a push that lands in a *new* file and orphans the real one.
 const FILE_NAME = "kanjii-backup.json";
 const GSI_SRC = "https://accounts.google.com/gsi/client";
 const DRIVE = "https://www.googleapis.com/drive/v3";
@@ -296,8 +302,9 @@ export async function fetchRemoteMeta(): Promise<RemoteMeta | null> {
   };
 }
 
-// Returns the raw parsed JSON; the caller validates it with parseBackup, so the
-// Drive path goes through exactly the same checks as the file path.
+// Returns the raw parsed object; the caller validates it with parseBackup, so the
+// Drive path goes through exactly the same checks as the file path. `readBackupBlob`
+// sniffs gzip vs plain JSON, so a backup pushed by an older build still restores.
 export async function pullBackup(): Promise<unknown> {
   const file = await findFile();
   if (!file) {
@@ -306,26 +313,30 @@ export async function pullBackup(): Promise<unknown> {
     );
   }
   const response = await driveFetch(`${DRIVE}/files/${file.id}?alt=media`);
-  return (await response.json()) as unknown;
+  return readBackupBlob(await response.blob());
 }
 
 export async function pushBackup(backup: Backup): Promise<void> {
   const file = await findFile();
   const metadata = {
     name: FILE_NAME,
-    mimeType: "application/json",
+    mimeType: "application/gzip",
     appProperties: { exportedAt: String(backup.exportedAt) },
   };
 
   // Random boundary: a fixed one could in principle collide with text the user
   // typed into a word's notes, which would corrupt the upload.
   const boundary = `kanjii-${crypto.randomUUID()}`;
-  const body =
-    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n` +
-    `${JSON.stringify(metadata)}\r\n` +
-    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n` +
-    `${JSON.stringify(backup)}\r\n` +
-    `--${boundary}--`;
+  // A Blob, not a string: the payload is gzip now, and concatenating binary into
+  // a JS string mangles it — every byte above 0x7f would be re-encoded on the way
+  // out and the upload would be a corrupt archive.
+  const body = new Blob([
+    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`,
+    `${JSON.stringify(metadata)}\r\n`,
+    `--${boundary}\r\nContent-Type: application/gzip\r\n\r\n`,
+    await serializeBackup(backup),
+    `\r\n--${boundary}--`,
+  ]);
 
   await driveFetch(
     file

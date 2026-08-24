@@ -79,6 +79,56 @@ export function buildBackup(
   };
 }
 
+// --- On-disk form ------------------------------------------------------------
+//
+// A backup is gzipped JSON. Measured on a real one — 2,136 kanji, 726 words, 20k
+// events, a deck's progress and a year of stats — that's 1.57 MB down to 95 KB,
+// so a Drive push over slow mobile goes from ~13s to under 1s.
+//
+// Both the downloaded file and the Drive blob use this, because they're meant to
+// be interchangeable: a file restore and a cloud restore must accept each other's
+// output. Reading sniffs instead of trusting the extension, so every backup
+// written before compression existed still restores.
+
+const GZIP_MAGIC = [0x1f, 0x8b];
+
+export async function serializeBackup(backup: Backup): Promise<Blob> {
+  // Not pretty-printed: nobody reads a compressed file by eye, and the indentation
+  // is pure padding for gzip to remove again.
+  const json = new Blob([JSON.stringify(backup)]);
+  const gzip = json.stream().pipeThrough(new CompressionStream("gzip"));
+  return new Blob([await new Response(gzip).arrayBuffer()], {
+    type: "application/gzip",
+  });
+}
+
+/**
+ * Read a backup file (or a Drive download) back to the raw object `parseBackup`
+ * validates. Accepts gzip and plain JSON, decided by the magic bytes — an older
+ * backup, or one an older build of the app wrote, is still a plain JSON file and
+ * has to keep working.
+ */
+export async function readBackupBlob(blob: Blob): Promise<unknown> {
+  const head = new Uint8Array(await blob.slice(0, 2).arrayBuffer());
+  const gzipped = head[0] === GZIP_MAGIC[0] && head[1] === GZIP_MAGIC[1];
+
+  let text: string;
+  try {
+    const stream = gzipped
+      ? blob.stream().pipeThrough(new DecompressionStream("gzip"))
+      : blob.stream();
+    text = await new Response(stream).text();
+  } catch {
+    // A truncated or corrupt gzip throws a decoding error nobody can act on.
+    throw new Error("That file is damaged and couldn't be unpacked.");
+  }
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    throw new Error("This doesn't look like a Kanjii backup file.");
+  }
+}
+
 // Skip malformed entries rather than throwing — writing skill is non-critical, so
 // a partially-corrupt map shouldn't block restoring progress and vocab.
 function parseSkill(raw: unknown): KanjiSkillMap {
