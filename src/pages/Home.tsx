@@ -110,10 +110,16 @@ export default function Home() {
       {showSetup && (
         <div className="home-setup surface-card">
           <strong className="home-setup-title">Start with what you know</strong>
+          {/* Leads with the action, not the mechanism. The previous version
+              opened on "your own tags" and "the reader" — a noun and a feature
+              name a first-time reader hasn't met yet, since this card is the
+              first thing they see — and "key off them", which is jargon. Read
+              cold it sounded like it was describing something already set up,
+              and at least one person took it for a bug. */}
           <p className="home-setup-text">
-            Kanjii works from your own tags — practice, writing and the reader all
-            key off them. Marking the kanji you can already read takes a minute
-            and everything else follows from it.
+            Mark the kanji you can already read — it takes about a minute. Kanjii
+            uses that to decide what to show you next, in practice, writing and
+            reading alike.
           </p>
           <div className="home-setup-actions">
             {/* Deliberately doesn't dismiss: if you abandon the flow having
