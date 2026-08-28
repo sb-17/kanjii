@@ -40,6 +40,9 @@ import "./App.css";
 // of the two you open first.
 const KanjiMap = lazy(() => import("./pages/KanjiMap"));
 const Kanji = lazy(() => import("./pages/Kanji"));
+// Also split: it brings its own stylesheet, and it's only reachable by tapping a
+// chart on Analytics.
+const TrendDetail = lazy(() => import("./pages/TrendDetail"));
 
 function AnalyticsTracker() {
   const location = useLocation();
@@ -181,6 +184,10 @@ export default function App() {
             <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/analytics" element={<Analytics />} />
+            {/* One chart, opened up with a span and bucket picker. Lazy: it
+                carries its own stylesheet and nobody reaches it without first
+                tapping a chart. */}
+            <Route path="/analytics/:metric" element={<TrendDetail />} />
             <Route path="/kanji" element={<KanjiList />} />
             <Route path="/map" element={<KanjiMap />} />
             <Route path="/kanji/:char" element={<Kanji />} />

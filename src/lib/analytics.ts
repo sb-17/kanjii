@@ -9,7 +9,14 @@ import type { Vocab } from "../types/vocabType";
 import type { KanjiSkillMap } from "../types/kanjiSkill";
 import { isKnownOrLearning } from "../storage/kanjiProgress";
 import { isVocabAvailable } from "./vocab";
-import { MAX_BOX, isDue, startOfStudyDay, startOfStudyWeek } from "./srs";
+import {
+  MAX_BOX,
+  isDue,
+  startOfStudyDay,
+  startOfStudyWeek,
+  startOfStudyMonth,
+  startOfStudyYear,
+} from "./srs";
 import { isSkillDue } from "./kanjiSkill";
 import type { AppEvent } from "../storage/events";
 import type { DeckStats, DayDeckStat } from "../storage/deckStats";
@@ -328,30 +335,36 @@ export function vocabGrowth(
   weeks = 8,
   now = Date.now(),
 ): VocabGrowth {
-  const buckets: GrowthBucket[] = [];
-  for (let j = 0; j < weeks; j++) {
-    buckets.push({ label: weekLabel(weeks - 1 - j), count: 0 });
-  }
+  const from = trailingFrom("week", weeks, now);
+  const series = bucketSeries(vocabPoints(vocab), "week", from, now);
 
   let older = 0;
   let untracked = 0;
-
   for (const v of vocab) {
-    if (typeof v.addedAt !== "number") {
-      untracked++;
-      continue;
-    }
-    const age = weeksAgo(v.addedAt, now);
-    if (age < 0) {
-      buckets[weeks - 1].count++; // future-dated clock skew: count as this week
-    } else if (age < weeks) {
-      buckets[weeks - 1 - age].count++;
-    } else {
-      older++;
-    }
+    if (typeof v.addedAt !== "number") untracked++;
+    else if (v.addedAt < from) older++;
   }
 
-  return { buckets, older, untracked };
+  return {
+    buckets: series.map((b) => ({
+      label: weekLabel(weeksAgo(b.start, now)),
+      count: b.value,
+    })),
+    older,
+    untracked,
+  };
+}
+
+// Words as points at the moment they were added. Not from the event log at all —
+// `addedAt` is a field on the word — so this reaches back further than any chart
+// built on `kanjii:events`, and words with no date are excluded rather than
+// counted at epoch 0.
+export function vocabPoints(vocab: Vocab[]): Point[] {
+  const points: Point[] = [];
+  for (const v of vocab) {
+    if (typeof v.addedAt === "number") points.push({ t: v.addedAt, v: 1 });
+  }
+  return points;
 }
 
 // ---- Trends (from the event log) ----
@@ -365,69 +378,157 @@ export function knownPerWeek(
   weeks = 8,
   now = Date.now(),
 ): { buckets: SignedWeek[]; hasData: boolean } {
-  const buckets: SignedWeek[] = [];
-  for (let j = 0; j < weeks; j++) {
-    buckets.push({ label: weekLabel(weeks - 1 - j), net: 0 });
-  }
+  const from = trailingFrom("week", weeks, now);
+  const points = knownPoints(events);
+  const series = bucketSeries(points, "week", from, now);
+  return {
+    buckets: series.map((b) => ({
+      label: weekLabel(weeksAgo(b.start, now)),
+      net: b.value,
+    })),
+    // Whether anything landed *in the window*, not whether the log holds
+    // transitions at all — the card uses it to choose between a chart and a
+    // "nothing yet" note.
+    hasData: series.some((b) => b.value !== 0),
+  };
+}
 
-  let hasData = false;
+// Known-set transitions as signed points: +1 on entering Known, -1 on leaving it,
+// so a revert shows as an honest downward bar rather than vanishing.
+export function knownPoints(events: AppEvent[]): Point[] {
+  const points: Point[] = [];
   for (const e of events) {
     if (e.k !== "kanji") continue;
     const delta = (e.to === "known" ? 1 : 0) - (e.f === "known" ? 1 : 0);
-    if (delta === 0) continue;
-    const age = weeksAgo(e.t, now);
-    if (age < 0) {
-      buckets[weeks - 1].net += delta;
-      hasData = true;
-    } else if (age < weeks) {
-      buckets[weeks - 1 - age].net += delta;
-      hasData = true;
-    }
+    if (delta !== 0) points.push({ t: e.t, v: delta });
   }
-  return { buckets, hasData };
+  return points;
 }
 
 export type DayCount = { label: string; count: number };
-const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Count events of one kind per day over the last `days` days.
+// ---- The one bucketing implementation -------------------------------------
 //
-// Bucketed by study day (`startOfStudyDay`), so a 01:00 session lands in the bar
-// for the evening it belongs to rather than splitting one sitting across two.
-function eventsPerDay(
+// Every trend chart in the app runs through `bucketSeries`, including the detail
+// view's wider spans. Two implementations of "reviews per day" is how a card ends
+// up advertising a number the page it links to won't show — this codebase has
+// fixed that twice already, so the general function came first and the fixed
+// windows below are wrappers over it.
+
+export type BucketUnit = "day" | "week" | "month" | "year";
+
+// A timestamped quantity. Everything charted reduces to this: a review is a 1 at
+// its moment, a Known→Learning revert is a -1, a day of deck answers is its whole
+// count at that day's start.
+export type Point = { t: number; v: number };
+
+export type SeriesBucket = { start: number; value: number };
+
+const START_OF: Record<BucketUnit, (t: number) => number> = {
+  day: startOfStudyDay,
+  week: startOfStudyWeek,
+  month: startOfStudyMonth,
+  year: startOfStudyYear,
+};
+
+// Advance one bucket. Done on a Date rather than by adding milliseconds so DST,
+// month lengths and leap years stay correct — a month is not 30 days and a week
+// spanning a DST change is 167 or 169 hours.
+function nextBucket(start: number, unit: BucketUnit): number {
+  const d = new Date(start);
+  if (unit === "day") d.setDate(d.getDate() + 1);
+  else if (unit === "week") d.setDate(d.getDate() + 7);
+  else if (unit === "month") d.setMonth(d.getMonth() + 1);
+  else d.setFullYear(d.getFullYear() + 1);
+  return d.getTime();
+}
+
+/**
+ * Sum `points` into consecutive calendar buckets covering `from`..`to`.
+ *
+ * Buckets are always calendar-aligned (`startOfStudyDay`/`Week`/`Month`/`Year`),
+ * never a rolling window: a bar that has passed keeps its contents forever. The
+ * first bucket is the one containing `from`, the last the one containing `to`,
+ * and empty buckets in between are present with a value of 0 — a gap in study is
+ * information, and dropping it would compress the time axis into a lie.
+ */
+// The start of the bucket containing `t`, for callers that need to line a single
+// timestamp up with a series without building one.
+export function startOfBucket(t: number, unit: BucketUnit): number {
+  return START_OF[unit](t);
+}
+
+export function bucketSeries(
+  points: Point[],
+  unit: BucketUnit,
+  from: number,
+  to: number,
+): SeriesBucket[] {
+  const startOf = START_OF[unit];
+  const first = startOf(from);
+  const last = startOf(to);
+
+  const buckets: SeriesBucket[] = [];
+  const index = new Map<number, number>();
+  for (let s = first; s <= last; s = nextBucket(s, unit)) {
+    index.set(s, buckets.length);
+    buckets.push({ start: s, value: 0 });
+  }
+
+  for (const p of points) {
+    const at = index.get(startOf(p.t));
+    if (at !== undefined) buckets[at].value += p.v;
+  }
+  return buckets;
+}
+
+// Events of one kind as points, one per occurrence.
+function eventPoints(events: AppEvent[], kind: AppEvent["k"]): Point[] {
+  const points: Point[] = [];
+  for (const e of events) if (e.k === kind) points.push({ t: e.t, v: 1 });
+  return points;
+}
+
+// The trailing window the Analytics cards show: `count` buckets ending with the
+// one in progress.
+function trailingFrom(unit: BucketUnit, count: number, now: number): number {
+  let start = START_OF[unit](now);
+  for (let i = 1; i < count; i++) {
+    const d = new Date(start);
+    if (unit === "day") d.setDate(d.getDate() - 1);
+    else if (unit === "week") d.setDate(d.getDate() - 7);
+    else if (unit === "month") d.setMonth(d.getMonth() - 1);
+    else d.setFullYear(d.getFullYear() - 1);
+    start = START_OF[unit](d.getTime());
+  }
+  return start;
+}
+
+function perDay(
   events: AppEvent[],
   kind: AppEvent["k"],
   days: number,
   now: number,
 ): { buckets: DayCount[]; total: number } {
-  const startMs = startOfStudyDay(now) - (days - 1) * DAY_MS;
-
-  const buckets: DayCount[] = [];
-  for (let j = 0; j < days; j++) {
-    const d = new Date(startMs + j * DAY_MS);
-    buckets.push({ label: `${d.getDate()}`, count: 0 });
-  }
-
-  let total = 0;
-  for (const e of events) {
-    if (e.k !== kind || e.t < startMs) continue;
-    const idx = Math.round((startOfStudyDay(e.t) - startMs) / DAY_MS);
-    if (idx >= 0 && idx < days) {
-      buckets[idx].count++;
-      total++;
-    }
-  }
-  return { buckets, total };
+  const from = trailingFrom("day", days, now);
+  const series = bucketSeries(eventPoints(events, kind), "day", from, now);
+  return {
+    buckets: series.map((b) => ({
+      label: `${new Date(b.start).getDate()}`,
+      count: b.value,
+    })),
+    total: series.reduce((n, b) => n + b.value, 0),
+  };
 }
 
 // Practice reviews per day over the last `days` days.
 export function reviewsPerDay(events: AppEvent[], days = 14, now = Date.now()) {
-  return eventsPerDay(events, "review", days, now);
+  return perDay(events, "review", days, now);
 }
 
 // Handwriting practice completions per day over the last `days` days.
 export function writesPerDay(events: AppEvent[], days = 14, now = Date.now()) {
-  return eventsPerDay(events, "write", days, now);
+  return perDay(events, "write", days, now);
 }
 
 export type DeckTrend = {
@@ -444,29 +545,30 @@ export function deckReviewsPerDay(
   days = 14,
   now = Date.now(),
 ): DeckTrend {
-  const startMs = startOfStudyDay(now) - (days - 1) * DAY_MS;
+  const from = trailingFrom("day", days, now);
+  const series = bucketSeries(deckPoints(stats), "day", from, now);
+  const correct = bucketSeries(deckPoints(stats, "ok"), "day", from, now);
+  return {
+    buckets: series.map((b) => ({
+      label: `${new Date(b.start).getDate()}`,
+      count: b.value,
+    })),
+    total: series.reduce((n, b) => n + b.value, 0),
+    correct: correct.reduce((n, b) => n + b.value, 0),
+  };
+}
 
-  const buckets: DayCount[] = [];
-  for (let j = 0; j < days; j++) {
-    const d = new Date(startMs + j * DAY_MS);
-    buckets.push({ label: `${d.getDate()}`, count: 0 });
-  }
-
-  let total = 0;
-  let correct = 0;
+// Daily deck counters as points. Already bucketed by study day at write time
+// (`recordDeckReview`), so a day is the finest granularity these can ever have —
+// there is no per-answer timestamp to recover.
+export function deckPoints(stats: DeckStats, field: "n" | "ok" = "n"): Point[] {
+  const points: Point[] = [];
   for (const [day, decks] of Object.entries(stats)) {
     const t = Number(day);
     if (!Number.isFinite(t)) continue;
-    const idx = Math.round((t - startMs) / DAY_MS);
-    for (const stat of Object.values(decks)) {
-      if (idx >= 0 && idx < days) {
-        buckets[idx].count += stat.n;
-        total += stat.n;
-        correct += stat.ok;
-      }
-    }
+    for (const stat of Object.values(decks)) points.push({ t, v: stat[field] });
   }
-  return { buckets, total, correct };
+  return points;
 }
 
 // Lifetime answers per deck, for the per-deck breakdown. Covers all of history,

@@ -40,6 +40,27 @@
   color: var(--text-strong);
 }
 
+/* A chart title that opens the chart at /analytics/:metric. Inherits everything
+   from the heading so the card's layout is untouched — the only added mark is a
+   muted chevron, which is what says "there's more behind this". */
+.stat-card-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.stat-card-link span {
+  color: var(--text-faint);
+  font-weight: 400;
+}
+
+.stat-card-link:hover {
+  color: var(--accent);
+}
+
+.stat-card-link:hover span {
+  color: var(--accent);
+}
+
 .stat-note {
   font-size: var(--text-sm);
   color: var(--text-muted);

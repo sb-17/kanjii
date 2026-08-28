@@ -50,6 +50,25 @@ export function startOfStudyWeek(t: number): number {
   return d.getTime();
 }
 
+// The start of the study *month* and *year* containing `t`, on the same 04:00
+// cutoff and for the same reason as the week: calendar boundaries, never a
+// rolling 30 or 365 days. A rolling month re-dates every bar daily, so "two
+// months ago" would cover different days each time it's looked at.
+//
+// Both go through startOfStudyDay first, so 01:00 on the 1st belongs to the month
+// that was still running when you sat down.
+export function startOfStudyMonth(t: number): number {
+  const d = new Date(startOfStudyDay(t));
+  d.setDate(1);
+  return d.getTime();
+}
+
+export function startOfStudyYear(t: number): number {
+  const d = new Date(startOfStudyDay(t));
+  d.setMonth(0, 1);
+  return d.getTime();
+}
+
 // When something reviewed at `now` should next come up.
 //
 // Day-length intervals land on the *start of a day*, not on the clock time you

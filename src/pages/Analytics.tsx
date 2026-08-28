@@ -197,7 +197,11 @@ export default function Analytics() {
 
         {/* ---- Kanji → Known / week (trend) ---- */}
         <section className="stat-card surface-card">
-          <h2 className="stat-card-title">Kanji → Known / week</h2>
+          <h2 className="stat-card-title">
+            <Link to="/analytics/known" className="stat-card-link">
+              Kanji → Known / week <span aria-hidden="true">›</span>
+            </Link>
+          </h2>
           {!known.hasData ? (
             <p className="stat-note">
               Your weekly net change shows here as you mark kanji Known (changing
@@ -240,7 +244,11 @@ export default function Analytics() {
 
         {/* ---- Writes / day (trend) ---- */}
         <section className="stat-card surface-card">
-          <h2 className="stat-card-title">Writes / day</h2>
+          <h2 className="stat-card-title">
+            <Link to="/analytics/writes" className="stat-card-link">
+              Writes / day <span aria-hidden="true">›</span>
+            </Link>
+          </h2>
           {writes.total === 0 ? (
             <p className="stat-note">
               Your daily handwriting practice shows here.{" "}
@@ -284,7 +292,11 @@ export default function Analytics() {
             </div>
           </div>
 
-          <h3 className="stat-subheading">Words added / week</h3>
+          <h3 className="stat-subheading">
+            <Link to="/analytics/vocab" className="stat-card-link">
+              Words added / week <span aria-hidden="true">›</span>
+            </Link>
+          </h3>
           {totals.total === 0 ? (
             <p className="stat-note">
               No words yet. <Link to="/words">Add some →</Link>
@@ -362,7 +374,11 @@ export default function Analytics() {
 
         {/* ---- Reviews / day (trend) ---- */}
         <section className="stat-card surface-card">
-          <h2 className="stat-card-title">Reviews / day</h2>
+          <h2 className="stat-card-title">
+            <Link to="/analytics/reviews" className="stat-card-link">
+              Reviews / day <span aria-hidden="true">›</span>
+            </Link>
+          </h2>
           {reviews.total === 0 ? (
             <p className="stat-note">
               Your daily practice reviews show here.{" "}
@@ -386,7 +402,11 @@ export default function Analytics() {
 
         {/* ---- Decks (imported) ---- */}
         <section className="stat-card surface-card">
-          <h2 className="stat-card-title">Decks</h2>
+          <h2 className="stat-card-title">
+            <Link to="/analytics/decks" className="stat-card-link">
+              Decks <span aria-hidden="true">›</span>
+            </Link>
+          </h2>
           {deckTrend.total === 0 ? (
             <p className="stat-note">
               Study an imported deck and it shows here.{" "}

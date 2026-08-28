@@ -1,0 +1,155 @@
+/* Trend detail (/analytics/:metric).
+   All CSS in this project is global, so every class here is `.trend-` prefixed —
+   a name collision with another file merges silently, and this sheet ships in a
+   code-split chunk injected after the main one, so a clash would restyle the
+   whole app the moment this page is opened. */
+
+.trend-back {
+  display: inline-block;
+  margin-bottom: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.trend-back:hover {
+  color: var(--text);
+}
+
+.trend-summary {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-4);
+}
+
+.trend-summary strong {
+  color: var(--text);
+  font-size: var(--text-lg);
+}
+
+/* Hidden rather than removed on a narrow screen: the summary wraps to two or
+   three lines there, and a mid-line separator before a line break reads as a
+   dangling dot. */
+@media (max-width: 480px) {
+  .trend-summary-sep {
+    display: none;
+  }
+
+  .trend-summary {
+    line-height: 1.9;
+  }
+}
+
+/* The one element allowed to scroll sideways. The page body must not: `.app-content`
+   is the shell's only scroller and horizontal drift there fights the fixed shell. */
+.trend-chart-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  padding-bottom: var(--space-2);
+}
+
+/* Bars and labels are two grids with identical tracks, stacked. Keeping the
+   labels out of the columns is what lets the zero line sit at the true middle of
+   the plot instead of the middle of "plot plus label". */
+.trend-plot {
+  min-width: 100%;
+}
+
+.trend-bars,
+.trend-labels {
+  display: grid;
+  grid-auto-flow: column;
+  /* Bars keep a legible width and the container scrolls, instead of 92 of them
+     shrinking to hairlines. 10px is what makes a full month of days fit a phone
+     without scrolling; `1fr` then stretches a 7-bar week to fill the width
+     rather than huddling at the left. */
+  grid-auto-columns: minmax(var(--trend-min, 14px), 1fr);
+  gap: 2px;
+}
+
+.trend-bars {
+  height: 200px;
+  position: relative;
+}
+
+.trend-col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+}
+
+/* Unsigned: one half at flex 1, so it's the whole plot. Signed: two, so a bar's
+   100% is half the plot and the chart is symmetrical about the middle. */
+.trend-half {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+}
+
+.trend-half.top {
+  justify-content: flex-end;
+}
+
+.trend-half.bottom {
+  justify-content: flex-start;
+}
+
+/* The value above its bar (below it, for a negative). Sharing the column with
+   the bar means a full-height bar gets shrunk by the number's line — the same
+   trade the Analytics card makes, and the reason the tallest bar stops just shy
+   of the top. */
+.trend-count {
+  font-size: var(--text-xs);
+  line-height: 1;
+  min-height: 1em;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.trend-bars.split::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px solid var(--border);
+}
+
+.trend-fill {
+  width: 100%;
+  min-height: 2px;
+  background: var(--accent);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+/* Same two colours the Analytics card's signed chart uses, so opening the detail
+   view doesn't recolour the thing you just tapped. */
+.trend-bars.signed .trend-fill {
+  background: var(--success);
+}
+
+.trend-bars.signed .trend-fill.negative {
+  background: var(--warning);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.trend-label {
+  margin-top: var(--space-1);
+  text-align: center;
+  color: var(--text-faint);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  min-height: 1em;
+  /* Labels are thinned in the component, so the ones that render are allowed to
+     spill into the blank width their skipped neighbours left. */
+  overflow: visible;
+}
+
+.trend-horizon {
+  margin-top: var(--space-4);
+}
