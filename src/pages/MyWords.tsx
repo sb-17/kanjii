@@ -12,6 +12,17 @@ const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
 // buttons each, and all of it is laid out on every keystroke in the search box.
 const PAGE_SIZE = 50;
 
+// The search survives leaving the page. Tapping a row to open a word is the usual
+// way out, and coming back to an unfiltered list meant retyping the search every
+// time you wanted to look at two words in a row.
+//
+// Module-level rather than a `?q=` URL param like KanjiList uses: mirroring it
+// into the query string replaces the history entry on every keystroke, and
+// react-router mints a fresh `location.key` for a REPLACE — which ScrollManager
+// (App.tsx) reads as a new entry and scrolls to the top, taking the search box
+// (below the add-word form) off screen mid-typing.
+let lastSearch = "";
+
 export default function MyWords() {
   const [list, setList] = useState<Vocab[]>(() => loadUserVocab());
   const [word, setWord] = useState("");
@@ -21,12 +32,13 @@ export default function MyWords() {
   const [example, setExample] = useState("");
   const [exampleEn, setExampleEn] = useState("");
   const [editKey, setEditKey] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(lastSearch);
   const [shown, setShown] = useState(PAGE_SIZE);
 
   // A new search starts from the top again — otherwise having expanded to 300
   // rows silently keeps that cost for every later search.
   const changeSearch = (value: string) => {
+    lastSearch = value;
     setSearch(value);
     setShown(PAGE_SIZE);
   };
