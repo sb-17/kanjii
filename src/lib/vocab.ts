@@ -111,8 +111,15 @@ export function mergeVocab(
       typeof r.context === "string" && r.context.trim() ? r.context.trim() : undefined;
     const example =
       typeof r.example === "string" && r.example.trim() ? r.example.trim() : undefined;
+    const exampleEn =
+      typeof r.exampleEn === "string" && r.exampleEn.trim()
+        ? r.exampleEn.trim()
+        : undefined;
     const importedAddedAt = typeof r.addedAt === "number" ? r.addedAt : undefined;
     const importedSrs = normalizeVocabSrs(r.srs);
+    const importedSentenceSrs = isSrsBox(r.sentenceSrs)
+      ? { ...r.sentenceSrs }
+      : undefined;
 
     const key = `${word}|${reading}`;
     const existing = map.get(key);
@@ -125,10 +132,12 @@ export function mergeVocab(
       // keep an existing context unless the import provides one
       context: context ?? existing?.context,
       example: example ?? existing?.example,
+      exampleEn: exampleEn ?? existing?.exampleEn,
       // keep the original add time; fall back to the imported one, then to now
       addedAt: existing?.addedAt ?? importedAddedAt ?? importedAt,
       // keep existing review progress; otherwise take the imported state
       srs: existing?.srs ?? importedSrs,
+      sentenceSrs: existing?.sentenceSrs ?? importedSentenceSrs,
     });
   }
 

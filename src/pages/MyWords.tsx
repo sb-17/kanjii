@@ -19,6 +19,7 @@ export default function MyWords() {
   const [meanings, setMeanings] = useState("");
   const [context, setContext] = useState("");
   const [example, setExample] = useState("");
+  const [exampleEn, setExampleEn] = useState("");
   const [editKey, setEditKey] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [shown, setShown] = useState(PAGE_SIZE);
@@ -41,6 +42,7 @@ export default function MyWords() {
     setMeanings("");
     setContext("");
     setExample("");
+    setExampleEn("");
     setEditKey(null);
   };
 
@@ -60,6 +62,7 @@ export default function MyWords() {
       kanji: extractKanji(w),
       context: context.trim() || undefined,
       example: example.trim() || undefined,
+      exampleEn: exampleEn.trim() || undefined,
     };
     const key = `${w}|${r}`;
     // The entry we're updating (when editing, or re-adding an existing key).
@@ -69,8 +72,9 @@ export default function MyWords() {
       ...base,
       addedAt: prev?.addedAt ?? Date.now(),
       // Carry review progress across an edit — fixing a typo or adding a note
-      // must not reset the word's Leitner box.
+      // must not reset the word's Leitner box, or its sentence's.
       srs: prev?.srs,
+      sentenceSrs: prev?.sentenceSrs,
     };
 
     let next: Vocab[];
@@ -96,6 +100,7 @@ export default function MyWords() {
     setMeanings(v.meanings.join(", "));
     setContext(v.context ?? "");
     setExample(v.example ?? "");
+    setExampleEn(v.exampleEn ?? "");
     setEditKey(keyOf(v));
   };
 
@@ -142,7 +147,8 @@ export default function MyWords() {
         v.reading.toLowerCase().includes(t) ||
         v.meanings.some((m) => m.toLowerCase().includes(t)) ||
         (v.context ?? "").toLowerCase().includes(t) ||
-        (v.example ?? "").toLowerCase().includes(t),
+        (v.example ?? "").toLowerCase().includes(t) ||
+        (v.exampleEn ?? "").toLowerCase().includes(t),
     );
   }, [list, search]);
 
@@ -203,6 +209,20 @@ export default function MyWords() {
               placeholder="Example sentence (optional)"
               value={example}
               onChange={(e) => setExample(e.target.value)}
+            />
+          </ClearableField>
+          <ClearableField
+            show={exampleEn.length > 0}
+            onClear={() => setExampleEn("")}
+            align="top"
+            label="Clear example translation"
+          >
+            <textarea
+              className="mw-input mw-context"
+              rows={2}
+              placeholder="Example sentence translation (optional)"
+              value={exampleEn}
+              onChange={(e) => setExampleEn(e.target.value)}
             />
           </ClearableField>
         </div>

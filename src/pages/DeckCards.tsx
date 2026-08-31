@@ -137,6 +137,7 @@ export default function DeckCards() {
         // you write, and an auto-filled sentence landing there would overwrite
         // them and blur what the field means.
         ...(current.example ? { example: current.example } : {}),
+        ...(current.exampleEn ? { exampleEn: current.exampleEn } : {}),
         addedAt: Date.now(),
       },
       ...list,

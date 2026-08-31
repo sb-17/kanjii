@@ -134,8 +134,10 @@ export default function KanjiLearn() {
       // rather than duplicating, and never reset its review progress.
       context: prev?.context,
       example: prev?.example,
+      exampleEn: prev?.exampleEn,
       addedAt: prev?.addedAt ?? Date.now(),
       srs: prev?.srs,
+      sentenceSrs: prev?.sentenceSrs,
     };
 
     saveUserVocab(

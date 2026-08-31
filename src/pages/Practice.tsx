@@ -7,11 +7,13 @@ import { isVocabAvailable } from "../lib/vocab";
 import {
   scopeVocab,
   pickWord,
+  applyReview,
   gradeDirection,
   pickDirection,
   isDue,
   isNew,
 } from "../lib/srs";
+import { pickSentence, preferSentence, sentencePool } from "../lib/sentenceSrs";
 import {
   japaneseMatches,
   meaningMatches,
@@ -30,6 +32,11 @@ import ClearableField from "../components/clearable-field/ClearableField";
 // "etj" = English -> Japanese, "jte" = Japanese -> English
 type Direction = "etj" | "jte";
 
+// What's on screen. A "sentence" item is the word blanked out of its own example
+// sentence; it grades the word's `sentenceSrs` box and leaves both directions
+// alone (and vice versa), so `dir` only means anything in "word" mode.
+type Item = { v: Vocab; mode: "word" | "sentence"; dir: Direction };
+
 const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
 
 // New words still allowed today. Read live from the event cache rather than held
@@ -45,6 +52,38 @@ const remainingNewToday = (perDay: number, list: Vocab[], now: number) =>
     list.some((v) => !isNew(v) && isDue(v, now)),
     now,
   );
+
+// The next thing to study, drawn from two queues: words (unchanged) and example
+// sentences. Both are built from the same available list and the same scope;
+// which one wins is `preferSentence`. `list` is already availability-filtered.
+const nextItem = (
+  list: Vocab[],
+  scope: PracticeScope,
+  settings: Settings,
+  now: number,
+  exceptKey?: string,
+): Item | null => {
+  const pool = scopeVocab(
+    list,
+    scope,
+    now,
+    remainingNewToday(settings.newPerDay, list, now),
+  );
+  const word = pickWord(pool, scope, exceptKey, now);
+
+  const sPool = settings.practiceSentences ? sentencePool(list, scope, now) : [];
+  const sentence = pickSentence(sPool, scope, exceptKey);
+  if (
+    sentence &&
+    preferSentence(word, sentence, scope, now, {
+      words: pool.length,
+      sentences: sPool.length,
+    })
+  ) {
+    return { v: sentence, mode: "sentence", dir: "etj" };
+  }
+  return word ? { v: word, mode: "word", dir: pickDirection(word, now) } : null;
+};
 
 // The "smart" id is kept (it's the stored setting value); only the label changed
 // to "Due" to line up with writing practice. It still falls back to extra cards
@@ -63,26 +102,17 @@ export default function Practice() {
   const scope = settings.practiceScope;
 
   const [vocab, setVocab] = useState<Vocab[]>(loadUserVocab);
-  const [current, setCurrent] = useState<Vocab | null>(() =>
-    pickWord(
-      scopeVocab(
-        loadUserVocab().filter((v) => isVocabAvailable(v, progress)),
-        scope,
-        Date.now(),
-        remainingNewToday(
-          loadSettings().newPerDay,
-          loadUserVocab().filter((v) => isVocabAvailable(v, progress)),
-          Date.now(),
-        ),
-      ),
+  const [item, setItem] = useState<Item | null>(() =>
+    nextItem(
+      loadUserVocab().filter((v) => isVocabAvailable(v, progress)),
       scope,
-      undefined,
+      loadSettings(),
       Date.now(),
     ),
   );
-  const [direction, setDirection] = useState<Direction>(() =>
-    current ? pickDirection(current, Date.now()) : "etj",
-  );
+  const current = item?.v ?? null;
+  const direction = item?.dir ?? "etj";
+  const mode = item?.mode ?? "word";
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -101,6 +131,10 @@ export default function Practice() {
     return () => timers.forEach(clearTimeout);
   }, []);
 
+  // A sentence item is self-graded against the translation you wrote, so it has
+  // no typed answer at all — see lib/sentenceSrs.
+  const isSentence = mode === "sentence";
+
   // Only English → Japanese needs kana; the other direction is answered in
   // English, so with this on the phone can stay on its Latin keyboard for both.
   const romaji = settings.romajiInput && direction === "etj";
@@ -110,75 +144,77 @@ export default function Practice() {
     [vocab, progress],
   );
   // Caught up = no review is due *and* today's new-word allowance is spent (or
-  // there's nothing new left). Anything after that is extra practice.
+  // there's nothing new left) *and* no sentence is waiting either. Anything after
+  // that is extra practice.
   const caughtUp =
     scope === "smart" &&
     available.length > 0 &&
     !available.some((v) => !isNew(v) && isDue(v, now)) &&
     (remainingNewToday(settings.newPerDay, available, now) <= 0 ||
-      !available.some(isNew));
+      !available.some(isNew)) &&
+    (!settings.practiceSentences ||
+      sentencePool(available, "smart", now).length === 0);
 
-  // Move to the next word, picked from the latest vocab + current scope.
+  // Move to the next item, picked from the latest vocab + current scope.
   const availableIn = (list: Vocab[]) =>
     list.filter((v) => isVocabAvailable(v, progress));
 
-  const advance = (source: Vocab[]) => {
-    const pool = scopeVocab(
-      availableIn(source),
-      scope,
-      now,
-      remainingNewToday(settings.newPerDay, availableIn(source), now),
-    );
-    const nextWord = pickWord(
-      pool,
-      scope,
-      current ? keyOf(current) : undefined,
-      now,
-    );
-    setCurrent(nextWord);
-    setDirection(nextWord ? pickDirection(nextWord, now) : "etj");
+  const resetAnswer = () => {
     setAnswer("");
     setFeedback(null);
     setRevealed(false);
     setShowNote(false);
     setGraded(false);
+  };
+
+  const advance = (source: Vocab[]) => {
+    setItem(
+      nextItem(
+        availableIn(source),
+        scope,
+        settings,
+        now,
+        current ? keyOf(current) : undefined,
+      ),
+    );
+    resetAnswer();
   };
 
   const changeScope = (next: PracticeScope) => {
     const updated = { ...settings, practiceScope: next };
     setSettings(updated);
     saveSettings(updated);
-    const pool = scopeVocab(
-      available,
-      next,
-      now,
-      remainingNewToday(updated.newPerDay, available, now),
+    setItem(
+      nextItem(
+        available,
+        next,
+        updated,
+        now,
+        current ? keyOf(current) : undefined,
+      ),
     );
-    const nextWord = pickWord(
-      pool,
-      next,
-      current ? keyOf(current) : undefined,
-      now,
-    );
-    setCurrent(nextWord);
-    setDirection(nextWord ? pickDirection(nextWord, now) : "etj");
-    setAnswer("");
-    setFeedback(null);
-    setRevealed(false);
-    setShowNote(false);
-    setGraded(false);
+    resetAnswer();
   };
 
-  // Grade the current word once (updates its SRS box + persists). Returns the
+  // Grade the current item once (updates its SRS box + persists). Returns the
   // updated vocab list so callers can advance from it.
   const grade = (correct: boolean): Vocab[] => {
     if (!current) return vocab;
-    const srs = gradeDirection(current, direction, correct, Date.now());
-    const next = vocab.map((v) => (keyOf(v) === keyOf(current) ? { ...v, srs } : v));
+    const at = Date.now();
+    const patch: Partial<Vocab> = isSentence
+      ? { sentenceSrs: applyReview(current.sentenceSrs, correct, at) }
+      : { srs: gradeDirection(current, direction, correct, at) };
+    const next = vocab.map((v) =>
+      keyOf(v) === keyOf(current) ? { ...v, ...patch } : v,
+    );
     setVocab(next);
     saveUserVocab(next);
-    logReview(current.word, current.reading, correct);
-    setCurrent({ ...current, srs });
+    // Word reviews only. A sentence answer logged here is indistinguishable from
+    // the word's first-ever review, and `newWordsIntroducedToday` reads that as
+    // introducing a new word — spending the daily allowance on a word already
+    // being reviewed. Deck reviews stay out of the log for the same reason.
+    if (!isSentence) logReview(current.word, current.reading, correct);
+    setItem((it) => (it ? { ...it, v: { ...it.v, ...patch } } : it));
     setGraded(true);
     return next;
   };
@@ -222,6 +258,11 @@ export default function Practice() {
     setRevealed(true);
     setFeedback(null);
   };
+
+  // A sentence item grades itself: you compare your translation with the one you
+  // wrote for the word and say which it was. No auto-advance pause — there's no
+  // feedback to read, since you already know how it went.
+  const handleSelfGrade = (correct: boolean) => advance(grade(correct));
 
   const handleSkip = () => advance(vocab);
 
@@ -276,20 +317,27 @@ export default function Practice() {
             <p className="practice-caughtup">✓ All caught up — extra practice</p>
           )}
 
-          <div className="practice-question-container">
-            <strong>
-              {direction === "etj"
-                ? "Translate to Japanese: "
-                : "Translate to English: "}
-            </strong>
-            {/* J→E shows the word, E→J shows the English meaning — so only the
-                first branch carries Japanese. */}
-            {direction === "jte" ? (
-              <span lang="ja">{`${current.word} (${current.reading})`}</span>
-            ) : (
-              current.meanings.join(", ")
-            )}
-          </div>
+          {isSentence ? (
+            <div className="practice-question-container practice-sentence">
+              <strong>Translate this sentence: </strong>
+              <span lang="ja">{current.example}</span>
+            </div>
+          ) : (
+            <div className="practice-question-container">
+              <strong>
+                {direction === "etj"
+                  ? "Translate to Japanese: "
+                  : "Translate to English: "}
+              </strong>
+              {/* J→E shows the word, E→J shows the English meaning — so only the
+                  first branch carries Japanese. */}
+              {direction === "jte" ? (
+                <span lang="ja">{`${current.word} (${current.reading})`}</span>
+              ) : (
+                current.meanings.join(", ")
+              )}
+            </div>
+          )}
 
           {current.context && (
             <div className="practice-note-line">
@@ -304,6 +352,52 @@ export default function Practice() {
             </div>
           )}
 
+          {isSentence ? (
+            <div className="practice-answer-container">
+              {revealed ? (
+                <>
+                  <p className="practice-sentence-translation">
+                    {current.exampleEn}
+                  </p>
+                  {/* You already know how it went, so this is the grade, not a
+                      check of one — see lib/sentenceSrs. */}
+                  <div className="practice-actions">
+                    <button
+                      onClick={() => handleSelfGrade(false)}
+                      className="practice-skip-button"
+                    >
+                      Again
+                    </button>
+                    <button
+                      onClick={() => handleSelfGrade(true)}
+                      className="practice-submit-button"
+                    >
+                      Got it
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="practice-actions">
+                  <button onClick={handleSkip} className="practice-skip-button">
+                    Skip
+                  </button>
+                  <button
+                    onClick={() => setRevealed(true)}
+                    className="practice-submit-button"
+                  >
+                    Show translation
+                  </button>
+                </div>
+              )}
+
+              <Link
+                className="practice-word-link"
+                to={`/word/${encodeURIComponent(keyOf(current))}`}
+              >
+                View word →
+              </Link>
+            </div>
+          ) : (
           <div className="practice-answer-container">
             <ClearableField
               show={answer.length > 0}
@@ -391,6 +485,7 @@ export default function Practice() {
               </Link>
             )}
           </div>
+          )}
         </>
       )}
     </div>

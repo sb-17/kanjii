@@ -38,6 +38,7 @@ export default function WordDetail() {
         {word.reading && <div className="word-reading" lang="ja">{word.reading}</div>}
         <div className="word-meanings">{word.meanings.join(", ")}</div>
         {word.example && <p className="word-example" lang="ja">{word.example}</p>}
+        {word.exampleEn && <p className="word-example-en">{word.exampleEn}</p>}
         {word.context && <p className="word-note">{word.context}</p>}
       </div>
 

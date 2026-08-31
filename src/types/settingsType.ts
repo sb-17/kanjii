@@ -16,6 +16,10 @@ export type Settings = {
   // Practice: convert romaji to kana as you type, so English → Japanese answers
   // don't need the phone's IME. Off = type Japanese with a real IME.
   romajiInput: boolean;
+  // Practice: whether example sentences join the queue as fill-in-the-blank
+  // items, scheduled on their own box. Only sentences that literally contain the
+  // word can be used — see lib/sentenceSrs `clozeSpan`.
+  practiceSentences: boolean;
   // When true, a word is practiceable once *most* (≥50%) of its kanji are
   // Learning/Known, instead of requiring all of them. Off = strict (all kanji).
   partialAvailability: boolean;

@@ -103,6 +103,9 @@ export default function Settings() {
   const [romajiInput, setRomajiInput] = useState(
     () => loadSettings().romajiInput,
   );
+  const [practiceSentences, setPracticeSentences] = useState(
+    () => loadSettings().practiceSentences,
+  );
   const [partialAvailability, setPartialAvailability] = useState(
     () => loadSettings().partialAvailability,
   );
@@ -133,6 +136,11 @@ export default function Settings() {
   const changeRomajiInput = (next: boolean) => {
     setRomajiInput(next);
     saveSettings({ ...loadSettings(), romajiInput: next });
+  };
+
+  const changePracticeSentences = (next: boolean) => {
+    setPracticeSentences(next);
+    saveSettings({ ...loadSettings(), practiceSentences: next });
   };
 
   const changePartialAvailability = (next: boolean) => {
@@ -183,6 +191,7 @@ export default function Settings() {
       saveSettings(mergedSettings);
       // keep the on-screen toggles in sync with what was just restored
       setRomajiInput(mergedSettings.romajiInput);
+      setPracticeSentences(mergedSettings.practiceSentences);
       setPartialAvailability(mergedSettings.partialAvailability);
       setNewPerDay(String(mergedSettings.newPerDay));
     }
@@ -357,6 +366,21 @@ export default function Settings() {
             onChange={(e) => changeRomajiInput(e.target.checked)}
           />
           <span>Romaji input in Practice</span>
+        </label>
+
+        <p className="settings-description">
+          Example sentences come up on their own schedule: read the Japanese,
+          reveal your translation, and grade yourself. Needs a sentence
+          <em> and</em> a translation on the word.
+        </p>
+
+        <label className="settings-checkbox">
+          <input
+            type="checkbox"
+            checked={practiceSentences}
+            onChange={(e) => changePracticeSentences(e.target.checked)}
+          />
+          <span>Practise example sentences</span>
         </label>
       </div>
 

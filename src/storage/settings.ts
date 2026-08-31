@@ -9,6 +9,7 @@ const DEFAULTS: Settings = {
   writePool: "both",
   practiceScope: "smart",
   romajiInput: true,
+  practiceSentences: true,
   partialAvailability: false,
   newPerDay: 10,
   deckScope: "due",

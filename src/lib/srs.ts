@@ -185,7 +185,10 @@ export function dueCount(list: Vocab[], now: number): number {
 // at 0 and sorted ahead of every real review (and, being tied, stayed in file
 // order); meanwhile a word added today keyed on `Date.now()` and sorted behind
 // everything. New words are a separate queue now — see `pickNewWord`.
-function reviewDueKey(v: Vocab, now: number, dir?: ReviewDirection): number {
+//
+// Exported because sentence items rank against word reviews on this same axis
+// (lib/sentenceSrs `preferSentence`) — two due queues, one ordering.
+export function reviewDueKey(v: Vocab, now: number, dir?: ReviewDirection): number {
   const keyOf = (d: ReviewDirection) => {
     const s = v.srs?.[d];
     return s ? s.due : now;

@@ -142,6 +142,24 @@
     color: var(--accent);
 }
 
+/* A sentence prompt is many times longer than a word prompt, so it can't carry
+   the word-sized type. */
+.practice-sentence {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    line-height: 1.8;
+}
+
+/* Your own translation, revealed to grade yourself against. Sized like the
+   prompt it answers, and given room above the Again/Got it row so the grade
+   isn't tapped before it's read. */
+.practice-sentence-translation {
+    margin: 0 0 var(--space-5);
+    text-align: center;
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--text-strong);
+}
+
 .practice-caughtup {
     margin: 0 0 var(--space-3);
     text-align: center;

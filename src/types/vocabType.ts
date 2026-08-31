@@ -23,9 +23,22 @@ export type Vocab = {
   // want to re-read later. Keeping the two apart also means an auto-filled
   // sentence can never overwrite something you wrote yourself.
   example?: string;
+  // Optional: an English translation of `example`. Reference material only —
+  // nothing grades an answer against it. One Japanese sentence has too many
+  // correct English renderings for a string matcher to judge, and a graded miss
+  // costs a Leitner box. Deck cards carry one (deckType `exampleEn`) and it
+  // follows the word into My words.
+  exampleEn?: string;
   // Optional: epoch ms when the word was first added (used for "recently added").
   addedAt?: number;
   // Optional spaced-repetition state, per direction. Legacy data stored a single
   // box here; it's migrated to both directions on load (see lib/vocab.ts).
   srs?: VocabSrs;
+  // Optional Leitner box for the example sentence, practised as fill-in-the-blank
+  // (see lib/sentenceSrs). Deliberately *not* a third ReviewDirection: `isDue` is
+  // "any direction due" and an unpractised direction counts as due, so a sentence
+  // direction would make every word with a sentence permanently due and change
+  // every due count in the app. It lives on the word so it rides in the backup
+  // with the rest of the vocab rather than needing a store of its own.
+  sentenceSrs?: SrsBox;
 };

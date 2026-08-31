@@ -58,6 +58,15 @@
     line-height: 1.6;
 }
 
+/* Sits directly under .word-example as its translation, so it's tighter and
+   quieter than the Japanese it belongs to. */
+.word-example-en {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
 .word-section-title {
     font-size: var(--text-xs);
     font-weight: 700;
