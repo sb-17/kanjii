@@ -43,6 +43,26 @@ const FIELDS: { key: keyof ColumnMap; label: string }[] = [
   { key: "exampleEn", label: "Example sentence translation" },
 ];
 
+// What kind of file is this? Decided by its first bytes, not by its name.
+//
+// A phone's file picker doesn't reliably preserve an extension: pick a deck from
+// Files, Drive or any content provider and the name can come back without its
+// suffix, or as a bare document id. Matching on `.apkg` then sent the file down
+// the plain-text path, which failed with "That file has no rows in it" — an error
+// about the wrong thing entirely.
+//
+// Every ZIP starts with "PK", and an .apkg is a ZIP. A NUL byte early on means
+// binary that isn't a ZIP — a photo or a PDF picked by mistake, which the file
+// dialog no longer filters out (see the input below). Everything else is treated
+// as a text export, which is what it has always been.
+type FileKind = "zip" | "binary" | "text";
+
+async function sniffFile(file: Blob): Promise<FileKind> {
+  const head = new Uint8Array(await file.slice(0, 512).arrayBuffer());
+  if (head[0] === 0x50 && head[1] === 0x4b) return "zip";
+  return head.includes(0) ? "binary" : "text";
+}
+
 function sampleOf(rows: string[][], column: number): string {
   const value = rows.find((r) => (r[column] ?? "").trim() !== "")?.[column] ?? "";
   return value.length > 24 ? `${value.slice(0, 24)}…` : value;
@@ -82,7 +102,13 @@ export default function Decks() {
     const name = file.name.replace(/\.[^.]+$/, "") || "Imported deck";
     setReading(true);
     try {
-      if (/\.apkg$/i.test(file.name)) {
+      const kind = await sniffFile(file);
+      if (kind === "binary") {
+        throw new Error(
+          "That doesn't look like a deck. Pick an Anki .apkg, or a text export.",
+        );
+      }
+      if (kind === "zip") {
         // Loaded on demand: the ZIP, SQLite and zstd readers are only needed by
         // someone importing an .apkg, and this page is on the main bundle.
         const { readApkg } = await import("../lib/apkg");
@@ -280,9 +306,14 @@ export default function Decks() {
           <div className="settings-actions">
             <label className="settings-import">
               <strong>{reading ? "Reading…" : "📥 Import deck file"}</strong>
+              {/* No `accept`, deliberately. `.apkg` has no registered MIME type,
+                  and a phone's picker resolves the list to MIME types rather than
+                  extensions — the unknown ones drop out, leaving `text/*`, which
+                  greys out the very file you came to pick. It was unimportable on
+                  Android for exactly this reason. Desktop loses a filtered dialog;
+                  mobile gains the feature, and `isZip` sorts the file out anyway. */}
               <input
                 type="file"
-                accept=".apkg,.txt,.tsv,.csv,text/*"
                 onChange={handleFile}
                 disabled={reading}
                 hidden

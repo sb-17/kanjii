@@ -107,6 +107,16 @@ async function extract(file: Blob, entry: Entry): Promise<Uint8Array> {
   if (entry.method !== 8) {
     throw new Error("That .apkg uses a compression method we can't read.");
   }
+  // Safari only got DecompressionStream in 16.4, so an older iPhone reaches this
+  // with the global missing and would otherwise fail on a bare ReferenceError.
+  // Anki 2.1.50+ files store their collection uncompressed inside the ZIP (it's
+  // already zstd), so this is only on the path for older exports — worth naming
+  // the way out rather than just the obstacle.
+  if (typeof DecompressionStream === "undefined") {
+    throw new Error(
+      "This browser is too old to unpack that deck. Update iOS/your browser, or re-export the deck from a newer Anki.",
+    );
+  }
   const stream = new Blob([raw as BlobPart])
     .stream()
     .pipeThrough(new DecompressionStream("deflate-raw"));
