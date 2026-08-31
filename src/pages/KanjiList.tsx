@@ -1,5 +1,5 @@
-import { useState, useMemo, useLayoutEffect, lazy, Suspense } from "react";
-import { useSearchParams, useLocation } from "react-router-dom";
+import { useState, useMemo, lazy, Suspense } from "react";
+import { useSearchParams } from "react-router-dom";
 import * as wanakana from "wanakana";
 import KanjiCard from "../components/kanji-card/KanjiCard";
 import kanji from "../data/kanji.json";
@@ -32,14 +32,6 @@ const SORTS: { id: SortKey; label: string }[] = [
   { id: "added", label: "Recently added" },
 ];
 
-// Remembered scroll offset per history entry, so returning from a kanji page
-// (browser back → same location.key) lands where you left off, while a fresh
-// open of the list (new key) starts at the top.
-const listScroll = new Map<string, number>();
-// History keys are never reused, so one entry per visit grew for as long as the
-// tab lived. Only recent entries are ever returned to, so keep an LRU window.
-const MAX_REMEMBERED_SCROLLS = 20;
-
 export default function KanjiList() {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -68,28 +60,8 @@ export default function KanjiList() {
   // param, unlike the other filters — a drawing can't be put in a query string.
   const [drawMatches, setDrawMatches] = useState<string[] | null>(null);
 
-  // Save/restore the scroll offset of the scrolling pane (.app-content) for this
-  // history entry, so back-from-a-kanji returns to the same spot. A fresh visit
-  // has no saved offset, so it starts at the top (explicit, to not inherit the
-  // previous page's scroll).
-  const location = useLocation();
-  useLayoutEffect(() => {
-    const el = document.querySelector<HTMLElement>(".app-content");
-    if (!el) return;
-    el.scrollTop = listScroll.get(location.key) ?? 0;
-    const onScroll = () => {
-      // delete-then-set moves this key to the end, so the eviction below always
-      // drops the least recently scrolled entry and never the current one.
-      listScroll.delete(location.key);
-      listScroll.set(location.key, el.scrollTop);
-      if (listScroll.size > MAX_REMEMBERED_SCROLLS) {
-        const oldest = listScroll.keys().next().value;
-        if (oldest !== undefined) listScroll.delete(oldest);
-      }
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [location.key]);
+  // Scroll restore on back used to live here. It's `ScrollManager` in App.tsx
+  // now, applied to every route — see the comment there.
 
   const parsedCount = Math.floor(Number(countInput));
   const numberOfKanjiShown =

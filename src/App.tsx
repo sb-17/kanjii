@@ -5,7 +5,6 @@ import {
   Route,
   Navigate,
   useLocation,
-  useNavigationType,
 } from "react-router-dom";
 import Navigation from "./components/navigation/Navigation";
 import UpdateToast from "./components/update-toast/UpdateToast";
@@ -69,18 +68,60 @@ function AnalyticsTracker() {
   return null;
 }
 
-// Send each new (PUSH) navigation to the top of the scrolling pane. Otherwise a
-// route change keeps the previous page's scroll offset — e.g. opening a kanji from
-// a scrolled list would land partway down. Back/forward (POP) is left alone so
-// pages that restore their own scroll (the kanji list) can return you where you
-// were. useLayoutEffect so it happens before paint (no visible jump).
+// Remembered scroll offset per history entry, so going back lands where you left
+// off while a fresh visit starts at the top. History keys are never reused, so
+// one entry per visit would grow for as long as the tab lives — keep an LRU
+// window, since only recent entries are ever returned to.
+const scrollPositions = new Map<string, number>();
+const MAX_REMEMBERED_SCROLLS = 20;
+
+// Scroll behaviour for every route: back/forward restores, a new navigation goes
+// to the top.
+//
+// Both fall out of one rule — restore whatever was saved for this history entry,
+// defaulting to 0 — because a PUSH always has a key nothing was ever saved under.
+// This used to be top-on-PUSH only, with `KanjiList` keeping its own copy of the
+// restore half; every other list (My words especially) simply lost your place on
+// the way back. One implementation here, so a new page gets it for free.
+//
+// useLayoutEffect so it lands before paint, with no visible jump.
 function ScrollManager() {
   const location = useLocation();
-  const navType = useNavigationType();
   useLayoutEffect(() => {
-    if (navType !== "PUSH") return;
-    document.querySelector<HTMLElement>(".app-content")?.scrollTo(0, 0);
-  }, [location.key, navType]);
+    const el = document.querySelector<HTMLElement>(".app-content");
+    if (!el) return;
+    const target = scrollPositions.get(location.key) ?? 0;
+    el.scrollTop = target;
+
+    // A lazily-loaded route (Kanji, Map) paints a Suspense fallback first, so on
+    // this frame the pane can be too short to accept the offset and the restore
+    // would silently clamp to the top. Re-apply over the next few frames until it
+    // takes. Bounded, and skipped entirely for the common target of 0.
+    let raf = 0;
+    let framesLeft = target > 0 ? 10 : 0;
+    const settle = () => {
+      if (framesLeft-- <= 0 || el.scrollTop >= target) return;
+      el.scrollTop = target;
+      raf = requestAnimationFrame(settle);
+    };
+    if (framesLeft > 0) raf = requestAnimationFrame(settle);
+
+    const onScroll = () => {
+      // delete-then-set moves this key to the end, so the eviction below always
+      // drops the least recently scrolled entry and never the current one.
+      scrollPositions.delete(location.key);
+      scrollPositions.set(location.key, el.scrollTop);
+      if (scrollPositions.size > MAX_REMEMBERED_SCROLLS) {
+        const oldest = scrollPositions.keys().next().value;
+        if (oldest !== undefined) scrollPositions.delete(oldest);
+      }
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("scroll", onScroll);
+    };
+  }, [location.key]);
   return null;
 }
 

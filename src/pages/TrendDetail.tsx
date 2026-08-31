@@ -266,18 +266,34 @@ export default function TrendDetail() {
         <p className="stat-note">Nothing recorded yet.</p>
       ) : (
         <>
+          {/* Flex with a gap, not text separators. The separators used to carry
+              their own spaces (" · ") and were hidden on a narrow screen, which
+              took the spaces with them — "+15 kanji0.5 per daybest 3". The gap
+              does the spacing now, so dropping the dots can't glue words
+              together, and the parts wrap as whole phrases. */}
           <p className="trend-summary">
-            <strong>
-              {metric.signed && total > 0 ? "+" : ""}
-              {total.toLocaleString()}
-            </strong>{" "}
-            {metric.unit}
-            <span className="trend-summary-sep"> · </span>
-            {average.toFixed(average < 10 ? 1 : 0)} per {active}
+            <span className="trend-summary-part">
+              <strong>
+                {metric.signed && total > 0 ? "+" : ""}
+                {total.toLocaleString()}
+              </strong>{" "}
+              {metric.unit}
+            </span>
+            <span className="trend-summary-dot" aria-hidden="true">
+              ·
+            </span>
+            <span className="trend-summary-part">
+              {average.toFixed(average < 10 ? 1 : 0)} per {active}
+            </span>
             {best && best.value > 0 && (
               <>
-                <span className="trend-summary-sep"> · </span>
-                best {best.value.toLocaleString()} ({bucketTitle(best.start, active)})
+                <span className="trend-summary-dot" aria-hidden="true">
+                  ·
+                </span>
+                <span className="trend-summary-part">
+                  best {best.value.toLocaleString()} (
+                  {bucketTitle(best.start, active)})
+                </span>
               </>
             )}
           </p>

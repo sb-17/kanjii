@@ -235,19 +235,28 @@ export default function Decks() {
             </p>
           )}
 
-          <label className="deck-field">
-            <span>Deck name</span>
+          {/* A <div> wrapping a <label for>, not a <label> wrapping the control.
+              Wrapping puts the whole row — caption included — inside the control's
+              activation area, and on iOS the tap is re-dispatched from the label
+              to its control. With five of these stacked a fingertip near the
+              bottom of one select lands on the next field's caption and opens
+              *that* dropdown instead. Associating by id keeps the caption working
+              for screen readers without making the whole block a hit target. */}
+          <div className="deck-field">
+            <label htmlFor="deck-name">Deck name</label>
             <input
+              id="deck-name"
               type="text"
               value={pending.name}
               onChange={(e) => setPending({ ...pending, name: e.target.value })}
             />
-          </label>
+          </div>
 
           {FIELDS.map((field) => (
-            <label key={field.key} className="deck-field">
-              <span>{field.label}</span>
+            <div key={field.key} className="deck-field">
+              <label htmlFor={`deck-col-${field.key}`}>{field.label}</label>
               <select
+                id={`deck-col-${field.key}`}
                 value={pending.columns[field.key] ?? ""}
                 onChange={(e) =>
                   setColumn(
@@ -270,7 +279,7 @@ export default function Decks() {
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
           ))}
 
           {error && <p className="deck-error">{error}</p>}

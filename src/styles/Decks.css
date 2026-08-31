@@ -104,7 +104,12 @@
     margin-bottom: var(--space-3);
 }
 
-.deck-field span {
+/* The caption above a field. A `span` where the row is a wrapping <label> (text
+   inputs, where activating on caption-tap is harmless and useful), a real
+   `label` where the row is a <div> and the control is a <select> — see the
+   comment in Decks.tsx for why selects must not be wrapped. */
+.deck-field span,
+.deck-field>label {
     display: block;
     margin-bottom: var(--space-2);
 }

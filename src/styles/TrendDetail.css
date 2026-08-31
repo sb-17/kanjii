@@ -16,8 +16,14 @@
   color: var(--text);
 }
 
+/* Spacing comes from the gap, never from text inside the separators — hiding a
+   separator that carried its own spaces is what once ran the words together. */
 .trend-summary {
-  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
   color: var(--text-muted);
   font-size: var(--text-sm);
   margin: 0 0 var(--space-4);
@@ -28,16 +34,15 @@
   font-size: var(--text-lg);
 }
 
-/* Hidden rather than removed on a narrow screen: the summary wraps to two or
-   three lines there, and a mid-line separator before a line break reads as a
-   dangling dot. */
-@media (max-width: 480px) {
-  .trend-summary-sep {
-    display: none;
-  }
+.trend-summary-dot {
+  color: var(--text-faint);
+}
 
-  .trend-summary {
-    line-height: 1.9;
+/* Narrow enough that the summary wraps: the dots would then start or end a line
+   like stray bullets, and the gap already separates the parts. */
+@media (max-width: 560px) {
+  .trend-summary-dot {
+    display: none;
   }
 }
 
