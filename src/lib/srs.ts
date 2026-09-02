@@ -79,8 +79,15 @@ export function startOfStudyYear(t: number): number {
 //
 // Box 0 is deliberately exempt. It's the "come back this session" step, and ten
 // minutes means ten minutes.
-export function dueAfter(box: number, now: number): number {
-  const interval = BOX_INTERVALS[Math.min(Math.max(box, 0), MAX_BOX)];
+//
+// `intervals` defaults to the vocab ladder; handwriting passes its own, shorter
+// one (lib/kanjiSkill `SKILL_INTERVALS`).
+export function dueAfter(
+  box: number,
+  now: number,
+  intervals: number[] = BOX_INTERVALS,
+): number {
+  const interval = intervals[Math.min(Math.max(box, 0), intervals.length - 1)];
   if (interval < DAY) return now + interval;
 
   const d = new Date(startOfStudyDay(now));
@@ -140,9 +147,14 @@ export function isRecent(v: Vocab, now: number): boolean {
 
 // The next box state after grading a review. Correct moves up a box, a miss drops
 // back to box 0. Atomic — callers decide which direction it belongs to.
-export function applyReview(prev: Srs | undefined, correct: boolean, now: number): Srs {
-  const box = correct ? Math.min((prev?.box ?? 0) + 1, MAX_BOX) : 0;
-  return { box, due: dueAfter(box, now), reviewed: now };
+export function applyReview(
+  prev: Srs | undefined,
+  correct: boolean,
+  now: number,
+  intervals: number[] = BOX_INTERVALS,
+): Srs {
+  const box = correct ? Math.min((prev?.box ?? 0) + 1, intervals.length - 1) : 0;
+  return { box, due: dueAfter(box, now, intervals), reviewed: now };
 }
 
 // Grade one direction of a word, returning the updated per-direction srs. Leaves

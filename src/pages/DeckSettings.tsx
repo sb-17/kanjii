@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import "../styles/Decks.css";
 import { getDeck, loadDecks, saveDecks, updateDeck } from "../storage/decks";
 import { deckBoxes, clearDeckProgress } from "../storage/deckProgress";
-import { loadDeckStats } from "../storage/deckStats";
+import { clearDeckStats, loadDeckStats } from "../storage/deckStats";
 import { deckCounts } from "../lib/deckSrs";
 import { deckTotals } from "../lib/analytics";
 import { useNow } from "../lib/useNow";
@@ -69,20 +69,19 @@ export default function DeckSettings() {
     if (
       !confirm(
         `Delete "${deck.name}"?\n\n` +
-          `${deck.cards.length} cards are removed from this device.\n\n` +
-          "Your review progress and study history are kept, so importing this " +
-          `deck again under the name "${deck.name}" picks up where you left off.`,
+          `${deck.cards.length} cards, review progress for ${studiedCards} of them, and this deck's study history in Analytics are all removed.\n\n` +
+          "This cannot be undone — re-importing the deck later starts it from scratch.",
       )
     ) {
       return;
     }
-    // Only the cards go. The Leitner boxes and the daily counters record work
-    // actually done, and clearing them made "delete then re-import" — the path
-    // people reach for by instinct — silently irreversible. They cost a few KB,
-    // they re-attach on import because deck and card ids both derive from
-    // content, and Analytics already falls back to the raw id for a deck it
-    // can't name. "Reset progress" above is the deliberate way to clear boxes;
-    // nothing should do it as a side effect of removing cards.
+    // Cards, boxes and counters all go: a delete is a full removal, so nothing
+    // stays attributed to an id the app can no longer name, and the deck leaves
+    // Analytics with it. That makes deleting irreversible, so *updating* a deck
+    // means re-importing over it under the same name — never deleting first.
+    // "Reset progress" above is the way to start the deck over while keeping it.
+    clearDeckProgress(deck.id);
+    clearDeckStats(deck.id);
     saveDecks(loadDecks().filter((d) => d.id !== deck.id));
     void navigate("/cards");
   };

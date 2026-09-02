@@ -15,6 +15,27 @@
 import { applyReview, dueAfter, type Srs } from "./srs";
 import type { KanjiSkill } from "../types/kanjiSkill";
 
+const MINUTE = 60_000;
+const DAY = 86_400_000;
+
+// Handwriting runs on its own ladder, tighter than vocab's at the top. Writing
+// decays faster than recognition — a month between attempts at a kanji you
+// "know" is a month of losing stroke order — and on the vocab intervals the top
+// two boxes (14 and 30 days) were handing back about five kanji a day, which is
+// too thin a session to be worth opening.
+//
+// Same six boxes as BOX_INTERVALS, so `MAX_BOX` still describes the skill-box
+// chart in Analytics. Box 0 is untouched: it's the "come back this session"
+// step, and demotion depends on it meaning ten minutes.
+export const SKILL_INTERVALS: number[] = [
+  10 * MINUTE, // box 0 (just missed) — comes back this session-ish
+  1 * DAY,
+  3 * DAY,
+  5 * DAY,
+  7 * DAY,
+  14 * DAY, // box 5 — "mature"
+];
+
 // What a completed write attempt did to the skill box.
 //   promote  — clean, from memory: level up
 //   hold     — from memory but with help: stay, reschedule at the same level
@@ -46,24 +67,25 @@ export function gradeSkill(
   now: number,
 ): KanjiSkill | undefined {
   if (outcome === "practice") return prev;
-  if (outcome === "promote") return applyReview(prev as Srs | undefined, true, now);
+  if (outcome === "promote")
+    return applyReview(prev as Srs | undefined, true, now, SKILL_INTERVALS);
 
   // hold: keep the box, push the next review out to its interval so a stumbled
   // write leaves the due pool without leveling up. A clean write is required to
   // advance. Same day-anchored scheduling as a promotion — see `dueAfter`.
   const box = prev?.box ?? 0;
-  return { box, due: dueAfter(box, now), reviewed: now };
+  return { box, due: dueAfter(box, now, SKILL_INTERVALS), reviewed: now };
 }
 
 // Self-reported failure, paper mode only: back to box 0, so it returns in ~10
 // minutes rather than at the interval it had earned. Anything gentler is worse
 // than useless at the top of the ladder — a box-5 kanji you couldn't write would
-// otherwise be rescheduled a month out on the strength of having failed it.
+// otherwise be rescheduled two weeks out on the strength of having failed it.
 export function demoteSkill(
   prev: KanjiSkill | undefined,
   now: number,
 ): KanjiSkill {
-  return applyReview(prev as Srs | undefined, false, now);
+  return applyReview(prev as Srs | undefined, false, now, SKILL_INTERVALS);
 }
 
 // Never-written kanji count as due, so they surface in the Due scope.
