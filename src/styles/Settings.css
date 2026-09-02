@@ -1,6 +1,29 @@
+/* Section headings, matching Analytics — the page is long enough that unlabelled
+   cards stop being scannable. */
+.settings-section-title {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+    margin: var(--space-5) 0 var(--space-3);
+}
+
+.settings-section-title:first-of-type {
+    margin-top: var(--space-2);
+}
+
+/* Same box as an Analytics stat-card: a flex column, so every child stacks
+   whatever its own display is. The cards used to rely on a description paragraph
+   sitting between the title and the first control — remove that paragraph and an
+   inline `<strong>` ended up on the same line as an inline-grid `.scope-tabs`. */
 .settings-card {
     padding: var(--space-5);
     margin-bottom: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    /* let the card shrink to the page width instead of its widest child */
+    min-width: 0;
 }
 
 .settings-card strong {
@@ -8,10 +31,26 @@
     font-size: var(--text-md);
 }
 
+/* The card title, matching .stat-card-title. Child selector on purpose: the
+   buttons in the Data cards wrap their labels in <strong> too, and those must
+   stay inline inside their flex button. */
+.settings-card > strong {
+    display: block;
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+}
+
+/* Trailing space belongs to the card's padding, not to its last child. Saves
+   every element below needing its own :last-child exception. */
+.settings-card > *:last-child {
+    margin-bottom: 0;
+}
+
 .settings-description {
     font-size: var(--text-sm);
     color: var(--text-muted);
-    margin: var(--space-2) 0 var(--space-4);
+    /* No top margin: the title above owns the gap between them. */
+    margin: 0 0 var(--space-4);
     line-height: 1.6;
 }
 
@@ -49,6 +88,25 @@
     display: none;
 }
 
+/* `.scope-tabs` carries `margin-bottom: var(--space-5)` for the study pages,
+   where it's the page's header control. In a settings card it's just a field, so
+   the card's own rhythm applies. Direct children only — inside `.settings-row`
+   the tabs sit beside their label and keep the row's centering. */
+.settings-card .scope-tabs {
+    margin-bottom: 0;
+}
+
+.settings-card > .scope-tabs {
+    align-self: start;
+}
+
+/* A flex item is blockified, so these would otherwise stretch the full card
+   width and put their hit area far past the label. */
+.settings-checkbox,
+.settings-number {
+    align-self: start;
+}
+
 .settings-checkbox {
     display: inline-flex;
     align-items: center;
@@ -65,12 +123,44 @@
     cursor: pointer;
 }
 
+/* One line under a control saying what it does. Quieter and tighter than
+   .settings-description, which introduces a whole card. */
+.settings-hint {
+    font-size: var(--text-xs);
+    color: var(--text-faint);
+    /* Tight to the control it explains, loose before the next one. */
+    margin: var(--space-1) 0 var(--space-4);
+    line-height: 1.5;
+}
+
+/* Label beside its own control, for cards that carry several (review pace). Wraps
+   on a narrow screen so the tabs keep their width rather than squashing. */
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.settings-row-label {
+    font-size: var(--text-sm);
+    color: var(--text);
+}
+
+/* `flex`, not `inline-flex`: the "New per day" card carries two, and inline boxes
+   would sit side by side on a wide screen and wrap unpredictably on a narrow one. */
 .settings-number {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: var(--space-3);
     color: var(--text);
     font-size: var(--text-sm);
+}
+
+.settings-number + .settings-number {
+    margin-top: var(--space-3);
 }
 
 .settings-number input {

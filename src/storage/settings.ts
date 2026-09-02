@@ -12,6 +12,12 @@ const DEFAULTS: Settings = {
   practiceSentences: true,
   partialAvailability: false,
   newPerDay: 10,
+  writeNewPerDay: 10,
+  practicePace: 1,
+  writePace: 1,
+  deckPace: 1,
+  missBehaviour: "reset",
+  dayCutoffHour: 4,
   deckScope: "due",
   onboardingDismissed: false,
 };

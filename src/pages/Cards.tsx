@@ -6,6 +6,7 @@ import type { Vocab } from "../types/vocabType";
 import type { PracticeScope, Settings } from "../types/settingsType";
 import { isVocabAvailable } from "../lib/vocab";
 import { scopeVocab, pickWord, gradeDirection, isNewFor, isDueFor } from "../lib/srs";
+import { vocabLadder } from "../lib/schedule";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
 import { logReview, loadEvents } from "../storage/events";
 import { newWordAllowance } from "../lib/analytics";
@@ -132,7 +133,7 @@ export default function Cards() {
   // now actually clears reviewed cards instead of showing them forever.
   const grade = (correct: boolean) => {
     if (!current) return;
-    const srs = gradeDirection(current, CARD_DIR, correct, Date.now());
+    const srs = gradeDirection(current, CARD_DIR, correct, Date.now(), vocabLadder());
     const next = vocab.map((v) => (keyOf(v) === keyOf(current) ? { ...v, srs } : v));
     setVocab(next);
     saveUserVocab(next);

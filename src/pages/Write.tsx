@@ -23,25 +23,48 @@ import {
   skillDueKey,
 } from "../lib/kanjiSkill";
 import { useNow } from "../lib/useNow";
+import { newKanjiAllowance } from "../lib/analytics";
+
+// Never-written kanji the Due pool may still add today. Read live from the event
+// log rather than held in state: each new kanji written consumes one, and the
+// pool is recomputed on every advance.
+const remainingNewToday = (now: number) =>
+  newKanjiAllowance(loadEvents(), loadSettings().writeNewPerDay, now);
 
 // Kanji to practice in session mode. "both/learning/known" filter by status;
-// "due" is the learning/known kanji whose handwriting review has come due
-// (unwritten kanji count as due). Module scope so it's a stable memo dependency.
+// "due" is reviews that have come round plus up to `newBudget` never-written
+// kanji. Module scope so it's a stable memo dependency.
+//
+// That budget is the whole point of the split: an unwritten kanji counts as due,
+// so tagging 200 kanji Learning used to drop all 200 into the pool at once and
+// the reviews were never seen again. Callers derive it from the event log (see
+// analytics `newKanjiAllowance`); the infinite default is the old behaviour and
+// only right for the pools that don't schedule.
 function computePool(
   p: WritePool,
   progress: KanjiProgress,
   skill: KanjiSkillMap,
   now: number,
+  newBudget = Number.POSITIVE_INFINITY,
 ): Kanji[] {
-  return ALL_KANJI.filter((k) => {
+  const active = ALL_KANJI.filter((k) => {
     const status = progress[k.character];
-    const active = status === "learning" || status === "known";
-    if (!active) return false;
-    if (p === "learning") return status === "learning";
-    if (p === "known") return status === "known";
-    if (p === "due") return isSkillDue(skill[k.character], now);
-    return true; // both
+    return status === "learning" || status === "known";
   });
+
+  if (p === "learning") return active.filter((k) => progress[k.character] === "learning");
+  if (p === "known") return active.filter((k) => progress[k.character] === "known");
+  if (p !== "due") return active; // both
+
+  const reviews = active.filter((k) => {
+    const s = skill[k.character];
+    return s && s.due <= now;
+  });
+  if (newBudget <= 0) return reviews;
+  // In dataset order, which is roughly by frequency — the same order the kanji
+  // list introduces them in, so the day's new ones are the ones you'd reach next.
+  const fresh = active.filter((k) => !skill[k.character]).slice(0, newBudget);
+  return [...reviews, ...fresh];
 }
 
 // Pick the next kanji from a pool. Due orders soonest-first (with light
@@ -119,7 +142,13 @@ export default function Write() {
   const [current, setCurrent] = useState<string>(() => {
     if (single) return routeChar!;
     return pickFromPool(
-      computePool(writePool, progress, loadKanjiSkill(), Date.now()),
+      computePool(
+        writePool,
+        progress,
+        loadKanjiSkill(),
+        Date.now(),
+        remainingNewToday(Date.now()),
+      ),
       writePool,
       loadKanjiSkill(),
     );
@@ -161,7 +190,7 @@ export default function Write() {
     updateSettings({ writePool: p });
     setRevealed(false);
     setPromoteSuggest(null);
-    const nextPool = computePool(p, progress, skill, now);
+    const nextPool = computePool(p, progress, skill, now, remainingNewToday(now));
     // Keep the current kanji if it still matches; otherwise move to a new one.
     if (nextPool.some((k) => k.character === current)) return;
     setRound((r) => r + 1);
@@ -178,7 +207,13 @@ export default function Write() {
     // is no longer in it. Set unconditionally so an emptied pool ("") falls
     // through to the empty state instead of sticking on the last kanji.
     const live = loadKanjiSkill();
-    const freshPool = computePool(writePool, progress, live, Date.now());
+    const freshPool = computePool(
+      writePool,
+      progress,
+      live,
+      Date.now(),
+      remainingNewToday(Date.now()),
+    );
     setCurrent(pickFromPool(freshPool, writePool, live, current));
   };
 

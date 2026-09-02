@@ -14,6 +14,7 @@ import {
   isNew,
 } from "../lib/srs";
 import { pickSentence, preferSentence, sentencePool } from "../lib/sentenceSrs";
+import { vocabLadder } from "../lib/schedule";
 import {
   japaneseMatches,
   meaningMatches,
@@ -201,9 +202,10 @@ export default function Practice() {
   const grade = (correct: boolean): Vocab[] => {
     if (!current) return vocab;
     const at = Date.now();
+    const ladder = vocabLadder();
     const patch: Partial<Vocab> = isSentence
-      ? { sentenceSrs: applyReview(current.sentenceSrs, correct, at) }
-      : { srs: gradeDirection(current, direction, correct, at) };
+      ? { sentenceSrs: applyReview(current.sentenceSrs, correct, at, ladder) }
+      : { srs: gradeDirection(current, direction, correct, at, ladder) };
     const next = vocab.map((v) =>
       keyOf(v) === keyOf(current) ? { ...v, ...patch } : v,
     );

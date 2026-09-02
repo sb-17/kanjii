@@ -19,9 +19,18 @@ export const BOX_INTERVALS: number[] = [
 ];
 export const MAX_BOX = BOX_INTERVALS.length - 1;
 
-// A study day starts at 04:00, not midnight, so a late-night session counts as
-// the day it felt like rather than tipping into the next one.
-const DAY_CUTOFF_HOUR = 4;
+// A study day starts at 04:00 by default, not midnight, so a late-night session
+// counts as the day it felt like rather than tipping into the next one.
+//
+// Held as module state fed by `setDayCutoffHour` (boot, and again when the
+// setting changes) rather than read from storage here: every bucket in Analytics
+// runs through the functions below, and reaching into a store from them would
+// make the whole scheduling core depend on it.
+let cutoffHour = 4;
+
+export function setDayCutoffHour(hour: number): void {
+  if (Number.isFinite(hour) && hour >= 0 && hour <= 23) cutoffHour = Math.floor(hour);
+}
 
 // The start of the study day containing `t`. The single definition of "a day" in
 // the app — scheduling, the daily new-word allowance and the per-day charts all
@@ -29,8 +38,8 @@ const DAY_CUTOFF_HOUR = 4;
 // to another.
 export function startOfStudyDay(t: number): number {
   const d = new Date(t);
-  if (d.getHours() < DAY_CUTOFF_HOUR) d.setDate(d.getDate() - 1);
-  d.setHours(DAY_CUTOFF_HOUR, 0, 0, 0);
+  if (d.getHours() < cutoffHour) d.setDate(d.getDate() - 1);
+  d.setHours(cutoffHour, 0, 0, 0);
   return d.getTime();
 }
 
@@ -145,16 +154,31 @@ export function isRecent(v: Vocab, now: number): boolean {
   return v.addedAt != null && v.addedAt >= now - RECENT_DAYS * DAY;
 }
 
+// A scheduling ladder: the intervals to climb and what a miss costs. Built per
+// mode from the user's settings — see lib/schedule.
+export type Ladder = {
+  intervals: number[];
+  // "reset" drops a miss to box 0, "step" moves it back one box.
+  miss: "reset" | "step";
+};
+
+const DEFAULT_LADDER: Ladder = { intervals: BOX_INTERVALS, miss: "reset" };
+
 // The next box state after grading a review. Correct moves up a box, a miss drops
-// back to box 0. Atomic — callers decide which direction it belongs to.
+// back per the ladder. Atomic — callers decide which direction it belongs to.
 export function applyReview(
   prev: Srs | undefined,
   correct: boolean,
   now: number,
-  intervals: number[] = BOX_INTERVALS,
+  ladder: Ladder = DEFAULT_LADDER,
 ): Srs {
-  const box = correct ? Math.min((prev?.box ?? 0) + 1, intervals.length - 1) : 0;
-  return { box, due: dueAfter(box, now, intervals), reviewed: now };
+  const from = prev?.box ?? 0;
+  const box = correct
+    ? Math.min(from + 1, ladder.intervals.length - 1)
+    : ladder.miss === "step"
+      ? Math.max(from - 1, 0)
+      : 0;
+  return { box, due: dueAfter(box, now, ladder.intervals), reviewed: now };
 }
 
 // Grade one direction of a word, returning the updated per-direction srs. Leaves
@@ -164,9 +188,10 @@ export function gradeDirection(
   dir: ReviewDirection,
   correct: boolean,
   now: number,
+  ladder?: Ladder,
 ): VocabSrs {
   const srs: VocabSrs = { ...(v.srs ?? {}) };
-  srs[dir] = applyReview(srs[dir], correct, now);
+  srs[dir] = applyReview(srs[dir], correct, now, ladder);
   return srs;
 }
 

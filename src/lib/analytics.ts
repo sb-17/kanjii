@@ -143,6 +143,40 @@ export function newWordsIntroducedToday(
   return n;
 }
 
+// The handwriting equivalent: kanji whose first-ever write attempt was today.
+// Same reasoning as above — derived from the log, so there's no counter to keep
+// in sync or restore. Simpler than the word version because a write event has
+// always carried its character, so there's no legacy shape to reconcile.
+export function kanjiFirstWrittenToday(
+  events: AppEvent[],
+  now = Date.now(),
+): number {
+  const startMs = startOfStudyDay(now);
+  const first = new Map<string, number>();
+  for (const e of events) {
+    if (e.k !== "write") continue;
+    const prev = first.get(e.c);
+    if (prev === undefined || e.t < prev) first.set(e.c, e.t);
+  }
+  let n = 0;
+  for (const t of first.values()) if (t >= startMs) n++;
+  return n;
+}
+
+// How many never-written kanji the Write page's Due pool may still add today.
+//
+// A plain daily cap, unlike words, which also pace *within* the day against
+// reviews answered. Writing sessions are short and the pool is the kanji you've
+// tagged rather than a thousand-word import, so there's nothing here for a
+// backlog to bury — the flood this prevents is tagging 200 kanji at once.
+export function newKanjiAllowance(
+  events: AppEvent[],
+  perDay: number,
+  now = Date.now(),
+): number {
+  return Math.max(0, perDay - kanjiFirstWrittenToday(events, now));
+}
+
 // Roughly how many reviews should pass between one new word and the next.
 //
 // A rate, not a proportion. Mixing new words in proportion to the *queue* ties
@@ -276,6 +310,7 @@ export function writingStats(
   skill: KanjiSkillMap,
   progress: KanjiProgress,
   now = Date.now(),
+  newBudget = Number.POSITIVE_INFINITY,
 ): WritingStats {
   const boxes = new Array(MAX_BOX + 1).fill(0) as number[];
   let unpracticed = 0;
@@ -289,14 +324,18 @@ export function writingStats(
     if (s) {
       boxes[Math.min(Math.max(s.box, 0), MAX_BOX)]++;
       practiced++;
+      // Only *written* kanji count as due here; the never-written ones are added
+      // below, capped by today's allowance. Counting them all made this card
+      // advertise 200 due against a page that would hand out ten.
+      if (isSkillDue(s, now)) due++;
     } else {
       unpracticed++;
     }
-    // Same predicate as the Write page's Due pool (`computePool`), so the two can
-    // never disagree — an unwritten kanji counts as due, and one rescheduled for
-    // later today does not.
-    if (isSkillDue(s, now)) due++;
   }
+
+  // Plus however many new kanji the Write page may still introduce today — the
+  // same split `computePool` makes.
+  due += Math.min(unpracticed, Math.max(0, newBudget));
 
   return { boxes, unpracticed, practiced, due };
 }

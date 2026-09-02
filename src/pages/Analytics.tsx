@@ -10,6 +10,7 @@ import { loadSettings } from "../storage/settings";
 import { useNow } from "../lib/useNow";
 import {
   newWordsIntroducedToday,
+  newKanjiAllowance,
   statusBreakdown,
   frequencyBands,
   mostFrequentNew,
@@ -44,7 +45,16 @@ export default function Analytics() {
     [vocab, progress, now, newBudget],
   );
   const skill = loadKanjiSkill();
-  const writing = useMemo(() => writingStats(skill, progress), [skill, progress]);
+  // Same allowance the Write page applies, for the same reason as `newBudget`.
+  const writeBudget = newKanjiAllowance(
+    loadEvents(),
+    loadSettings().writeNewPerDay,
+    now,
+  );
+  const writing = useMemo(
+    () => writingStats(skill, progress, now, writeBudget),
+    [skill, progress, now, writeBudget],
+  );
   const totals = useMemo(() => vocabTotals(vocab, progress), [vocab, progress]);
   const growth = useMemo(() => vocabGrowth(vocab, 8), [vocab]);
   const events = loadEvents();

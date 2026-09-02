@@ -7,7 +7,8 @@ import {
   loadKanjiProgress,
   isKnownOrLearning,
 } from "./storage/kanjiProgress";
-import { hydrateSettings } from "./storage/settings";
+import { hydrateSettings, loadSettings } from "./storage/settings";
+import { setDayCutoffHour } from "./lib/srs";
 import { hydrateUserVocab } from "./storage/userVocab";
 import { hydrateEvents, initEventFlush } from "./storage/events";
 import { hydrateKanjiSkill } from "./storage/kanjiSkill";
@@ -73,6 +74,11 @@ async function boot() {
     renderBootFailure(error);
     return;
   }
+
+  // Feed the study-day cutoff into the scheduling core now that settings are
+  // hydrated. Everything that buckets a day reads it, so it has to be set before
+  // the first render rather than by whichever page happens to load first.
+  setDayCutoffHour(loadSettings().dayCutoffHour);
 
   void requestPersistence();
   initEventFlush();

@@ -9,6 +9,7 @@ import { recordDeckReview } from "../storage/deckStats";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { deckCounts, pickDeckCard } from "../lib/deckSrs";
 import { applyReview } from "../lib/srs";
+import { deckLadder } from "../lib/schedule";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
 import { extractKanji } from "../lib/vocab";
 import { useNow } from "../lib/useNow";
@@ -77,7 +78,7 @@ export default function DeckCards() {
 
   const grade = (correct: boolean) => {
     if (!current) return;
-    const box = applyReview(boxes[current.id], correct, Date.now());
+    const box = applyReview(boxes[current.id], correct, Date.now(), deckLadder());
     const next = { ...boxes, [current.id]: box };
     setBoxes(next);
     setCardBox(deck.id, current.id, box);

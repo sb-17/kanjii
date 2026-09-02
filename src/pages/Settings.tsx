@@ -7,6 +7,9 @@ import { loadEvents, replaceEvents } from "../storage/events";
 import { loadDeckProgress, saveDeckProgress } from "../storage/deckProgress";
 import { loadDeckStats, saveDeckStats } from "../storage/deckStats";
 import { loadSettings, saveSettings } from "../storage/settings";
+import type { Settings } from "../types/settingsType";
+import { setDayCutoffHour } from "../lib/srs";
+import { PACES, rescheduleAll } from "../lib/schedule";
 import { mergeVocab } from "../lib/vocab";
 import {
   buildBackup,
@@ -31,6 +34,22 @@ const THEMES: { id: ThemePref; label: string }[] = [
   { id: "system", label: "System" },
   { id: "light", label: "Light" },
   { id: "dark", label: "Dark" },
+];
+
+// The three ladders that carry their own pace. Kept as data so the card is one
+// loop rather than three near-identical blocks.
+const PACE_ROWS: {
+  key: "practicePace" | "writePace" | "deckPace";
+  label: string;
+}[] = [
+  { key: "practicePace", label: "Words" },
+  { key: "writePace", label: "Writing" },
+  { key: "deckPace", label: "Decks" },
+];
+
+const MISSES: { id: Settings["missBehaviour"]; label: string }[] = [
+  { id: "reset", label: "Back to start" },
+  { id: "step", label: "Back one box" },
 ];
 
 function download(blob: Blob, filename: string) {
@@ -100,19 +119,14 @@ function readFile(
 export default function Settings() {
   const { progress, replaceProgress } = useProgress();
   const [theme, setTheme] = useState<ThemePref>(getThemePref);
-  const [romajiInput, setRomajiInput] = useState(
-    () => loadSettings().romajiInput,
-  );
-  const [practiceSentences, setPracticeSentences] = useState(
-    () => loadSettings().practiceSentences,
-  );
-  const [partialAvailability, setPartialAvailability] = useState(
-    () => loadSettings().partialAvailability,
-  );
-  // Held as text so the field can be emptied while retyping; an unparseable value
-  // just isn't saved, leaving the stored setting alone.
+  const [settings, setSettings] = useState<Settings>(loadSettings);
+  // The number fields are held as text so they can be emptied while retyping; an
+  // unparseable value just isn't saved, leaving the stored setting alone.
   const [newPerDay, setNewPerDay] = useState(() =>
     String(loadSettings().newPerDay),
+  );
+  const [writeNewPerDay, setWriteNewPerDay] = useState(() =>
+    String(loadSettings().writeNewPerDay),
   );
 
   const [driveReady, setDriveReady] = useState(isConnected);
@@ -133,26 +147,33 @@ export default function Settings() {
     setThemePref(next);
   };
 
-  const changeRomajiInput = (next: boolean) => {
-    setRomajiInput(next);
-    saveSettings({ ...loadSettings(), romajiInput: next });
+  const patch = (next: Partial<Settings>) => {
+    const updated = { ...loadSettings(), ...next };
+    setSettings(updated);
+    saveSettings(updated);
+    return updated;
   };
 
-  const changePracticeSentences = (next: boolean) => {
-    setPracticeSentences(next);
-    saveSettings({ ...loadSettings(), practiceSentences: next });
+  // Pace and the day cutoff both change what "due" means for items already
+  // scheduled, so every stored due date is re-derived on the spot. Without it the
+  // change would only show up as each item next came round — up to a month of
+  // apparently nothing happening. See lib/schedule `rescheduleAll`.
+  const changeSchedule = (next: Partial<Settings>) => {
+    const updated = patch(next);
+    if (next.dayCutoffHour !== undefined) setDayCutoffHour(updated.dayCutoffHour);
+    rescheduleAll();
   };
 
-  const changePartialAvailability = (next: boolean) => {
-    setPartialAvailability(next);
-    saveSettings({ ...loadSettings(), partialAvailability: next });
-  };
-
-  const changeNewPerDay = (raw: string) => {
-    setNewPerDay(raw);
+  // Shared by both daily caps: keep the text, save only a sane number.
+  const changeCap = (
+    raw: string,
+    setText: (s: string) => void,
+    key: "newPerDay" | "writeNewPerDay",
+  ) => {
+    setText(raw);
     const n = Math.floor(Number(raw));
     if (raw.trim() === "" || !Number.isFinite(n) || n < 0) return;
-    saveSettings({ ...loadSettings(), newPerDay: Math.min(n, 200) });
+    patch({ [key]: Math.min(n, 200) });
   };
 
   const handleVocabExport = () =>
@@ -187,13 +208,15 @@ export default function Settings() {
     saveDeckStats(data.deckStats);
 
     if (data.settings) {
-      const mergedSettings = { ...loadSettings(), ...data.settings };
-      saveSettings(mergedSettings);
-      // keep the on-screen toggles in sync with what was just restored
-      setRomajiInput(mergedSettings.romajiInput);
-      setPracticeSentences(mergedSettings.practiceSentences);
-      setPartialAvailability(mergedSettings.partialAvailability);
-      setNewPerDay(String(mergedSettings.newPerDay));
+      const merged = patch(data.settings);
+      // keep the on-screen controls in sync with what was just restored
+      setNewPerDay(String(merged.newPerDay));
+      setWriteNewPerDay(String(merged.writeNewPerDay));
+      setDayCutoffHour(merged.dayCutoffHour);
+      // The restored ladders may differ from the ones the boxes were scheduled
+      // on, and the backup carries `reviewed` — so re-derive rather than leave
+      // every due date on the old device's pace.
+      rescheduleAll();
     }
     if (data.theme) {
       setThemePref(data.theme);
@@ -331,12 +354,10 @@ export default function Settings() {
     <div className="page">
       <h1 className="page-title">Settings</h1>
 
-      <div className="settings-card surface-card">
-        <strong>Appearance</strong>
+      <h2 className="settings-section-title">Appearance</h2>
 
-        <p className="settings-description">
-          Choose a light or dark look, or follow your device's system setting.
-        </p>
+      <div className="settings-card surface-card">
+        <strong>Theme</strong>
 
         <div className="scope-tabs">
           {THEMES.map((t) => (
@@ -351,45 +372,80 @@ export default function Settings() {
         </div>
       </div>
 
+      <h2 className="settings-section-title">Study</h2>
+
       <div className="settings-card surface-card">
         <strong>Practice</strong>
 
-        <p className="settings-description">
-          Converts as you type (nihon → にほん), so your keyboard can stay on
-          English. Off = use your device's IME.
-        </p>
-
         <label className="settings-checkbox">
           <input
             type="checkbox"
-            checked={romajiInput}
-            onChange={(e) => changeRomajiInput(e.target.checked)}
+            checked={settings.romajiInput}
+            onChange={(e) => patch({ romajiInput: e.target.checked })}
           />
-          <span>Romaji input in Practice</span>
+          <span>Romaji input</span>
         </label>
-
-        <p className="settings-description">
-          Example sentences come up on their own schedule: read the Japanese,
-          reveal your translation, and grade yourself. Needs a sentence
-          <em> and</em> a translation on the word.
-        </p>
+        <p className="settings-hint">nihon → にほん. Off = your device's IME.</p>
 
         <label className="settings-checkbox">
           <input
             type="checkbox"
-            checked={practiceSentences}
-            onChange={(e) => changePracticeSentences(e.target.checked)}
+            checked={settings.practiceSentences}
+            onChange={(e) => patch({ practiceSentences: e.target.checked })}
           />
           <span>Practise example sentences</span>
         </label>
+        <p className="settings-hint">
+          Self-graded. Needs a sentence and a translation on the word.
+        </p>
       </div>
 
       <div className="settings-card surface-card">
-        <strong>New words per day</strong>
+        <strong>Word availability</strong>
+
+        <label className="settings-checkbox">
+          <input
+            type="checkbox"
+            checked={settings.partialAvailability}
+            onChange={(e) => patch({ partialAvailability: e.target.checked })}
+          />
+          <span>Unlock at ≥50% of kanji started</span>
+        </label>
+        <p className="settings-hint">Off = every kanji must be Learning or Known.</p>
+      </div>
+
+      <h2 className="settings-section-title">Scheduling</h2>
+
+      <div className="settings-card surface-card">
+        <strong>Review pace</strong>
 
         <p className="settings-description">
-          How many never-practised words the Due scope adds after your reviews.
-          Reviews are never capped. 0 = reviews only.
+          Lower = shorter gaps = more due each day.
+        </p>
+
+        {PACE_ROWS.map((row) => (
+          <div className="settings-row" key={row.key}>
+            <span className="settings-row-label">{row.label}</span>
+            <div className="scope-tabs">
+              {PACES.map((p) => (
+                <button
+                  key={p}
+                  className={`scope-tab${settings[row.key] === p ? " active" : ""}`}
+                  onClick={() => changeSchedule({ [row.key]: p })}
+                >
+                  {p}×
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="settings-card surface-card">
+        <strong>New per day</strong>
+
+        <p className="settings-description">
+          Caps new material only — reviews are never capped. 0 = reviews only.
         </p>
 
         <label className="settings-number">
@@ -399,29 +455,69 @@ export default function Settings() {
             max={200}
             step={1}
             value={newPerDay}
-            onChange={(e) => changeNewPerDay(e.target.value)}
+            onChange={(e) => changeCap(e.target.value, setNewPerDay, "newPerDay")}
           />
-          <span>new words per day</span>
+          <span>words</span>
+        </label>
+
+        <label className="settings-number">
+          <input
+            type="number"
+            min={0}
+            max={200}
+            step={1}
+            value={writeNewPerDay}
+            onChange={(e) =>
+              changeCap(e.target.value, setWriteNewPerDay, "writeNewPerDay")
+            }
+          />
+          <span>kanji to write</span>
         </label>
       </div>
 
       <div className="settings-card surface-card">
-        <strong>Word availability</strong>
+        <strong>Missed answers</strong>
+
+        <p className="settings-description">Where a wrong answer sends an item.</p>
+
+        <div className="scope-tabs">
+          {MISSES.map((m) => (
+            <button
+              key={m.id}
+              className={`scope-tab${settings.missBehaviour === m.id ? " active" : ""}`}
+              onClick={() => patch({ missBehaviour: m.id })}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="settings-card surface-card">
+        <strong>Day starts at</strong>
 
         <p className="settings-description">
-          Words normally unlock only when every kanji in them is Learning or
-          Known, so one unfamiliar kanji can hide a word.
+          Sessions before this count as the previous day.
         </p>
 
-        <label className="settings-checkbox">
+        <label className="settings-number">
           <input
-            type="checkbox"
-            checked={partialAvailability}
-            onChange={(e) => changePartialAvailability(e.target.checked)}
+            type="number"
+            min={0}
+            max={12}
+            step={1}
+            value={settings.dayCutoffHour}
+            onChange={(e) => {
+              const n = Math.floor(Number(e.target.value));
+              if (!Number.isFinite(n) || n < 0 || n > 12) return;
+              changeSchedule({ dayCutoffHour: n });
+            }}
           />
-          <span>Unlock words when ≥50% of their kanji are started</span>
+          <span>:00</span>
         </label>
       </div>
+
+      <h2 className="settings-section-title">Data</h2>
 
       <div className="settings-card surface-card">
         <strong>Vocabulary</strong>
