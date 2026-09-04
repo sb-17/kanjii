@@ -192,14 +192,27 @@
     color: var(--text-muted);
     text-decoration: none;
     white-space: nowrap;
+    /* DeckCardList puts the deck name in this link ("← Genki 1"), so it needs the
+       same clamp as the title beside it. `max-width` rather than stretching:
+       stretched, the whole left third of the header would navigate back. */
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .deck-back:hover {
     color: var(--text-strong);
 }
 
+/* Centred by `text-align`, NOT by `justify-self: center`. A non-stretched grid
+   item is sized to fit-content, which for nowrap text is its min-content — the
+   full name — so the box grows past its own column and, being centred, spills
+   over the back link on one side and the counts on the other. `overflow: hidden`
+   never fires, because the box is exactly as wide as its text. Left stretched
+   (the default) the box *is* the column, so the ellipsis works. */
 .deck-player-name {
-    justify-self: center;
+    text-align: center;
     font-size: var(--text-md);
     font-weight: 600;
     color: var(--text-strong);

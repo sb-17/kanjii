@@ -284,6 +284,28 @@
   line-height: 1;
   min-height: 1em; /* reserve the line so empty bars stay aligned */
   margin-bottom: 2px;
+  /* Uniform digit widths, so how close two labels come doesn't depend on which
+     digits they happen to contain. */
+  font-variant-numeric: tabular-nums;
+}
+
+/* The day charts pack 14 columns into a phone-width card, leaving each about
+   15px — narrower than a three-digit number. The label is centred in its column
+   and overflows both sides, so a run of big days renders as "366306469".
+   Reclaim the space from the gap (the bars are capped at 26px and don't need
+   it) and drop the label a step. Scoped to .growth-bars: the box charts are 6-8
+   columns and have room to spare. */
+@media (max-width: 720px) {
+  .growth-bars {
+    gap: var(--space-1);
+  }
+
+  .growth-count {
+    /* Below --text-xs on purpose; it's the smallest step on the scale and three
+       digits still don't fit a column at it. */
+    font-size: 0.7rem;
+    letter-spacing: -0.02em;
+  }
 }
 .signed-val {
   font-size: var(--text-xs);
