@@ -177,9 +177,22 @@
    Three columns with equal 1fr sides rather than flex: that centres the name on
    the panel itself, instead of on whatever space the two unequal-width siblings
    happen to leave over. */
+/* Back link · title · counts.
+ *
+ * The sides are `auto` and the *title* takes the slack, so a long deck name can
+ * never squeeze the back button out of the row. It was `1fr minmax(0, auto) 1fr`
+ * with the title in the middle: an `auto` maximum means "as wide as the content",
+ * so the title's track claimed the free space before the flexible side tracks
+ * were expanded, and once the back link could shrink there was nothing left to
+ * stop it collapsing to nothing.
+ *
+ * The side items carry a max-width, which is what bounds their `auto` tracks —
+ * DeckCardList puts the deck name in the back link, and without it that side
+ * would starve the title for exactly the same reason, mirrored.
+ */
 .deck-player-head {
     display: grid;
-    grid-template-columns: 1fr minmax(0, auto) 1fr;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--space-3);
     width: 100%;
@@ -192,11 +205,12 @@
     color: var(--text-muted);
     text-decoration: none;
     white-space: nowrap;
-    /* DeckCardList puts the deck name in this link ("← Genki 1"), so it needs the
-       same clamp as the title beside it. `max-width` rather than stretching:
-       stretched, the whole left third of the header would navigate back. */
+    /* DeckCardList puts the deck name in this link ("← Genki 1"), so it truncates
+       too. The max-width is what keeps its `auto` track from growing to the full
+       name; the arrow and the first few characters always survive, so there is
+       always something to tap. */
     min-width: 0;
-    max-width: 100%;
+    max-width: 8rem;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -226,4 +240,10 @@
     justify-self: end;
     color: var(--text-muted);
     white-space: nowrap;
+    /* Bounded content ("999 due · 999 new"), but clamped for the same reason as
+       the back link: an unbounded `auto` track is what caused the collapse. */
+    min-width: 0;
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
