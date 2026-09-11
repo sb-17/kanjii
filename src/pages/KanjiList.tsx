@@ -56,6 +56,7 @@ export default function KanjiList() {
   );
   const [sort, setSort] = useState<SortKey>(initialSort);
   const [drawOpen, setDrawOpen] = useState(false);
+  const [countFocused, setCountFocused] = useState(false);
   // Ranked characters from the draw pad, or null when it's empty. Not a URL
   // param, unlike the other filters — a drawing can't be put in a query string.
   const [drawMatches, setDrawMatches] = useState<string[] | null>(null);
@@ -171,6 +172,17 @@ export default function KanjiList() {
 
   const rows = drawRows ?? sortedKanji.slice(0, numberOfKanjiShown);
 
+  // The box is a cap, not a count: with 100 in it and a filter leaving 8
+  // matches, the row read "Showing 100 of 8 kanji". Unfocused it shows what is
+  // actually on screen; your cap comes back the moment you click into it, and
+  // the `n` param keeps it either way. Clamping the state instead would
+  // overwrite the cap, and clamping as you type makes any number larger than the
+  // current list impossible to enter.
+  const countValue =
+    countFocused || countInput.trim() === ""
+      ? countInput
+      : String(Math.min(numberOfKanjiShown, filteredKanji.length));
+
   return (
     <div className="page page-center">
       <div className="kanji-list-header">
@@ -230,7 +242,9 @@ export default function KanjiList() {
             <input
               type="number"
               placeholder=""
-              value={countInput}
+              value={countValue}
+              onFocus={() => setCountFocused(true)}
+              onBlur={() => setCountFocused(false)}
               onChange={(e) => {
                 setCountInput(e.target.value);
                 updateFilter("n", e.target.value);

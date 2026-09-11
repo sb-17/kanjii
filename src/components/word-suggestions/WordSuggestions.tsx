@@ -54,7 +54,7 @@ export default function WordSuggestions({
     };
     // Re-read rather than trusting a snapshot: another page may have written to
     // the same store since this mounted. Prepended, like every other add path —
-    // My words has no sort control, so array order is display order.
+    // My words sorts on array order by default, so that is the order you see.
     const list = loadUserVocab();
     if (!list.some((v) => v.word === entry.word && v.reading === entry.reading)) {
       saveUserVocab([entry, ...list]);

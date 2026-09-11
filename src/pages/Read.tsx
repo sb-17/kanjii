@@ -84,8 +84,8 @@ export default function Read() {
       setVocab(list);
       return;
     }
-    // Newest first, matching MyWords and KanjiLearn. My words has no sort
-    // control, so array order is display order — appending hid a word you just
+    // Newest first, matching MyWords and KanjiLearn. My words sorts on array
+    // order by default, so that is display order — appending hid a word you just
     // added behind everything you already had.
     const next: Vocab[] = [
       {

@@ -54,11 +54,17 @@ export default function DeckCardList() {
     updateDeck({ ...deck, cards: next });
   };
 
+  // Typing updates this page's copy only; the store is written on blur, as the
+  // deck's own rename already does. `persist` rewrites the whole `kanjii:decks`
+  // value — every deck with every card in it — so saving per keystroke meant a
+  // full structured clone of a megabyte-scale store for each character typed.
+  const commit = () => updateDeck({ ...deck, cards });
+
   // Edits keep the card's id. It was derived from the word and meaning at import,
   // but re-deriving it on every keystroke would detach the review history the
   // card has earned — fixing a typo must not cost you your progress.
   const edit = (id: string, key: keyof Omit<DeckCard, "id">, value: string) => {
-    persist(
+    setCards(
       cards.map((c) => {
         if (c.id !== id) return c;
         const next = { ...c };
@@ -123,6 +129,7 @@ export default function DeckCardList() {
                       type="text"
                       value={card[field.key] ?? ""}
                       onChange={(e) => edit(card.id, field.key, e.target.value)}
+                      onBlur={commit}
                     />
                   </label>
                 ))}

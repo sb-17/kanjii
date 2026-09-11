@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import "../styles/Cards.css";
 import "../styles/Decks.css";
@@ -59,6 +59,24 @@ export default function DeckCards() {
   // hidden for the first half of the turn) while the back keeps showing the
   // answer you just graded until it has turned away.
   const [gradedBack, setGradedBack] = useState<DeckCard | null>(null);
+
+  // A deck that has run out keeps looking. Box 0 is ten minutes, so a card you
+  // missed early in a session comes due during it — but the three picks above
+  // happen on mount, on a grade and on a scope change, and none of them can fire
+  // while the empty panel is on screen. The page sat there until you left the
+  // deck and came back, with the header counts (which do refresh) reading "3
+  // due" directly above it.
+  //
+  // The timer exists only while there's nothing to show: finding a card changes
+  // `current`, which re-runs this and returns before setting another one.
+  useEffect(() => {
+    if (!deck || current) return;
+    const id = setInterval(() => {
+      const next = pickDeckCard(deck.cards, boxes, scope, Date.now());
+      if (next) setCurrent(next);
+    }, 30_000);
+    return () => clearInterval(id);
+  }, [deck, current, boxes, scope]);
 
   if (!deck) {
     return (
@@ -123,9 +141,9 @@ export default function DeckCards() {
       setAddState("duplicate");
       return;
     }
-    // Prepended, not appended: My words has no sort control, so the array order
-    // *is* the order you see, and MyWords/KanjiLearn both already add to the
-    // front. Appending here buried a word you just saved at the bottom of a list
+    // Prepended, not appended: My words sorts on array order by default, so the
+    // array order *is* the order you see, and MyWords/KanjiLearn both already
+    // add to the front. Appending here buried a word you just saved at the bottom of a list
     // hundreds long.
     saveUserVocab([
       {
