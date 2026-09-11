@@ -317,6 +317,8 @@ export function scopeVocab(
       return list.filter((v) => isRecent(v, now));
     case "new":
       return list.filter((v) => isNewFor(v, dir));
+    case "favorite":
+      return list.filter((v) => v.favorite);
     case "all":
     default:
       return list;

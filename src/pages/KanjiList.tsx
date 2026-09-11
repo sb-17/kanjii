@@ -241,7 +241,9 @@ export default function KanjiList() {
               max={filteredKanji.length}
               step={1}
             />
-            of {filteredKanji.length} kanji
+            <span className="kanji-list-count-tail">
+              of {filteredKanji.length} kanji
+            </span>
           </div>
         )}
       </div>

@@ -77,7 +77,25 @@
     box-shadow: 0 0 0 2px rgba(77, 166, 255, 0.25);
 }
 
+/* The header centres the search field and this count as one group, so anything
+   that changes this row's width moves the search field with it — and the total
+   changes on every filter and on every keystroke in the search box.
+   So the tail reserves the width of its longest form ("of 2136 kanji", the size
+   of the dataset) and sits left-aligned inside it: the slack is always trailing
+   whitespace at the end of the row, never a gap inside the sentence. The text
+   still shortens with the filter; the row it sits in doesn't move. */
+.kanji-list-count-tail {
+    display: inline-block;
+    min-width: 13ch;
+    text-align: left;
+}
+
+/* Explicit width, because Blink sizes a number input from its `max` attribute —
+   and `max` here is the filtered total, so the box itself shrank from four
+   digits wide to one when a filter was applied, taking the search field with it.
+   Wide enough for four digits plus the spinner. */
 .kanji-list-count-input {
+    width: 5rem;
     margin: 0 var(--space-2) 0;
 }
 

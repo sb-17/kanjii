@@ -52,6 +52,8 @@ export function sentencePool(
       return ready.filter((v) => isRecent(v, now));
     case "new":
       return ready.filter(isSentenceNew);
+    case "favorite":
+      return ready.filter((v) => v.favorite);
     case "all":
     default:
       return ready;

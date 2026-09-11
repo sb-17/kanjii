@@ -140,3 +140,60 @@
     font-style: italic;
     margin: 0;
 }
+
+/* Star + Edit. Both act on the word above them, so they sit directly under the
+   header rather than beside the back button. */
+.word-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+}
+
+.word-action {
+    background: var(--surface-strong);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.word-action:hover:not(.active) {
+    background: var(--surface-strong-hover);
+    color: var(--text-strong);
+}
+
+.word-action.active {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: transparent;
+}
+
+.word-srs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-bottom: var(--space-6);
+}
+
+/* Label left, state right, stacking on a narrow screen rather than letting
+   "Box 3 of 5 · due in 14 days" wrap into the label. */
+.word-srs-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-3);
+    font-size: var(--text-sm);
+}
+
+.word-srs-label {
+    color: var(--text-strong);
+}
+
+.word-srs-state {
+    color: var(--text-muted);
+}

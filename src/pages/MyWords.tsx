@@ -1,9 +1,12 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import * as wanakana from "wanakana";
 import "../styles/MyWords.css";
 import type { Vocab } from "../types/vocabType";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
+import { loadSettings, saveSettings } from "../storage/settings";
 import { extractKanji } from "../lib/vocab";
+import { isNew, reviewDueKey } from "../lib/srs";
 import ClearableField from "../components/clearable-field/ClearableField";
 
 const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
@@ -31,6 +34,42 @@ let lastNeedsTranslation = false;
 // Same again for the favourites filter.
 let lastFavoritesOnly = false;
 
+type SortKey = "newest" | "az" | "due";
+
+const SORTS: { id: SortKey; label: string }[] = [
+  { id: "newest", label: "Newest" },
+  { id: "az", label: "A–Z" },
+  { id: "due", label: "Due" },
+];
+
+let lastSort: SortKey = "newest";
+
+// A never-practised word has no place on the due axis — the same rule the
+// practice queue follows — so it sorts last rather than ahead of everything at
+// time 0. (KanjiList does the same with kanji that have no date.) A *started*
+// word with one unpractised direction keys at `now`, which is what
+// `reviewDueKey` already returns for it.
+const NEVER_PRACTISED = Number.MAX_SAFE_INTEGER;
+
+const dueKey = (v: Vocab, now: number) =>
+  isNew(v) ? NEVER_PRACTISED : reviewDueKey(v, now);
+
+// "newest" is the list's own order, which is already newest-first: every path
+// that adds a word prepends it. Sorting by `addedAt` instead would reshuffle
+// every imported list, where the whole file shares one timestamp.
+function sortWords(rows: Vocab[], key: SortKey): Vocab[] {
+  if (key === "newest") return rows;
+  const now = Date.now();
+  // Array.sort is stable, so ties keep list order.
+  return [...rows].sort(
+    key === "az"
+      ? // On the reading, so it comes out in kana order — sorting the written
+        // form puts kanji in codepoint order, which is no order at all.
+        (a, b) => (a.reading || a.word).localeCompare(b.reading || b.word, "ja")
+      : (a, b) => dueKey(a, now) - dueKey(b, now),
+  );
+}
+
 // A word can only be practised as a sentence if it has both an example sentence
 // and a translation of it (see lib/sentenceSrs). Words from the reader arrive
 // with a sentence and never a translation, so this is the gap that quietly keeps
@@ -38,18 +77,49 @@ let lastFavoritesOnly = false;
 const needsTranslation = (v: Vocab) => !!v.example && !v.exampleEn;
 
 export default function MyWords() {
+  // Editing can start on the word page, which navigates here with the word's key
+  // in the route state — the form lives here, so the page has to open with it
+  // filled in. Read once, at mount; coming back with Back re-opens the same
+  // edit, which is what the button did in the first place.
+  const incoming = (useLocation().state as { editKey?: string } | null)?.editKey;
+  const [initial] = useState(() =>
+    incoming ? loadUserVocab().find((v) => keyOf(v) === incoming) : undefined,
+  );
+
   const [list, setList] = useState<Vocab[]>(() => loadUserVocab());
-  const [word, setWord] = useState("");
-  const [reading, setReading] = useState("");
-  const [meanings, setMeanings] = useState("");
-  const [context, setContext] = useState("");
-  const [example, setExample] = useState("");
-  const [exampleEn, setExampleEn] = useState("");
-  const [editKey, setEditKey] = useState<string | null>(null);
+  const [word, setWord] = useState(initial?.word ?? "");
+  const [reading, setReading] = useState(initial?.reading ?? "");
+  const [meanings, setMeanings] = useState(initial?.meanings.join(", ") ?? "");
+  const [context, setContext] = useState(initial?.context ?? "");
+  const [example, setExample] = useState(initial?.example ?? "");
+  const [exampleEn, setExampleEn] = useState(initial?.exampleEn ?? "");
+  const [editKey, setEditKey] = useState<string | null>(
+    initial ? keyOf(initial) : null,
+  );
   const [search, setSearch] = useState(lastSearch);
   const [untranslatedOnly, setUntranslatedOnly] = useState(lastNeedsTranslation);
   const [favoritesOnly, setFavoritesOnly] = useState(lastFavoritesOnly);
+  const [sort, setSort] = useState<SortKey>(lastSort);
   const [shown, setShown] = useState(PAGE_SIZE);
+  // My words is mostly a list you read, and the six fields push it below the
+  // fold on a phone — collapsed, the card is a single row you tap to get back.
+  // In settings rather than a module variable like the filters above, so it
+  // survives a reload: a collapse that comes undone every time the app starts
+  // isn't worth having.
+  const [formOpen, setFormOpen] = useState(() => loadSettings().wordFormOpen);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Editing forces the form open — it's the only editor there is — and finishing
+  // the edit drops back to whatever you last chose, rather than leaving an empty
+  // "Add a word" form standing open on a page you collapsed it on.
+  const expanded = formOpen || editKey !== null;
+
+  // Remembered for the next visit, like the search and the filters above.
+  // Written in an effect rather than in the click handlers, where assigning a
+  // module variable counts as a render side effect (react-hooks/globals).
+  useEffect(() => {
+    lastSort = sort;
+  }, [sort]);
 
   // A new search starts from the top again — otherwise having expanded to 300
   // rows silently keeps that cost for every later search.
@@ -84,6 +154,14 @@ export default function MyWords() {
     setExample("");
     setExampleEn("");
     setEditKey(null);
+  };
+
+  const toggleForm = () => {
+    // Collapsing mid-edit abandons it, the same as the Cancel button beside it.
+    if (editKey) resetForm();
+    const next = !expanded;
+    setFormOpen(next);
+    saveSettings({ ...loadSettings(), wordFormOpen: next });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -151,6 +229,10 @@ export default function MyWords() {
     setExample(v.example ?? "");
     setExampleEn(v.exampleEn ?? "");
     setEditKey(keyOf(v));
+    // The form is at the top of the page and the row you tapped may be hundreds
+    // down. Without this, Edit looks like it did nothing at all — doubly so now
+    // that the form can be collapsed.
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   // Confirmed because Delete sits directly beside Edit on every row, so a
@@ -197,21 +279,37 @@ export default function MyWords() {
     [list],
   );
 
+  // One flattened, lowercased string per word, including the reading in romaji —
+  // so "nihon" finds 日本, as it already does on the kanji list. Built once per
+  // list change rather than per keystroke: the romaji conversion is the expensive
+  // part, and that is exactly the mistake KanjiList had to fix.
+  const searchIndex = useMemo(
+    () =>
+      list.map((v) => ({
+        v,
+        text: [
+          v.word,
+          v.reading,
+          wanakana.toRomaji(v.reading),
+          ...v.meanings,
+          v.context ?? "",
+          v.example ?? "",
+          v.exampleEn ?? "",
+        ]
+          .join(" ")
+          .toLowerCase(),
+      })),
+    [list],
+  );
+
   const filtered = useMemo(() => {
-    let base = untranslatedOnly ? list.filter(needsTranslation) : list;
-    if (favoritesOnly) base = base.filter((v) => v.favorite);
+    let base = searchIndex;
+    if (untranslatedOnly) base = base.filter(({ v }) => needsTranslation(v));
+    if (favoritesOnly) base = base.filter(({ v }) => v.favorite);
     const t = search.trim().toLowerCase();
-    if (!t) return base;
-    return base.filter(
-      (v) =>
-        v.word.toLowerCase().includes(t) ||
-        v.reading.toLowerCase().includes(t) ||
-        v.meanings.some((m) => m.toLowerCase().includes(t)) ||
-        (v.context ?? "").toLowerCase().includes(t) ||
-        (v.example ?? "").toLowerCase().includes(t) ||
-        (v.exampleEn ?? "").toLowerCase().includes(t),
-    );
-  }, [list, search, untranslatedOnly, favoritesOnly]);
+    if (t) base = base.filter(({ text }) => text.includes(t));
+    return sortWords(base.map(({ v }) => v), sort);
+  }, [searchIndex, search, untranslatedOnly, favoritesOnly, sort]);
 
   const narrowed = search.trim() !== "" || untranslatedOnly || favoritesOnly;
 
@@ -219,105 +317,124 @@ export default function MyWords() {
     <div className="page">
       <h1 className="page-title">My words</h1>
 
-      <form className="mw-form surface-card" onSubmit={handleSubmit}>
-        <strong>{editKey ? "Edit word" : "Add a word"}</strong>
-        <div className="mw-fields">
-          <ClearableField show={word.length > 0} onClear={() => setWord("")} label="Clear word">
-            <input
-              className="mw-input"
-              placeholder="Word (e.g. 日本)"
-              value={word}
-              onChange={(e) => setWord(e.target.value)}
-            />
-          </ClearableField>
-          <ClearableField show={reading.length > 0} onClear={() => setReading("")} label="Clear reading">
-            <input
-              className="mw-input"
-              placeholder="Reading (e.g. にほん)"
-              value={reading}
-              onChange={(e) => setReading(e.target.value)}
-            />
-          </ClearableField>
-          <ClearableField show={meanings.length > 0} onClear={() => setMeanings("")} label="Clear meanings">
-            <input
-              className="mw-input"
-              placeholder="Meanings, comma-separated (e.g. Japan)"
-              value={meanings}
-              onChange={(e) => setMeanings(e.target.value)}
-            />
-          </ClearableField>
-          <ClearableField
-            show={context.length > 0}
-            onClear={() => setContext("")}
-            align="top"
-            label="Clear context"
-          >
-            <textarea
-              className="mw-input mw-context"
-              rows={2}
-              placeholder="Context / notes (optional)"
-              value={context}
-              onChange={(e) => setContext(e.target.value)}
-            />
-          </ClearableField>
-          <ClearableField
-            show={example.length > 0}
-            onClear={() => setExample("")}
-            align="top"
-            label="Clear example sentence"
-          >
-            <textarea
-              className="mw-input mw-context"
-              rows={2}
-              placeholder="Example sentence (optional)"
-              value={example}
-              onChange={(e) => setExample(e.target.value)}
-            />
-          </ClearableField>
-          <ClearableField
-            show={exampleEn.length > 0}
-            onClear={() => setExampleEn("")}
-            align="top"
-            label="Clear example translation"
-          >
-            <textarea
-              className="mw-input mw-context"
-              rows={2}
-              placeholder="Example sentence translation (optional)"
-              value={exampleEn}
-              onChange={(e) => setExampleEn(e.target.value)}
-            />
-          </ClearableField>
-        </div>
+      <form
+        ref={formRef}
+        className={`mw-form surface-card${expanded ? "" : " mw-form-collapsed"}`}
+        onSubmit={handleSubmit}
+      >
+        <button
+          type="button"
+          className="mw-form-toggle"
+          onClick={toggleForm}
+          aria-expanded={expanded}
+        >
+          <strong>{editKey ? "Edit word" : "Add a word"}</strong>
+          <span className="mw-form-chevron" aria-hidden="true">
+            {expanded ? "▾" : "▸"}
+          </span>
+        </button>
 
-        {word.trim() && (
-          <p className="mw-derived">
-            Kanji: {extractKanji(word).join(" ") || "— (no kanji; always available)"}
-          </p>
+        {expanded && (
+          <>
+            <div className="mw-fields">
+              <ClearableField show={word.length > 0} onClear={() => setWord("")} label="Clear word">
+                <input
+                  className="mw-input"
+                  placeholder="Word (e.g. 日本)"
+                  value={word}
+                  onChange={(e) => setWord(e.target.value)}
+                />
+              </ClearableField>
+              <ClearableField show={reading.length > 0} onClear={() => setReading("")} label="Clear reading">
+                <input
+                  className="mw-input"
+                  placeholder="Reading (e.g. にほん)"
+                  value={reading}
+                  onChange={(e) => setReading(e.target.value)}
+                />
+              </ClearableField>
+              <ClearableField show={meanings.length > 0} onClear={() => setMeanings("")} label="Clear meanings">
+                <input
+                  className="mw-input"
+                  placeholder="Meanings, comma-separated (e.g. Japan)"
+                  value={meanings}
+                  onChange={(e) => setMeanings(e.target.value)}
+                />
+              </ClearableField>
+              <ClearableField
+                show={context.length > 0}
+                onClear={() => setContext("")}
+                align="top"
+                label="Clear context"
+              >
+                <textarea
+                  className="mw-input mw-context"
+                  rows={2}
+                  placeholder="Context / notes (optional)"
+                  value={context}
+                  onChange={(e) => setContext(e.target.value)}
+                />
+              </ClearableField>
+              <ClearableField
+                show={example.length > 0}
+                onClear={() => setExample("")}
+                align="top"
+                label="Clear example sentence"
+              >
+                <textarea
+                  className="mw-input mw-context"
+                  rows={2}
+                  placeholder="Example sentence (optional)"
+                  value={example}
+                  onChange={(e) => setExample(e.target.value)}
+                />
+              </ClearableField>
+              <ClearableField
+                show={exampleEn.length > 0}
+                onClear={() => setExampleEn("")}
+                align="top"
+                label="Clear example translation"
+              >
+                <textarea
+                  className="mw-input mw-context"
+                  rows={2}
+                  placeholder="Example sentence translation (optional)"
+                  value={exampleEn}
+                  onChange={(e) => setExampleEn(e.target.value)}
+                />
+              </ClearableField>
+            </div>
+
+            {word.trim() && (
+              <p className="mw-derived">
+                Kanji: {extractKanji(word).join(" ") || "— (no kanji; always available)"}
+              </p>
+            )}
+
+            {collisions.length > 0 && (
+              <p className="mw-warning">
+                ⚠ You already have{" "}
+                {collisions
+                  .slice(0, 3)
+                  .map((v) => v.word + (v.reading ? ` (${v.reading})` : ""))
+                  .join(", ")}
+                {collisions.length > 3 ? ", …" : ""} with the same reading or meaning
+                — add a context note to tell them apart.
+              </p>
+            )}
+
+            <div className="mw-form-actions">
+              <button type="submit" className="mw-button mw-button-primary">
+                {editKey ? "Save" : "Add word"}
+              </button>
+              {editKey && (
+                <button type="button" className="mw-button" onClick={resetForm}>
+                  Cancel
+                </button>
+              )}
+            </div>
+          </>
         )}
-
-        {collisions.length > 0 && (
-          <p className="mw-warning">
-            ⚠ You already have{" "}
-            {collisions
-              .slice(0, 3)
-              .map((v) => v.word + (v.reading ? ` (${v.reading})` : ""))
-              .join(", ")}
-            {collisions.length > 3 ? ", …" : ""} with the same reading or meaning
-            — add a context note to tell them apart.
-          </p>
-        )}
-
-        <div className="mw-form-actions">
-          <button type="submit" className="mw-button mw-button-primary">
-            {editKey ? "Save" : "Add word"}
-          </button>
-          {editKey && (
-            <button type="button" className="mw-button" onClick={resetForm}>
-              Cancel
-            </button>
-          )}
-        </div>
       </form>
 
       <div className="mw-list-header">
@@ -366,6 +483,24 @@ export default function MyWords() {
           </button>
         )}
       </div>
+
+      {list.length > 1 && (
+        <div className="mw-sort">
+          <span className="mw-sort-label">Sort</span>
+          <div className="scope-tabs">
+            {SORTS.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className={`scope-tab${sort === s.id ? " active" : ""}`}
+                onClick={() => setSort(s.id)}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {list.length === 0 ? (
         <p className="mw-empty">

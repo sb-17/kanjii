@@ -10,6 +10,34 @@
     color: var(--text-strong);
 }
 
+/* Collapsed, the card is only its header row, so the page opens on the list. */
+.mw-form-collapsed {
+    padding: var(--space-3) var(--space-4);
+}
+
+/* The header doubles as the open/close control: the whole row is the target,
+   which is what makes it usable on a phone. */
+.mw-form-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    width: 100%;
+    padding: 0;
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.mw-form-chevron {
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
 .mw-fields {
     display: flex;
     flex-direction: column;
@@ -248,4 +276,24 @@
 .mw-star.active,
 .mw-star.active:hover {
     color: var(--accent);
+}
+
+/* Mirrors the kanji list's sort row: same shared segmented control, same
+   label-beside-it shape. */
+.mw-sort {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.mw-sort-label {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+/* The shared control carries a bottom margin for standalone use; this row
+   spaces itself. */
+.mw-sort .scope-tabs {
+    margin-bottom: 0;
 }

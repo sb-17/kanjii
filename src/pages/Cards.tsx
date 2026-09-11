@@ -23,6 +23,7 @@ const SCOPES: { id: PracticeScope; label: string }[] = [
   { id: "recent", label: "Recent" },
   { id: "all", label: "All" },
   { id: "new", label: "New" },
+  { id: "favorite", label: "★" },
 ];
 
 const keyOf = (v: Vocab) => `${v.word}|${v.reading}`;
@@ -196,8 +197,18 @@ export default function Cards() {
         />
       ) : !current ? (
         <EmptyState
-          title={scope === "recent" ? "No recent words" : "No new words"}
-          message="Switch scope to keep reviewing, or add more words."
+          title={
+            scope === "recent"
+              ? "No recent words"
+              : scope === "favorite"
+                ? "No favourites"
+                : "No new words"
+          }
+          message={
+            scope === "favorite"
+              ? "Star a word in My words to build a deck of the ones you keep coming back to."
+              : "Switch scope to keep reviewing, or add more words."
+          }
           actions={[{ to: "/words", label: "My words" }]}
         />
       ) : (

@@ -94,6 +94,7 @@ const SCOPES: { id: PracticeScope; label: string }[] = [
   { id: "recent", label: "Recent" },
   { id: "all", label: "All" },
   { id: "new", label: "New" },
+  { id: "favorite", label: "★" },
 ];
 
 export default function Practice() {
@@ -305,11 +306,19 @@ export default function Practice() {
         />
       ) : !current ? (
         <EmptyState
-          title={scope === "recent" ? "No recent words" : "No new words"}
+          title={
+            scope === "recent"
+              ? "No recent words"
+              : scope === "favorite"
+                ? "No favourites"
+                : "No new words"
+          }
           message={
             scope === "recent"
               ? "You haven't added words recently. Switch scope, or add new words."
-              : "You've practised everything at least once. Switch scope to keep reviewing."
+              : scope === "favorite"
+                ? "Star a word in My words to build a list of the ones you keep coming back to."
+                : "You've practised everything at least once. Switch scope to keep reviewing."
           }
           actions={[{ to: "/words", label: "My words" }]}
         />

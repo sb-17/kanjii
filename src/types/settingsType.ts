@@ -6,7 +6,10 @@ export type WriteMode = "screen" | "paper";
 // handwriting review has come due (unwritten kanji count as due).
 export type WritePool = "due" | "both" | "learning" | "known";
 
-export type PracticeScope = "smart" | "recent" | "all" | "new";
+// "favorite" is the starred-words cram list: it ignores the schedule entirely
+// and draws at random over `Vocab.favorite`, the same way "all" does over
+// everything.
+export type PracticeScope = "smart" | "recent" | "all" | "new" | "favorite";
 
 export type Settings = {
   writeMode: WriteMode;
@@ -47,6 +50,10 @@ export type Settings = {
   // shouldn't ask again. Shown only while this is false *and* nothing is tagged
   // yet, so existing users never see it.
   onboardingDismissed: boolean;
+  // Whether the add/edit form on My words is expanded. A setting rather than
+  // page state because the point of collapsing it is that the page opens on the
+  // list — which a reload would otherwise undo.
+  wordFormOpen: boolean;
   // How imported-deck cards are chosen. Shared across decks rather than stored
   // per deck — it's a study preference, not a property of any one deck.
   deckScope: DeckScope;

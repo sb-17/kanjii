@@ -19,6 +19,7 @@ const DEFAULTS: Settings = {
   missBehaviour: "reset",
   dayCutoffHour: 4,
   deckScope: "due",
+  wordFormOpen: true,
   onboardingDismissed: false,
 };
 
