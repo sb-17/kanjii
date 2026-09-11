@@ -236,3 +236,16 @@
     align-self: center;
     margin-top: var(--space-2);
 }
+
+/* Star toggle on a row. Same chrome as Edit/Delete so the three read as one
+   group; filled and accent-coloured while on. */
+.mw-star {
+    font-size: var(--text-base);
+    line-height: 1;
+    padding: var(--space-1) var(--space-2);
+}
+
+.mw-star.active,
+.mw-star.active:hover {
+    color: var(--accent);
+}

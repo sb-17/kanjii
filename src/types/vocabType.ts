@@ -31,6 +31,9 @@ export type Vocab = {
   exampleEn?: string;
   // Optional: epoch ms when the word was first added (used for "recently added").
   addedAt?: number;
+  // Optional: user-starred on My words. A plain marker for words worth coming
+  // back to — nothing schedules or grades on it.
+  favorite?: boolean;
   // Optional spaced-repetition state, per direction. Legacy data stored a single
   // box here; it's migrated to both directions on load (see lib/vocab.ts).
   srs?: VocabSrs;

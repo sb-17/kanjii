@@ -135,6 +135,7 @@ export function mergeVocab(
       exampleEn: exampleEn ?? existing?.exampleEn,
       // keep the original add time; fall back to the imported one, then to now
       addedAt: existing?.addedAt ?? importedAddedAt ?? importedAt,
+      favorite: existing?.favorite ?? (r.favorite === true || undefined),
       // keep existing review progress; otherwise take the imported state
       srs: existing?.srs ?? importedSrs,
       sentenceSrs: existing?.sentenceSrs ?? importedSentenceSrs,

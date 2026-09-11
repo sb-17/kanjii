@@ -28,6 +28,9 @@ let lastSearch = "";
 // leaving the row.
 let lastNeedsTranslation = false;
 
+// Same again for the favourites filter.
+let lastFavoritesOnly = false;
+
 // A word can only be practised as a sentence if it has both an example sentence
 // and a translation of it (see lib/sentenceSrs). Words from the reader arrive
 // with a sentence and never a translation, so this is the gap that quietly keeps
@@ -45,6 +48,7 @@ export default function MyWords() {
   const [editKey, setEditKey] = useState<string | null>(null);
   const [search, setSearch] = useState(lastSearch);
   const [untranslatedOnly, setUntranslatedOnly] = useState(lastNeedsTranslation);
+  const [favoritesOnly, setFavoritesOnly] = useState(lastFavoritesOnly);
   const [shown, setShown] = useState(PAGE_SIZE);
 
   // A new search starts from the top again — otherwise having expanded to 300
@@ -58,6 +62,12 @@ export default function MyWords() {
   const toggleUntranslated = () => {
     lastNeedsTranslation = !untranslatedOnly;
     setUntranslatedOnly(lastNeedsTranslation);
+    setShown(PAGE_SIZE);
+  };
+
+  const toggleFavorites = () => {
+    lastFavoritesOnly = !favoritesOnly;
+    setFavoritesOnly(lastFavoritesOnly);
     setShown(PAGE_SIZE);
   };
 
@@ -105,6 +115,7 @@ export default function MyWords() {
       // must not reset the word's Leitner box, or its sentence's.
       srs: prev?.srs,
       sentenceSrs: prev?.sentenceSrs,
+      favorite: prev?.favorite,
     };
 
     let next: Vocab[];
@@ -122,6 +133,14 @@ export default function MyWords() {
     }
     persist(next);
     resetForm();
+  };
+
+  const toggleFavorite = (v: Vocab) => {
+    persist(
+      list.map((x) =>
+        keyOf(x) === keyOf(v) ? { ...x, favorite: !x.favorite || undefined } : x,
+      ),
+    );
   };
 
   const handleEdit = (v: Vocab) => {
@@ -173,8 +192,14 @@ export default function MyWords() {
     [list],
   );
 
+  const favoriteCount = useMemo(
+    () => list.filter((v) => v.favorite).length,
+    [list],
+  );
+
   const filtered = useMemo(() => {
-    const base = untranslatedOnly ? list.filter(needsTranslation) : list;
+    let base = untranslatedOnly ? list.filter(needsTranslation) : list;
+    if (favoritesOnly) base = base.filter((v) => v.favorite);
     const t = search.trim().toLowerCase();
     if (!t) return base;
     return base.filter(
@@ -186,9 +211,9 @@ export default function MyWords() {
         (v.example ?? "").toLowerCase().includes(t) ||
         (v.exampleEn ?? "").toLowerCase().includes(t),
     );
-  }, [list, search, untranslatedOnly]);
+  }, [list, search, untranslatedOnly, favoritesOnly]);
 
-  const narrowed = search.trim() !== "" || untranslatedOnly;
+  const narrowed = search.trim() !== "" || untranslatedOnly || favoritesOnly;
 
   return (
     <div className="page">
@@ -329,6 +354,17 @@ export default function MyWords() {
             {untranslatedCount} need a translation
           </button>
         )}
+
+        {(favoriteCount > 0 || favoritesOnly) && (
+          <button
+            type="button"
+            className={`mw-filter${favoritesOnly ? " active" : ""}`}
+            onClick={toggleFavorites}
+            aria-pressed={favoritesOnly}
+          >
+            ★ {favoriteCount} favourites
+          </button>
+        )}
       </div>
 
       {list.length === 0 ? (
@@ -351,6 +387,14 @@ export default function MyWords() {
                 {v.context && <p className="mw-item-context">{v.context}</p>}
               </Link>
               <div className="mw-item-actions">
+                <button
+                  className={`mw-icon-button mw-star${v.favorite ? " active" : ""}`}
+                  onClick={() => toggleFavorite(v)}
+                  aria-pressed={!!v.favorite}
+                  aria-label={v.favorite ? "Remove from favourites" : "Add to favourites"}
+                >
+                  {v.favorite ? "★" : "☆"}
+                </button>
                 <button className="mw-icon-button" onClick={() => handleEdit(v)}>
                   Edit
                 </button>
@@ -376,9 +420,11 @@ export default function MyWords() {
 
           {filtered.length === 0 && (
             <p className="mw-empty">
-              {untranslatedOnly && !search.trim()
-                ? "Every word with a sentence has a translation. ✓"
-                : `No words match “${search}”.`}
+              {favoritesOnly && !untranslatedOnly && !search.trim()
+                ? "No favourites yet — tap ☆ on a word to add one."
+                : untranslatedOnly && !search.trim()
+                  ? "Every word with a sentence has a translation. ✓"
+                  : `No words match “${search}”.`}
             </p>
           )}
         </div>
