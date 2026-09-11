@@ -459,34 +459,43 @@ export default function MyWords() {
             : `${list.length} words`}
         </span>
 
-        {/* Shown while it's on even at zero, so clearing the last one leaves a
-            way back rather than an empty list and no visible filter. */}
-        {(untranslatedCount > 0 || untranslatedOnly) && (
-          <button
-            type="button"
-            className={`mw-filter${untranslatedOnly ? " active" : ""}`}
-            onClick={toggleUntranslated}
-            aria-pressed={untranslatedOnly}
-          >
-            {untranslatedCount} need a translation
-          </button>
-        )}
+        {/* The chips are one item of the header row, so a narrow screen wraps
+            them onto a line of their own rather than stranding one below the
+            other. Each is shown while its filter is on even at zero, so clearing
+            the last match leaves a way back rather than an empty list and no
+            visible filter. */}
+        {(untranslatedCount > 0 ||
+          untranslatedOnly ||
+          favoriteCount > 0 ||
+          favoritesOnly) && (
+          <div className="mw-filters">
+            {(untranslatedCount > 0 || untranslatedOnly) && (
+              <button
+                type="button"
+                className={`mw-filter${untranslatedOnly ? " active" : ""}`}
+                onClick={toggleUntranslated}
+                aria-pressed={untranslatedOnly}
+              >
+                {untranslatedCount} need a translation
+              </button>
+            )}
 
-        {(favoriteCount > 0 || favoritesOnly) && (
-          <button
-            type="button"
-            className={`mw-filter${favoritesOnly ? " active" : ""}`}
-            onClick={toggleFavorites}
-            aria-pressed={favoritesOnly}
-          >
-            ★ {favoriteCount} favourites
-          </button>
+            {(favoriteCount > 0 || favoritesOnly) && (
+              <button
+                type="button"
+                className={`mw-filter${favoritesOnly ? " active" : ""}`}
+                onClick={toggleFavorites}
+                aria-pressed={favoritesOnly}
+              >
+                ★ {favoriteCount} favourites
+              </button>
+            )}
+          </div>
         )}
       </div>
 
       {list.length > 1 && (
-        <div className="mw-sort">
-          <span className="mw-sort-label">Sort</span>
+        <div className="mw-sort" role="group" aria-label="Sort">
           <div className="scope-tabs">
             {SORTS.map((s) => (
               <button

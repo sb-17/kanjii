@@ -128,8 +128,23 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    /* Only the wrapped chip row is affected: the search field grows to absorb
+       the free space on the first line, so there is none there to centre. */
+    justify-content: center;
     gap: var(--space-2) var(--space-3);
     margin-bottom: var(--space-3);
+}
+
+/* Both chips travel as one item of the header row: on a phone they then wrap
+   onto a row of their own, instead of the first fitting beside the search field
+   and the second dropping below it alone. No breakpoint — whether they fit is a
+   question about their text and the reader's font size, not the device. */
+.mw-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2) var(--space-3);
 }
 
 /* "N need a translation" — a filter, so it reads as a toggle rather than an
@@ -283,13 +298,9 @@
 .mw-sort {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-3);
     margin-bottom: var(--space-3);
-}
-
-.mw-sort-label {
-    color: var(--text-muted);
-    font-size: var(--text-sm);
 }
 
 /* The shared control carries a bottom margin for standalone use; this row

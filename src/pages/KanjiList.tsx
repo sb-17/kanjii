@@ -305,8 +305,7 @@ export default function KanjiList() {
       {/* "Recently added" answers "when did this enter this list", so it's only
           meaningful once a status filter narrows the list to one. */}
       {statusFilter && !drawRows && (
-        <div className="kanji-list-sort">
-          <span className="kanji-list-sort-label">Sort</span>
+        <div className="kanji-list-sort" role="group" aria-label="Sort">
           <div className="scope-tabs">
             {SORTS.map((s) => (
               <button

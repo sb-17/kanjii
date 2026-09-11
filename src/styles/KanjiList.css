@@ -139,11 +139,6 @@
     padding-bottom: var(--space-3);
 }
 
-.kanji-list-sort-label {
-    color: var(--text-muted);
-    font-size: var(--text-sm);
-}
-
 /* The shared control carries a bottom margin for standalone use; this row
    already spaces itself. */
 .kanji-list-sort .scope-tabs {
