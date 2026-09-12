@@ -8,7 +8,21 @@ const STORAGE_KEY = "kanjii:progress";
 let cache: KanjiProgress = {};
 
 export async function hydrateProgress(): Promise<void> {
-  cache = (await readWithMigration<KanjiProgress>(STORAGE_KEY)) ?? {};
+  const stored = (await readWithMigration<KanjiProgress>(STORAGE_KEY)) ?? {};
+  cache = withoutNew(stored);
+}
+
+// "new" is the absence of an entry, never a stored value. Every reader already
+// falls back with `progress[ch] ?? "new"`, so an explicit "new" says nothing —
+// it's only what tagging a kanji by mistake and reverting it used to leave
+// behind, riding along in every backup. Applied on load too, so entries written
+// before this was fixed are dropped rather than kept forever.
+function withoutNew(progress: KanjiProgress): KanjiProgress {
+  const out: KanjiProgress = {};
+  for (const [char, status] of Object.entries(progress)) {
+    if (status !== "new") out[char] = status;
+  }
+  return out;
 }
 
 export function loadKanjiProgress(): KanjiProgress {
@@ -25,10 +39,9 @@ export function updateKanjiStatus(
   kanji: string,
   status: KanjiStatus
 ): KanjiProgress {
-  const next = {
-    ...progress,
-    [kanji]: status,
-  };
+  const next = { ...progress };
+  if (status === "new") delete next[kanji];
+  else next[kanji] = status;
 
   saveKanjiProgress(next);
   return next;
@@ -49,17 +62,18 @@ export function parseProgress(raw: unknown): KanjiProgress {
     throw new Error("Expected an object of kanji → status.");
   }
 
-  const entries = Object.entries(raw as Record<string, unknown>);
-  if (entries.length === 0) {
-    throw new Error("The file contains no kanji progress.");
-  }
-
+  // An empty map is valid: it's what a backup holds when nothing is tagged, and
+  // since "new" is no longer stored it's also what tagging and un-tagging leaves.
+  // The emptiness check here dated from the standalone progress import, where an
+  // empty file meant the wrong file; inside a backup it made nothing-tagged
+  // unrestorable.
   const out: KanjiProgress = {};
-  for (const [char, status] of entries) {
+  for (const [char, status] of Object.entries(raw as Record<string, unknown>)) {
     if (typeof status !== "string" || !STATUSES.includes(status)) {
       throw new Error(`"${char}" has an invalid status.`);
     }
-    out[char] = status as KanjiStatus;
+    // Still accepted from older backups, just not kept.
+    if (status !== "new") out[char] = status as KanjiStatus;
   }
   return out;
 }
