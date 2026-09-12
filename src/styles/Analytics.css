@@ -264,6 +264,21 @@
   white-space: nowrap;
 }
 
+.learn-next-toggle {
+  align-self: flex-start;
+  margin-top: var(--space-3);
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.learn-next-toggle:hover {
+  color: var(--accent);
+}
+
 /* next-up kanji chips */
 .kanji-chips {
   display: flex;

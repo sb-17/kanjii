@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Analytics.css";
 import "../styles/Decks.css";
@@ -28,6 +28,10 @@ import {
 import { loadDeckStats } from "../storage/deckStats";
 import { loadDecks } from "../storage/decks";
 
+// Longest the expanded "Learn next" list gets. Past about twenty the tail is
+// ranked on a single locked word each, which says little about what to pick.
+const LEARN_NEXT_MAX = 20;
+
 export default function Analytics() {
   const { progress } = useProgress();
   const vocab = loadUserVocab();
@@ -35,11 +39,21 @@ export default function Analytics() {
 
   const status = useMemo(() => statusBreakdown(progress), [progress]);
   const bands = useMemo(() => frequencyBands(progress), [progress]);
-  const nextUp = useMemo(() => mostFrequentNew(progress, 12), [progress]);
-  const unlocking = useMemo(
-    () => mostUnlocking(vocab, progress, 6),
+  // "Learn next" shows a short list and expands to LEARN_NEXT_MAX. Fetched at
+  // the full length once and sliced, so expanding can't re-rank anything.
+  const [learnNextOpen, setLearnNextOpen] = useState(false);
+  const allNextUp = useMemo(
+    () => mostFrequentNew(progress, LEARN_NEXT_MAX),
+    [progress],
+  );
+  const allUnlocking = useMemo(
+    () => mostUnlocking(vocab, progress, LEARN_NEXT_MAX),
     [vocab, progress],
   );
+  const nextUp = learnNextOpen ? allNextUp : allNextUp.slice(0, 12);
+  const unlocking = learnNextOpen ? allUnlocking : allUnlocking.slice(0, 6);
+  const learnNextMore =
+    allUnlocking.length > 0 ? allUnlocking.length > 6 : allNextUp.length > 12;
   // Same allowance Practice applies, so "due now" matches what it would offer.
   const newBudget = Math.max(
     0,
@@ -191,6 +205,16 @@ export default function Analytics() {
                 </Link>
               ))}
             </div>
+          )}
+          {learnNextMore && (
+            <button
+              type="button"
+              className="learn-next-toggle"
+              onClick={() => setLearnNextOpen((o) => !o)}
+              aria-expanded={learnNextOpen}
+            >
+              {learnNextOpen ? "Show fewer" : "Show more"}
+            </button>
           )}
         </section>
 
