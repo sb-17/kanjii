@@ -264,19 +264,18 @@
   white-space: nowrap;
 }
 
-.learn-next-toggle {
-  align-self: flex-start;
-  margin-top: var(--space-3);
-  padding: 0;
-  background: none;
-  border: none;
+/* Mirrors .trend-back. Not shared: TrendDetail.css ships in that page's own
+   code-split chunk, so this page can't rely on it being loaded. */
+.learn-next-back {
+  display: inline-block;
+  margin-bottom: var(--space-3);
   color: var(--text-muted);
   font-size: var(--text-sm);
-  cursor: pointer;
+  text-decoration: none;
 }
 
-.learn-next-toggle:hover {
-  color: var(--accent);
+.learn-next-back:hover {
+  color: var(--text);
 }
 
 /* next-up kanji chips */

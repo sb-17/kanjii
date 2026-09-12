@@ -42,6 +42,8 @@ const Kanji = lazy(() => import("./pages/Kanji"));
 // Also split: it brings its own stylesheet, and it's only reachable by tapping a
 // chart on Analytics.
 const TrendDetail = lazy(() => import("./pages/TrendDetail"));
+// The "Learn next" card at full length; only reachable from that card.
+const LearnNext = lazy(() => import("./pages/LearnNext"));
 
 function AnalyticsTracker() {
   const location = useLocation();
@@ -229,6 +231,9 @@ export default function App() {
                 carries its own stylesheet and nobody reaches it without first
                 tapping a chart. */}
             <Route path="/analytics/:metric" element={<TrendDetail />} />
+            {/* A static segment outranks `:metric` in React Router's matching,
+                so this is never read as a chart called "learn-next". */}
+            <Route path="/analytics/learn-next" element={<LearnNext />} />
             <Route path="/kanji" element={<KanjiList />} />
             <Route path="/map" element={<KanjiMap />} />
             <Route path="/kanji/:char" element={<Kanji />} />

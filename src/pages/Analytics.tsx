@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Analytics.css";
 import "../styles/Decks.css";
@@ -26,11 +26,8 @@ import {
   deckTotals,
 } from "../lib/analytics";
 import { loadDeckStats } from "../storage/deckStats";
+import LearnNextList from "../components/learn-next/LearnNextList";
 import { loadDecks } from "../storage/decks";
-
-// Longest the expanded "Learn next" list gets. Past about twenty the tail is
-// ranked on a single locked word each, which says little about what to pick.
-const LEARN_NEXT_MAX = 20;
 
 export default function Analytics() {
   const { progress } = useProgress();
@@ -39,21 +36,11 @@ export default function Analytics() {
 
   const status = useMemo(() => statusBreakdown(progress), [progress]);
   const bands = useMemo(() => frequencyBands(progress), [progress]);
-  // "Learn next" shows a short list and expands to LEARN_NEXT_MAX. Fetched at
-  // the full length once and sliced, so expanding can't re-rank anything.
-  const [learnNextOpen, setLearnNextOpen] = useState(false);
-  const allNextUp = useMemo(
-    () => mostFrequentNew(progress, LEARN_NEXT_MAX),
-    [progress],
-  );
-  const allUnlocking = useMemo(
-    () => mostUnlocking(vocab, progress, LEARN_NEXT_MAX),
+  const nextUp = useMemo(() => mostFrequentNew(progress, 12), [progress]);
+  const unlocking = useMemo(
+    () => mostUnlocking(vocab, progress, 6),
     [vocab, progress],
   );
-  const nextUp = learnNextOpen ? allNextUp : allNextUp.slice(0, 12);
-  const unlocking = learnNextOpen ? allUnlocking : allUnlocking.slice(0, 6);
-  const learnNextMore =
-    allUnlocking.length > 0 ? allUnlocking.length > 6 : allNextUp.length > 12;
   // Same allowance Practice applies, so "due now" matches what it would offer.
   const newBudget = Math.max(
     0,
@@ -162,60 +149,12 @@ export default function Analytics() {
             makes the section an even six cards, so nothing is stranded alone in
             a final row. */}
         <section className="stat-card surface-card">
-          <h2 className="stat-card-title">Learn next</h2>
-          <p className="stat-note">
-            {unlocking.length > 0
-              ? "Ranked by how many of your words each one releases."
-              : "The most common kanji you haven't started."}
-          </p>
-          {unlocking.length > 0 ? (
-            <ul className="unlock-list">
-              {unlocking.map((c) => (
-                <li key={c.kanji.character}>
-                  <Link
-                    className="unlock-kanji"
-                    to={`/kanji/${encodeURIComponent(c.kanji.character)}`}
-                    lang="ja"
-                  >
-                    {c.kanji.character}
-                  </Link>
-                  <span className="unlock-meaning">
-                    {c.kanji.meanings.slice(0, 2).join(", ")}
-                  </span>
-                  <span className="unlock-count">
-                    {c.unlocks > 0
-                      ? `unlocks ${c.unlocks}`
-                      : `in ${c.blocks} locked`}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : nextUp.length === 0 ? (
-            <p className="stat-note">You've started every ranked kanji. 🎉</p>
-          ) : (
-            <div className="kanji-chips">
-              {nextUp.map((k) => (
-                <Link
-                  key={k.character}
-                  className="kanji-chip"
-                  to={`/kanji/${encodeURIComponent(k.character)}`}
-                  title={k.meanings.join(", ")}
-                >
-                  {k.character}
-                </Link>
-              ))}
-            </div>
-          )}
-          {learnNextMore && (
-            <button
-              type="button"
-              className="learn-next-toggle"
-              onClick={() => setLearnNextOpen((o) => !o)}
-              aria-expanded={learnNextOpen}
-            >
-              {learnNextOpen ? "Show fewer" : "Show more"}
-            </button>
-          )}
+          <h2 className="stat-card-title">
+            <Link to="/analytics/learn-next" className="stat-card-link">
+              Learn next <span aria-hidden="true">›</span>
+            </Link>
+          </h2>
+          <LearnNextList unlocking={unlocking} nextUp={nextUp} />
         </section>
 
         {/* ---- Handwriting skill ---- */}
