@@ -146,6 +146,9 @@
   display: block;
   height: 100%;
 }
+.seg.mastered {
+  background: var(--mastered);
+}
 .seg.known {
   background: var(--success);
 }
@@ -177,6 +180,9 @@
   border-radius: 50%;
   margin-right: 6px;
   vertical-align: middle;
+}
+.dot.mastered {
+  background: var(--mastered);
 }
 .dot.known {
   background: var(--success);

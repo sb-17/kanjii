@@ -57,6 +57,7 @@
   --success: #5fd07a;
   --error: #ff6b6b;
   --warning: #e6b566;
+  --mastered: #b58cf5; /* the Mastered kanji tag */
 
   /* ---- Typography scale ---- */
   --text-xs: 0.8rem;
@@ -115,6 +116,7 @@
   --success: #2e9e51;
   --error: #d93b3b;
   --warning: #b07a1e;
+  --mastered: #7b4fd1;
 }
 
 a {

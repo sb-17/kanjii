@@ -43,7 +43,8 @@ export default function Home() {
     () => loadSettings().onboardingDismissed,
   );
   const showSetup =
-    !promptDismissed && statusCounts.known + statusCounts.learning === 0;
+    !promptDismissed &&
+    statusCounts.mastered + statusCounts.known + statusCounts.learning === 0;
 
   // Backup reminder. Local-first with no accounts means clearing browser data is
   // total, unrecoverable loss — the one outcome that would lose someone months of
@@ -54,7 +55,8 @@ export default function Home() {
   // tagged kanji isn't lectured about backups.
   const lastBackupAt = loadCloudConfig().lastBackupAt;
   const worthLosing =
-    statusCounts.known + statusCounts.learning + vocab.length >= BACKUP_MIN_ITEMS;
+    statusCounts.mastered + statusCounts.known + statusCounts.learning + vocab.length >=
+    BACKUP_MIN_ITEMS;
   const daysSinceBackup = Math.floor((now - lastBackupAt) / 86_400_000);
   const showBackupWarning =
     worthLosing && (lastBackupAt === 0 || daysSinceBackup >= BACKUP_WARN_DAYS);
@@ -174,7 +176,9 @@ export default function Home() {
       <h2 className="home-section">Progress</h2>
       <div className="home-progress">
         <div className="home-stat surface-card">
-          <strong>{statusCounts.known}</strong> known
+          {/* Known or better — Mastered has no tile of its own, so Home still
+              fits a phone without scrolling. */}
+          <strong>{statusCounts.known + statusCounts.mastered}</strong> known
         </div>
         <div className="home-stat surface-card">
           <strong>{statusCounts.learning}</strong> learning

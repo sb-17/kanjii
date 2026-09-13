@@ -47,11 +47,20 @@ export function updateKanjiStatus(
   return next;
 }
 
+// Started at all. Mastered is included — it's a grade of known, not a separate
+// track — so word availability, the Write pools and Learn next treat it as known.
 export function isKnownOrLearning(status: KanjiStatus | undefined) {
-  return status === "known" || status === "learning";
+  return status === "learning" || isAtLeastKnown(status);
 }
 
-const STATUSES: string[] = ["new", "learning", "known"];
+// Known or Mastered. The test for "is this known?" anywhere that isn't showing
+// the tags themselves. Takes a plain string because event-log statuses are
+// stored untyped.
+export function isAtLeastKnown(status: string | null | undefined): boolean {
+  return status === "known" || status === "mastered";
+}
+
+const STATUSES: string[] = ["new", "learning", "known", "mastered"];
 
 // Validate parsed JSON as a progress map, throwing a user-readable reason if it
 // isn't one. Only reached through parseBackup now, and a restore *replaces*

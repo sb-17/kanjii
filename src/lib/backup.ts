@@ -16,8 +16,24 @@ import { mergeVocab } from "./vocab";
 
 export const BACKUP_KIND = "kanjii-backup";
 // v2 added events + settings + theme. v3 added imported-deck review progress.
+// v4 added the "mastered" kanji status, which builds before it reject outright.
 // Older files still import — the extra sections just come back empty/undefined.
-export const BACKUP_VERSION = 3;
+export const BACKUP_VERSION = 4;
+
+// A backup written by a newer build than this one. Its own class so Settings can
+// offer the update instead of only reporting the failure.
+//
+// Only builds from v4 on have this check. A build older than that has no idea
+// the version means anything and fails on whatever it can't parse instead — for
+// v4, a "has an invalid status" error on the first Mastered kanji.
+export class NewerBackupError extends Error {
+  constructor() {
+    super(
+      "This backup was made by a newer version of Kanjii. Update the app, then restore it again.",
+    );
+    this.name = "NewerBackupError";
+  }
+}
 
 export type Backup = {
   kind: typeof BACKUP_KIND;
@@ -234,6 +250,11 @@ export function parseBackup(raw: unknown): ParsedBackup {
     throw new Error(
       "This isn't a full backup file. Use the progress/vocabulary import for those.",
     );
+  }
+  // Checked before any section is read: a newer format can fail anywhere, and a
+  // message about one bad field would hide that the fix is simply to update.
+  if (typeof r.version === "number" && r.version > BACKUP_VERSION) {
+    throw new NewerBackupError();
   }
   // parseProgress throws on a bad shape; mergeVocab onto an empty list reuses the
   // same item validation + srs normalisation the vocab import already trusts.

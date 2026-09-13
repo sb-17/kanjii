@@ -174,6 +174,7 @@ export default function Kanji() {
             <option value="new">🆕 New</option>
             <option value="learning">🔁 Learning</option>
             <option value="known">✅ Known</option>
+            <option value="mastered">🟪 Mastered</option>
           </select>
           {wouldUnlock > 0 && (
             <p className="kanji-unlock-note">

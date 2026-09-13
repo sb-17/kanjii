@@ -119,6 +119,10 @@
   stroke: var(--success);
   fill: rgba(95, 208, 122, 0.16);
 }
+.kanji-graph-node.status-mastered .kanji-graph-disc {
+  stroke: var(--mastered);
+  fill: rgba(181, 140, 245, 0.16);
+}
 .kanji-graph-node.status-learning .kanji-graph-disc {
   stroke: var(--warning);
   fill: rgba(230, 181, 102, 0.16);

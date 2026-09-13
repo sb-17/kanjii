@@ -40,7 +40,8 @@ export default function KanjiList() {
   const initialStatusFilter =
     searchParams.get("status") === "new" ||
     searchParams.get("status") === "learning" ||
-    searchParams.get("status") === "known"
+    searchParams.get("status") === "known" ||
+    searchParams.get("status") === "mastered"
       ? (searchParams.get("status") as KanjiStatus)
       : null;
   const initialSort: SortKey =
@@ -298,6 +299,20 @@ export default function KanjiList() {
             }}
           >
             ✅ Known {statusCounts.known}
+          </button>
+          {/* Exactly Known above and Mastered here, so the two counts don't
+              overlap — one of the few places the tags are told apart. */}
+          <button
+            type="button"
+            className={`kanji-list-filter${statusFilter === "mastered" ? " active" : ""}`}
+            aria-pressed={statusFilter === "mastered"}
+            onClick={() => {
+              const newFilter = statusFilter === "mastered" ? null : "mastered";
+              setStatusFilter(newFilter);
+              updateFilter("status", newFilter);
+            }}
+          >
+            🟪 Mastered {statusCounts.mastered}
           </button>
         </div>
       )}

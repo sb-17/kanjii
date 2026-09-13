@@ -278,6 +278,10 @@
 .kanji-related-chip.status-known {
     border-color: var(--success);
 }
+
+.kanji-related-chip.status-mastered {
+    border-color: var(--mastered);
+}
 /* Dictionary word suggestions, below the two vocab columns. */
 .kanji-suggest {
     margin-top: var(--space-5);

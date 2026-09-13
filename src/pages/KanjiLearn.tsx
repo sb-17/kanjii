@@ -4,6 +4,7 @@ import "../styles/KanjiLearn.css";
 import type { Vocab } from "../types/vocabType";
 import { getKanji } from "../lib/kanjiIndex";
 import { useProgress } from "../context/ProgressContext";
+import { isKnownOrLearning } from "../storage/kanjiProgress";
 import { loadKanjiStrokes } from "../lib/kanjiVg";
 import { extractKanji } from "../lib/vocab";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
@@ -367,8 +368,7 @@ export default function KanjiLearn() {
           )}
 
           {/* Suggest, never set: status tags stay the learner's call. */}
-          {progress[kanjiObj.character] !== "learning" &&
-            progress[kanjiObj.character] !== "known" &&
+          {!isKnownOrLearning(progress[kanjiObj.character]) &&
             !promoted && (
               <div className="kl-suggest surface-card">
                 <p className="kl-suggest-text">

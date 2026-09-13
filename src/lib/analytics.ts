@@ -7,7 +7,7 @@ import type { Kanji } from "../types/kanjiType";
 import type { KanjiProgress } from "../types/kanjiProgress";
 import type { Vocab } from "../types/vocabType";
 import type { KanjiSkillMap } from "../types/kanjiSkill";
-import { isKnownOrLearning } from "../storage/kanjiProgress";
+import { isAtLeastKnown, isKnownOrLearning } from "../storage/kanjiProgress";
 import { loadSettings } from "../storage/settings";
 import { getKanji, hasKanji } from "./kanjiIndex";
 import { isVocabAvailable, PARTIAL_AVAILABILITY_RATIO } from "./vocab";
@@ -26,7 +26,10 @@ import type { DeckStats, DayDeckStat } from "../storage/deckStats";
 const KANJI = kanjiData as Kanji[];
 export const TOTAL_KANJI = KANJI.length;
 
+// `known` is *exactly* Known here, so the four parts add up to `total` and can be
+// drawn as one bar. A caller asking "how many are known?" wants known + mastered.
 export type StatusBreakdown = {
+  mastered: number;
   known: number;
   learning: number;
   new: number;
@@ -34,19 +37,29 @@ export type StatusBreakdown = {
 };
 
 export function statusBreakdown(progress: KanjiProgress): StatusBreakdown {
+  let mastered = 0;
   let known = 0;
   let learning = 0;
   for (const k of KANJI) {
     const s = progress[k.character];
-    if (s === "known") known++;
+    if (s === "mastered") mastered++;
+    else if (s === "known") known++;
     else if (s === "learning") learning++;
   }
-  return { known, learning, new: TOTAL_KANJI - known - learning, total: TOTAL_KANJI };
+  return {
+    mastered,
+    known,
+    learning,
+    new: TOTAL_KANJI - mastered - known - learning,
+    total: TOTAL_KANJI,
+  };
 }
 
+// As with StatusBreakdown, `known` excludes `mastered`.
 export type FreqBand = {
   label: string;
   total: number;
+  mastered: number;
   known: number;
   learning: number;
 };
@@ -57,10 +70,17 @@ export function frequencyBands(progress: KanjiProgress): FreqBand[] {
   const bands: FreqBand[] = BAND_TOPS.map((hi, i) => ({
     label: `${i === 0 ? 1 : BAND_TOPS[i - 1] + 1}–${hi}`,
     total: 0,
+    mastered: 0,
     known: 0,
     learning: 0,
   }));
-  const unranked: FreqBand = { label: "Unranked", total: 0, known: 0, learning: 0 };
+  const unranked: FreqBand = {
+    label: "Unranked",
+    total: 0,
+    mastered: 0,
+    known: 0,
+    learning: 0,
+  };
 
   for (const k of KANJI) {
     let band: FreqBand;
@@ -72,7 +92,8 @@ export function frequencyBands(progress: KanjiProgress): FreqBand[] {
     }
     band.total++;
     const s = progress[k.character];
-    if (s === "known") band.known++;
+    if (s === "mastered") band.mastered++;
+    else if (s === "known") band.known++;
     else if (s === "learning") band.learning++;
   }
 
@@ -524,12 +545,14 @@ export function knownPerWeek(
 }
 
 // Known-set transitions as signed points: +1 on entering Known, -1 on leaving it,
-// so a revert shows as an honest downward bar rather than vanishing.
+// so a revert shows as an honest downward bar rather than vanishing. Mastered is
+// inside the Known set: Known → Mastered is no change, and a kanji tagged
+// Mastered straight from New counts as known.
 export function knownPoints(events: AppEvent[]): Point[] {
   const points: Point[] = [];
   for (const e of events) {
     if (e.k !== "kanji") continue;
-    const delta = (e.to === "known" ? 1 : 0) - (e.f === "known" ? 1 : 0);
+    const delta = (isAtLeastKnown(e.to) ? 1 : 0) - (isAtLeastKnown(e.f) ? 1 : 0);
     if (delta !== 0) points.push({ t: e.t, v: delta });
   }
   return points;

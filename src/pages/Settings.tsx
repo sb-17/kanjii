@@ -16,8 +16,10 @@ import {
   parseBackup,
   serializeBackup,
   readBackupBlob,
+  NewerBackupError,
   type ParsedBackup,
 } from "../lib/backup";
+import { applyUpdate } from "../lib/swUpdate";
 import { getThemePref, setThemePref, type ThemePref } from "../storage/theme";
 import { loadCloudConfig, saveCloudConfig } from "../storage/cloudSync";
 import {
@@ -247,6 +249,14 @@ export default function Settings() {
     saveCloudConfig({ ...loadCloudConfig(), lastBackupAt: Date.now() });
   };
 
+  // A backup from a newer build can't be read here, and updating is the whole
+  // fix, so offer it. `applyUpdate` hands over to a waiting worker if there is
+  // one and reloads regardless; a reload also makes the browser check for the
+  // new version, which then arrives through the usual update toast.
+  const offerUpdate = (err: NewerBackupError) => {
+    if (confirm(`${err.message}\n\nReload now to update?`)) applyUpdate();
+  };
+
   // Reads the file itself rather than its text: a backup is gzipped now, and
   // `readBackupBlob` decides by the magic bytes, so a plain-JSON backup from an
   // older build still restores.
@@ -259,6 +269,10 @@ export default function Settings() {
     try {
       data = parseBackup(await readBackupBlob(file));
     } catch (err) {
+      if (err instanceof NewerBackupError) {
+        offerUpdate(err);
+        return;
+      }
       alert(
         "Couldn't read that backup.\n\n" +
           `${(err as Error).message}\n\n` +
@@ -285,7 +299,10 @@ export default function Settings() {
     setCloudStatus(pending);
     void action()
       .then(setCloudStatus)
-      .catch((err: Error) => setCloudStatus(`⚠️ ${err.message}`))
+      .catch((err: Error) => {
+        setCloudStatus(`⚠️ ${err.message}`);
+        if (err instanceof NewerBackupError) offerUpdate(err);
+      })
       .finally(() => {
         setCloudBusy(false);
         // A call can fail because the token died mid-flight; keep the button

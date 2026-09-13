@@ -93,18 +93,23 @@ export default function Analytics() {
         <section className="stat-card surface-card">
           <h2 className="stat-card-title">Kanji progress</h2>
           <div className="stat-headline">
-            <span className="stat-big">{pct(status.known)}%</span>
+            {/* Known or better; the bar and legend below split Mastered out. */}
+            <span className="stat-big">{pct(status.known + status.mastered)}%</span>
             <span className="stat-sub">
-              known · {pct(status.known + status.learning)}% started
+              known · {pct(status.mastered + status.known + status.learning)}% started
             </span>
           </div>
 
           <div className="stacked-bar" role="img" aria-label="Kanji status breakdown">
+            <span className="seg mastered" style={{ width: `${pct(status.mastered)}%` }} />
             <span className="seg known" style={{ width: `${pct(status.known)}%` }} />
             <span className="seg learning" style={{ width: `${pct(status.learning)}%` }} />
           </div>
 
           <ul className="legend">
+            <li>
+              <span className="dot mastered" /> Mastered <strong>{status.mastered}</strong>
+            </li>
             <li>
               <span className="dot known" /> Known <strong>{status.known}</strong>
             </li>
@@ -125,16 +130,18 @@ export default function Analytics() {
 
           <div className="band-list">
             {bands.map((b) => {
+              const masteredPct = b.total ? (b.mastered / b.total) * 100 : 0;
               const knownPct = b.total ? (b.known / b.total) * 100 : 0;
               const learnPct = b.total ? (b.learning / b.total) * 100 : 0;
               return (
                 <div className="band-row" key={b.label}>
                   <span className="band-label">{b.label}</span>
                   <span className="band-bar">
+                    <span className="seg mastered" style={{ width: `${masteredPct}%` }} />
                     <span className="seg known" style={{ width: `${knownPct}%` }} />
                     <span className="seg learning" style={{ width: `${learnPct}%` }} />
                   </span>
-                  <span className="band-pct">{Math.round(knownPct)}%</span>
+                  <span className="band-pct">{Math.round(masteredPct + knownPct)}%</span>
                 </div>
               );
             })}

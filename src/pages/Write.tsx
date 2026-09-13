@@ -5,6 +5,7 @@ import type { Kanji } from "../types/kanjiType";
 import type { KanjiProgress } from "../types/kanjiProgress";
 import { ALL_KANJI, getKanji, hasKanji } from "../lib/kanjiIndex";
 import { useProgress } from "../context/ProgressContext";
+import { isAtLeastKnown, isKnownOrLearning } from "../storage/kanjiProgress";
 import { loadSettings, saveSettings } from "../storage/settings";
 import type { Settings, WriteMode, WritePool } from "../types/settingsType";
 import KanjiWriter, {
@@ -48,13 +49,11 @@ function computePool(
   now: number,
   newBudget = Number.POSITIVE_INFINITY,
 ): Kanji[] {
-  const active = ALL_KANJI.filter((k) => {
-    const status = progress[k.character];
-    return status === "learning" || status === "known";
-  });
+  const active = ALL_KANJI.filter((k) => isKnownOrLearning(progress[k.character]));
 
   if (p === "learning") return active.filter((k) => progress[k.character] === "learning");
-  if (p === "known") return active.filter((k) => progress[k.character] === "known");
+  // Mastered is a grade of Known, so it's written from this pool too.
+  if (p === "known") return active.filter((k) => isAtLeastKnown(progress[k.character]));
   if (p !== "due") return active; // both
 
   const reviews = active.filter((k) => {
@@ -375,10 +374,9 @@ export default function Write() {
   // cap). Saying "you're caught up" to someone with 400 kanji untouched is a
   // plain lie. Only evaluated when the pool is empty, so the scan is free.
   const unwrittenWaiting = () =>
-    ALL_KANJI.some((k) => {
-      const status = progress[k.character];
-      return (status === "learning" || status === "known") && !skill[k.character];
-    });
+    ALL_KANJI.some(
+      (k) => isKnownOrLearning(progress[k.character]) && !skill[k.character],
+    );
 
   // Guarded on there being nothing to show, which is the only time it's read:
   // `remainingNewToday` walks the whole event log, and this sits in a render that

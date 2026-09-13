@@ -109,6 +109,10 @@
     border-left-color: var(--success);
 }
 
+.word-kanji-row.status-mastered {
+    border-left-color: var(--mastered);
+}
+
 .word-kanji-char {
     flex: 0 0 auto;
     font-size: clamp(2rem, 8vw, 2.75rem);

@@ -15,7 +15,7 @@ export default function Learn() {
       </h1>
       <div className="learn-progress">
         <strong>🔁 Learning: {statusCounts.learning}</strong>
-        <strong>✅ Known: {statusCounts.known}</strong>
+        <strong>✅ Known: {statusCounts.known + statusCounts.mastered}</strong>
       </div>
 
       <div className="sets-container">

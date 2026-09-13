@@ -40,6 +40,7 @@ export default function KanjiCard({
             <option value="new">🆕 New</option>
             <option value="learning">🔁 Learning</option>
             <option value="known">✅ Known</option>
+            <option value="mastered">🟪 Mastered</option>
           </select>
         </div>
       </div>

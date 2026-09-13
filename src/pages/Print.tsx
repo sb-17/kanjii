@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import "../styles/Print.css";
 import sets from "../data/sets.json";
 import { useProgress } from "../context/ProgressContext";
+import { isAtLeastKnown } from "../storage/kanjiProgress";
 import { extractKanji } from "../lib/vocab";
 import { ALL_KANJI, getKanji } from "../lib/kanjiIndex";
 
@@ -32,7 +33,12 @@ export default function Print() {
     if (source === "set") return sets.find((s) => s.id === setId)?.kanji ?? [];
     if (source === "custom") return [] as string[];
     return ALL_KANJI
-      .filter((k) => progress[k.character] === source)
+      .filter((k) =>
+        // Mastered is a grade of Known, so the Known source prints it too.
+        source === "known"
+          ? isAtLeastKnown(progress[k.character])
+          : progress[k.character] === source,
+      )
       .map((k) => k.character);
   }, [source, setId, progress]);
 

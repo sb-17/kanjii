@@ -2,6 +2,7 @@ import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import ClearableField from "../components/clearable-field/ClearableField";
 import { useProgress } from "../context/ProgressContext";
+import { isAtLeastKnown } from "../storage/kanjiProgress";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
 import { extractWords, makeDictionary } from "../lib/textExtract";
 import type { Dictionary, DictionaryData, FoundWord } from "../lib/textExtract";
@@ -65,7 +66,7 @@ export default function Read() {
   const have = useMemo(() => new Set(vocab.map((v) => v.word)), [vocab]);
 
   const isUnknown = (w: FoundWord) =>
-    w.kanji.some((ch) => (progress[ch] ?? "new") !== "known");
+    w.kanji.some((ch) => !isAtLeastKnown(progress[ch]));
 
   const shown = useMemo(
     () =>
