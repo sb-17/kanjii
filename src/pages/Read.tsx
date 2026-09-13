@@ -24,9 +24,18 @@ const SCOPES = [
 
 type Scope = (typeof SCOPES)[number]["id"];
 
+// The paste survives leaving the page. Every kanji chip is a link, so checking
+// one and coming back used to return to an empty box. Module-level for the same
+// reason as My words' search (see `lastSearch` there).
+let lastText = "";
+
 export default function Read() {
   const { progress } = useProgress();
-  const [text, setText] = useState("");
+  const [text, setTextState] = useState(lastText);
+  const setText = (value: string) => {
+    lastText = value;
+    setTextState(value);
+  };
   const [scope, setScope] = useState<Scope>("all");
   const [vocab, setVocab] = useState<Vocab[]>(loadUserVocab);
   const [dict, setDict] = useState<Dictionary | null>(null);

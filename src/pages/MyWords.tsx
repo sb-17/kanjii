@@ -513,7 +513,8 @@ export default function MyWords() {
 
       {list.length === 0 ? (
         <p className="mw-empty">
-          No words yet. Add your first word above, or import a vocab.json file.
+          No words yet. Add words or import a vocab.json/backup file in{" "}
+          <Link to="/settings">settings</Link>.
         </p>
       ) : (
         <div className="mw-list">

@@ -464,10 +464,7 @@ export default function Write() {
         <EmptyState
           title="Nothing to write yet"
           message={emptyMessage}
-          actions={[
-            { to: "/kanji", label: "Browse kanji" },
-            { to: "/sets", label: "Browse sets" },
-          ]}
+          actions={[{ to: "/kanji", label: "Browse kanji" }]}
         />
       ) : writeMode === "screen" ? (
         <KanjiWriter

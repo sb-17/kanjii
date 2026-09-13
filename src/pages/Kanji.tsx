@@ -60,10 +60,11 @@ export default function Kanji() {
     isVocabAvailable(v, progress),
   );
 
-  const mostlyKnownVocab = filteredVocab.filter((v) => {
-    const ratio = knownRatio(v, progress);
-    return ratio >= 0.5 && ratio < 1;
-  });
+  // Excludes the words above rather than testing `ratio < 1`: with partial
+  // availability on, a word at 50–99% is already readable and was listed twice.
+  const mostlyKnownVocab = filteredVocab.filter(
+    (v) => knownRatio(v, progress) >= 0.5 && !isVocabAvailable(v, progress),
+  );
 
   // What tagging this kanji actually buys: the locked words it would release on
   // its own. The two lists below say what you can already read; this is the one
