@@ -246,3 +246,19 @@
         max-width: min(360px, 52vh);
     }
 }
+
+/* Keyboard hint under the paper-mode buttons. Mirrors .card-keys (Cards.css):
+   shown only where a keyboard is likely, since on a phone it is noise. */
+.write-keys {
+    display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .write-keys {
+        display: block;
+        margin: var(--space-2) 0 0;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+    }
+}

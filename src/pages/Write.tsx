@@ -23,6 +23,7 @@ import {
   skillDueKey,
 } from "../lib/kanjiSkill";
 import { useNow } from "../lib/useNow";
+import { useRevealGradeKeys } from "../lib/useRevealGradeKeys";
 import { newKanjiAllowance } from "../lib/analytics";
 
 // Never-written kanji the Due pool may still add today. Read live from the event
@@ -232,6 +233,19 @@ export default function Write() {
       navigate(-1);
     }
   };
+
+  // Space / 1 / 2, as in the card players — paper mode is the same reveal-then-
+  // grade loop. Screen mode has nothing to map: a drawn kanji grades itself.
+  // Off while the promote dialog is up, since its buttons replace these.
+  // Above the bad-URL return so the hook runs on every render; the grade handler
+  // is declared further down, so it's reached through a wrapper that only runs
+  // on a keypress, long after this render has finished.
+  useRevealGradeKeys({
+    revealed,
+    onShow: () => setRevealed(true),
+    onGrade: (got) => handlePaperGrade(got),
+    enabled: !!current && !promoteSuggest && writeMode === "paper",
+  });
 
   // Bad /kanji/:char/write URL.
   if (single && !hasKanji(routeChar ?? "")) {
@@ -552,6 +566,12 @@ export default function Write() {
             </>
           )}
         </div>
+      )}
+      {current && !promoteSuggest && writeMode === "paper" && (
+        // Hidden on touch devices, as in the card players — see .write-keys.
+        <p className="write-keys" aria-hidden="true">
+          {revealed ? "1 Again · 2 or Space Got it" : "Space Show answer"}
+        </p>
       )}
     </div>
   );
