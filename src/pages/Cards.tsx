@@ -8,7 +8,8 @@ import { isVocabAvailable } from "../lib/vocab";
 import { scopeVocab, pickWord, gradeDirection, isNewFor, isDueFor } from "../lib/srs";
 import { vocabLadder } from "../lib/schedule";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
-import { logReview, loadEvents } from "../storage/events";
+import { logReview, loadEvents, removeEvent } from "../storage/events";
+import type { ReviewEvent } from "../storage/events";
 import { newWordAllowance } from "../lib/analytics";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { useProgress } from "../context/ProgressContext";
@@ -92,6 +93,12 @@ export default function Cards() {
   // answer you just graded until it has turned away.
   const [gradedBack, setGradedBack] = useState<Vocab | null>(null);
 
+  // The last graded word as it was before grading, for Undo. One level only.
+  const [lastGrade, setLastGrade] = useState<{
+    word: Vocab;
+    event: ReviewEvent;
+  } | null>(null);
+
   // Move to the next card, picked from the latest vocab + current scope.
   const availableIn = (list: Vocab[]) =>
     list.filter((v) => isVocabAvailable(v, progress));
@@ -138,8 +145,26 @@ export default function Cards() {
     const next = vocab.map((v) => (keyOf(v) === keyOf(current) ? { ...v, srs } : v));
     setVocab(next);
     saveUserVocab(next);
-    logReview(current.word, current.reading, correct);
+    const event = logReview(current.word, current.reading, correct);
+    setLastGrade({ word: current, event });
     advance(next);
+  };
+
+  // Put the box back, drop the logged review, and show the card again answer
+  // side up — a mis-tapped grade is the usual reason, so it's ready to re-grade.
+  const undo = () => {
+    if (!lastGrade) return;
+    const { word: prev, event } = lastGrade;
+    const next = vocab.map((v) =>
+      keyOf(v) === keyOf(prev) ? { ...v, srs: prev.srs } : v,
+    );
+    setVocab(next);
+    saveUserVocab(next);
+    removeEvent(event);
+    setLastGrade(null);
+    setGradedBack(null);
+    setIsFlipped(true);
+    setCurrent(prev);
   };
 
   // Flipping to the answer releases the held-back card: the front is face-on for
@@ -252,6 +277,14 @@ export default function Cards() {
             onGrade={grade}
           />
         </>
+      )}
+
+      {/* Outside the branches, so the last card of a session — which lands on
+          the empty state — can still be taken back. */}
+      {lastGrade && (
+        <button type="button" className="card-undo" onClick={undo}>
+          ↶ Undo last answer
+        </button>
       )}
     </div>
   );

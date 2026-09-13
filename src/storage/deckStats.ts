@@ -57,6 +57,27 @@ export function recordDeckReview(
   });
 }
 
+// Take back one answer (undo). `at` is when it was recorded, so it comes off the
+// day it was counted on. A deck whose count reaches zero is removed, leaving the
+// day exactly as if the answer had never been given.
+export function unrecordDeckReview(
+  deckId: string,
+  correct: boolean,
+  at: number,
+): void {
+  const day = String(startOfStudyDay(at));
+  const forDay = { ...(cache[day] ?? {}) };
+  const prev = forDay[deckId];
+  if (!prev) return;
+  if (prev.n <= 1) delete forDay[deckId];
+  else forDay[deckId] = { n: prev.n - 1, ok: Math.max(0, prev.ok - (correct ? 1 : 0)) };
+
+  const next = { ...cache };
+  if (Object.keys(forDay).length > 0) next[day] = forDay;
+  else delete next[day];
+  saveDeckStats(next);
+}
+
 // Drop one deck's history when the deck is deleted, alongside its progress, so a
 // delete is a genuine clean slate rather than leaving counts attached to an id
 // nothing can name any more.

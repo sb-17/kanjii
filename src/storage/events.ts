@@ -108,12 +108,27 @@ export function logKanjiStatus(char: string, from: string | null, to: string): v
   append({ t: Date.now(), k: "kanji", c: char, f: from, to });
 }
 
+// Returns the event so an undo can take it back (`removeEvent`).
 export function logReview(
   word: string,
   reading: string,
   correct: boolean,
-): void {
-  append({ t: Date.now(), k: "review", w: word, r: reading, ok: correct });
+): ReviewEvent {
+  const e: ReviewEvent = { t: Date.now(), k: "review", w: word, r: reading, ok: correct };
+  append(e);
+  return e;
+}
+
+// The one exception to append-only: undoing a grade. Left in, the review would
+// still count toward the charts and toward `newWordsIntroducedToday`, so an
+// undone first review of a new word would keep spending the day's allowance.
+// Matched by identity, so it's a no-op if a restore replaced the log meanwhile.
+export function removeEvent(e: AppEvent): void {
+  const i = cache.lastIndexOf(e);
+  if (i === -1) return;
+  cache.splice(i, 1);
+  dirty = true;
+  if (flushTimer == null) flushTimer = setTimeout(flush, FLUSH_DELAY);
 }
 
 export function logWrite(e: Omit<WriteEvent, "t" | "k">): void {

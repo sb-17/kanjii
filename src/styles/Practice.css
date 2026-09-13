@@ -173,3 +173,21 @@
     opacity: 0.45;
     cursor: default;
 }
+
+/* Quiet, like .card-undo in Cards.css — the rare path, under the buttons that
+   matter. The global `button` background is reset here. */
+.practice-undo {
+    margin-top: var(--space-3);
+    background: none;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+.practice-undo:hover:not(:disabled) {
+    color: var(--accent);
+}
+
+.practice-undo:disabled {
+    opacity: 0.45;
+    cursor: default;
+}

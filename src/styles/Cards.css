@@ -209,3 +209,16 @@
 .card-show-answer:focus {
     outline: none;
 }
+/* Quiet on purpose: it's the rare path, and it sits under the grade buttons where
+   a loud button would be the next thing mis-tapped. Global `button` gives every
+   button a filled background, so that is reset here. */
+.card-undo {
+    margin-top: var(--space-3);
+    background: none;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+.card-undo:hover {
+    color: var(--accent);
+}

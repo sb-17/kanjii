@@ -31,11 +31,16 @@ export function deckBoxes(deckId: string): Record<string, SrsBox> {
   return cache[deckId] ?? {};
 }
 
-export function setCardBox(deckId: string, cardId: string, box: SrsBox): void {
-  saveDeckProgress({
-    ...cache,
-    [deckId]: { ...(cache[deckId] ?? {}), [cardId]: box },
-  });
+// `undefined` removes the box — how an undo returns a card to never-studied.
+export function setCardBox(
+  deckId: string,
+  cardId: string,
+  box: SrsBox | undefined,
+): void {
+  const boxes = { ...(cache[deckId] ?? {}) };
+  if (box) boxes[cardId] = box;
+  else delete boxes[cardId];
+  saveDeckProgress({ ...cache, [deckId]: boxes });
 }
 
 // Drop a deck's progress when the deck itself is deleted, so removing and

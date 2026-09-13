@@ -3,9 +3,10 @@ import { Link, useParams } from "react-router-dom";
 import "../styles/Cards.css";
 import "../styles/Decks.css";
 import type { DeckCard, DeckScope } from "../types/deckType";
+import type { SrsBox } from "../types/vocabType";
 import { getDeck } from "../storage/decks";
 import { deckBoxes, setCardBox } from "../storage/deckProgress";
-import { recordDeckReview } from "../storage/deckStats";
+import { recordDeckReview, unrecordDeckReview } from "../storage/deckStats";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { deckCounts, pickDeckCard } from "../lib/deckSrs";
 import { applyReview } from "../lib/srs";
@@ -60,6 +61,16 @@ export default function DeckCards() {
   // answer you just graded until it has turned away.
   const [gradedBack, setGradedBack] = useState<DeckCard | null>(null);
 
+  // The last grade, for Undo: the card, its box before grading (undefined = it
+  // was new), and what was counted and when, so the day's counter can come back
+  // down. One level only.
+  const [lastGrade, setLastGrade] = useState<{
+    card: DeckCard;
+    box: SrsBox | undefined;
+    correct: boolean;
+    at: number;
+  } | null>(null);
+
   // A deck that has run out keeps looking. Box 0 is ten minutes, so a card you
   // missed early in a session comes due during it — but the three picks above
   // happen on mount, on a grade and on a scope change, and none of them can fire
@@ -96,16 +107,36 @@ export default function DeckCards() {
 
   const grade = (correct: boolean) => {
     if (!current) return;
-    const box = applyReview(boxes[current.id], correct, Date.now(), deckLadder());
+    const at = Date.now();
+    const box = applyReview(boxes[current.id], correct, at, deckLadder());
     const next = { ...boxes, [current.id]: box };
     setBoxes(next);
     setCardBox(deck.id, current.id, box);
-    recordDeckReview(deck.id, correct);
+    recordDeckReview(deck.id, correct, at);
+    setLastGrade({ card: current, box: boxes[current.id], correct, at });
 
     setGradedBack(current);
     setIsFlipped(false);
     setAddState(null);
     setCurrent(pickDeckCard(deck.cards, next, scope, Date.now(), current.id));
+  };
+
+  // Put the box and the day's counter back, and show the card again answer side
+  // up — a mis-tapped grade is the usual reason, so it's ready to re-grade.
+  const undo = () => {
+    if (!lastGrade) return;
+    const { card, box, correct, at } = lastGrade;
+    const next = { ...boxes };
+    if (box) next[card.id] = box;
+    else delete next[card.id];
+    setBoxes(next);
+    setCardBox(deck.id, card.id, box);
+    unrecordDeckReview(deck.id, correct, at);
+    setLastGrade(null);
+    setGradedBack(null);
+    setIsFlipped(true);
+    setAddState(null);
+    setCurrent(card);
   };
 
   // Flipping to the answer is where the held-back card is released: the front is
@@ -255,6 +286,14 @@ export default function DeckCards() {
 
           <CardActions flipped={isFlipped} onShow={flip} onGrade={grade} />
         </>
+      )}
+
+      {/* Outside the branches, so the last card of a session — which lands on
+          the empty state — can still be taken back. */}
+      {lastGrade && (
+        <button type="button" className="card-undo" onClick={undo}>
+          ↶ Undo last answer
+        </button>
       )}
     </div>
   );

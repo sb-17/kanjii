@@ -22,7 +22,8 @@ import {
   finalizeKana,
 } from "../lib/answer";
 import { loadUserVocab, saveUserVocab } from "../storage/userVocab";
-import { logReview, loadEvents } from "../storage/events";
+import { logReview, loadEvents, removeEvent } from "../storage/events";
+import type { ReviewEvent } from "../storage/events";
 import { newWordAllowance } from "../lib/analytics";
 import { loadSettings, saveSettings } from "../storage/settings";
 import { useProgress } from "../context/ProgressContext";
@@ -120,6 +121,13 @@ export default function Practice() {
   const [revealed, setRevealed] = useState(false);
   const [showNote, setShowNote] = useState(false);
   const [graded, setGraded] = useState(false);
+  // The most recent grade, as it stood before grading, so Undo can put it back.
+  // One level only. With the miss defaulting to a reset, a typo or a mis-tap on
+  // Show answer sent a box-5 word back to box 0 with no way to take it back.
+  const [lastGrade, setLastGrade] = useState<{
+    item: Item;
+    event?: ReviewEvent;
+  } | null>(null);
 
   // The pause before auto-advancing must not outlive the component — answering
   // correctly and navigating away inside the window would otherwise advance a
@@ -201,7 +209,7 @@ export default function Practice() {
   // Grade the current item once (updates its SRS box + persists). Returns the
   // updated vocab list so callers can advance from it.
   const grade = (correct: boolean): Vocab[] => {
-    if (!current) return vocab;
+    if (!item || !current) return vocab;
     const at = Date.now();
     const ladder = vocabLadder();
     const patch: Partial<Vocab> = isSentence
@@ -216,10 +224,31 @@ export default function Practice() {
     // the word's first-ever review, and `newWordsIntroducedToday` reads that as
     // introducing a new word — spending the daily allowance on a word already
     // being reviewed. Deck reviews stay out of the log for the same reason.
-    if (!isSentence) logReview(current.word, current.reading, correct);
+    const event = isSentence
+      ? undefined
+      : logReview(current.word, current.reading, correct);
+    setLastGrade({ item, event });
     setItem((it) => (it ? { ...it, v: { ...it.v, ...patch } } : it));
     setGraded(true);
     return next;
+  };
+
+  // Restore the boxes as they were, drop the logged review, and bring the item
+  // back ungraded — whether it's still on screen or already moved past.
+  const undo = () => {
+    if (!lastGrade) return;
+    const { item: prev, event } = lastGrade;
+    const next = vocab.map((v) =>
+      keyOf(v) === keyOf(prev.v)
+        ? { ...v, srs: prev.v.srs, sentenceSrs: prev.v.sentenceSrs }
+        : v,
+    );
+    setVocab(next);
+    saveUserVocab(next);
+    if (event) removeEvent(event);
+    setLastGrade(null);
+    setItem(prev);
+    resetAnswer();
   };
 
   const handleSubmit = () => {
@@ -498,6 +527,21 @@ export default function Practice() {
           </div>
           )}
         </>
+      )}
+
+      {/* Outside the branches above, so grading the last due word — which lands
+          on the empty state — can still be taken back. Locked during the
+          correct-answer pause like the other buttons: the queued advance would
+          fire straight after and move off the restored word. */}
+      {lastGrade && (
+        <button
+          type="button"
+          className="practice-undo"
+          onClick={undo}
+          disabled={feedback === "correct"}
+        >
+          ↶ Undo last answer
+        </button>
       )}
     </div>
   );
