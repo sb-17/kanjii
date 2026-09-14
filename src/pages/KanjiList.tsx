@@ -21,6 +21,17 @@ const KanjiDrawPad = lazy(
 
 const DEFAULT_SHOWN = 100;
 
+const STATUSES: KanjiStatus[] = ["new", "learning", "known", "mastered"];
+
+// The filter buttons. Several can be on at once (Known + Mastered); exactly
+// Known and exactly Mastered, so the counts don't overlap — one of the few
+// places the tags are told apart.
+const STATUS_FILTERS: { id: KanjiStatus; label: string }[] = [
+  { id: "learning", label: "🔁 Learning" },
+  { id: "known", label: "✅ Known" },
+  { id: "mastered", label: "🟪 Mastered" },
+];
+
 // How the rows are ordered. Frequency is the default and comes free — the search
 // index is already built in that order. "added" only means something once you've
 // filtered to Learning or Known ("when did this enter *this* list"), so the
@@ -37,13 +48,10 @@ export default function KanjiList() {
 
   const initialSearchTerm = searchParams.get("q") || "";
   const initialCountInput = searchParams.get("n") ?? String(DEFAULT_SHOWN);
-  const initialStatusFilter =
-    searchParams.get("status") === "new" ||
-    searchParams.get("status") === "learning" ||
-    searchParams.get("status") === "known" ||
-    searchParams.get("status") === "mastered"
-      ? (searchParams.get("status") as KanjiStatus)
-      : null;
+  // Comma-separated (`?status=known,mastered`); a single value still parses, so
+  // old links keep working. Kept in STATUSES order so the URL is stable.
+  const statusParam = (searchParams.get("status") ?? "").split(",");
+  const initialStatusFilter = STATUSES.filter((s) => statusParam.includes(s));
   const initialSort: SortKey =
     searchParams.get("sort") === "added" ? "added" : "frequency";
 
@@ -52,9 +60,9 @@ export default function KanjiList() {
   // Held as text so the field can be cleared to retype. `Number("")` is 0, which
   // as a count would blank the list mid-edit — fall back to the default instead.
   const [countInput, setCountInput] = useState(initialCountInput);
-  const [statusFilter, setStatusFilter] = useState<KanjiStatus | null>(
-    initialStatusFilter,
-  );
+  // Empty = no status filter.
+  const [statusFilter, setStatusFilter] =
+    useState<KanjiStatus[]>(initialStatusFilter);
   const [sort, setSort] = useState<SortKey>(initialSort);
   const [drawOpen, setDrawOpen] = useState(false);
   const [countFocused, setCountFocused] = useState(false);
@@ -108,7 +116,8 @@ export default function KanjiList() {
         text.includes(term) ||
         term.includes(k.character.toLowerCase());
       const statusMatch =
-        !statusFilter || progress[k.character] === statusFilter;
+        statusFilter.length === 0 ||
+        statusFilter.includes(progress[k.character] ?? "new");
       return textMatch && statusMatch;
     });
   }, [searchIndex, searchTerm, statusFilter, progress]);
@@ -152,6 +161,14 @@ export default function KanjiList() {
       newParams.set(key, String(value));
     }
     setSearchParams(newParams, { replace: true });
+  };
+
+  const toggleStatus = (s: KanjiStatus) => {
+    const next = STATUSES.filter((x) =>
+      x === s ? !statusFilter.includes(s) : statusFilter.includes(x),
+    );
+    setStatusFilter(next);
+    updateFilter("status", next.join(","));
   };
 
   // Counted over the kanji dataset, so these match the rows the filter actually
@@ -276,50 +293,23 @@ export default function KanjiList() {
 
       {!drawRows && (
         <div className="kanji-list-progress">
-          <button
-            type="button"
-            className={`kanji-list-filter${statusFilter === "learning" ? " active" : ""}`}
-            aria-pressed={statusFilter === "learning"}
-            onClick={() => {
-              const newFilter = statusFilter === "learning" ? null : "learning";
-              setStatusFilter(newFilter);
-              updateFilter("status", newFilter);
-            }}
-          >
-            🔁 Learning {statusCounts.learning}
-          </button>
-          <button
-            type="button"
-            className={`kanji-list-filter${statusFilter === "known" ? " active" : ""}`}
-            aria-pressed={statusFilter === "known"}
-            onClick={() => {
-              const newFilter = statusFilter === "known" ? null : "known";
-              setStatusFilter(newFilter);
-              updateFilter("status", newFilter);
-            }}
-          >
-            ✅ Known {statusCounts.known}
-          </button>
-          {/* Exactly Known above and Mastered here, so the two counts don't
-              overlap — one of the few places the tags are told apart. */}
-          <button
-            type="button"
-            className={`kanji-list-filter${statusFilter === "mastered" ? " active" : ""}`}
-            aria-pressed={statusFilter === "mastered"}
-            onClick={() => {
-              const newFilter = statusFilter === "mastered" ? null : "mastered";
-              setStatusFilter(newFilter);
-              updateFilter("status", newFilter);
-            }}
-          >
-            🟪 Mastered {statusCounts.mastered}
-          </button>
+          {STATUS_FILTERS.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              className={`kanji-list-filter${statusFilter.includes(f.id) ? " active" : ""}`}
+              aria-pressed={statusFilter.includes(f.id)}
+              onClick={() => toggleStatus(f.id)}
+            >
+              {f.label} {statusCounts[f.id]}
+            </button>
+          ))}
         </div>
       )}
 
       {/* "Recently added" answers "when did this enter this list", so it's only
-          meaningful once a status filter narrows the list to one. */}
-      {statusFilter && !drawRows && (
+          meaningful once a status filter narrows the list. */}
+      {statusFilter.length > 0 && !drawRows && (
         <div className="kanji-list-sort" role="group" aria-label="Sort">
           <div className="scope-tabs">
             {SORTS.map((s) => (
@@ -339,7 +329,7 @@ export default function KanjiList() {
         </div>
       )}
 
-      {statusFilter && !drawRows && sort === "added" && undatedCount > 0 && (
+      {statusFilter.length > 0 && !drawRows && sort === "added" && undatedCount > 0 && (
         <p className="kanji-list-sort-note">
           {undatedCount} of these {undatedCount === 1 ? "has" : "have"} no date
           — marked before this was tracked, or restored from a progress file.
