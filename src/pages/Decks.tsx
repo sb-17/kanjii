@@ -305,7 +305,7 @@ export default function Decks() {
 
           <p className="settings-description">
             An Anki .apkg — straight from AnkiWeb, no re-export needed — or a
-            plain text export (tab or comma separated). Only the five fields below
+            plain text export (tab or comma separated). Only the six fields below
             are kept; everything else in the file is discarded. Decks stay on this
             device; only your review progress is backed up.
           </p>
