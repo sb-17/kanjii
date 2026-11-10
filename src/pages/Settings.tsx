@@ -228,6 +228,13 @@ export default function Settings() {
       setThemePref(data.theme);
       setTheme(data.theme);
     }
+
+    // After a restore, this device holds exactly what that backup holds, so it is
+    // backed up as of the backup's own date — not as of now, so restoring an old
+    // backup still leaves the reminder due once that backup is stale.
+    if (data.exportedAt) {
+      saveCloudConfig({ ...loadCloudConfig(), lastBackupAt: data.exportedAt });
+    }
   };
 
   const currentBackup = () =>

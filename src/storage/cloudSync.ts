@@ -24,10 +24,10 @@ export type CloudConfig = {
   // Google access token and its expiry (epoch ms), "" / 0 when there is none.
   token: string;
   tokenExpiry: number;
-  // When this device last produced a backup by any route — file download or
-  // Drive push — 0 if never. Device-local like the rest of this store, and
-  // deliberately *not* in the backup blob: restoring someone else's backup must
-  // not import their backup date and silence this device's reminder.
+  // When this device's data was last known to be in a backup — a file download,
+  // a Drive push, or a restore (which sets it to the restored backup's
+  // `exportedAt`, since the device then holds exactly that backup) — 0 if never.
+  // Device-local like the rest of this store, and not in the backup blob.
   lastBackupAt: number;
   // `exportedAt` of the last blob this device pushed or pulled, 0 if never.
   // Compared against the remote's to catch "you're about to overwrite a backup
