@@ -56,9 +56,10 @@ export default function KanjiWriter({
   // Clear (and naturally on remount when the kanji changes).
   const offsetSumRef = useRef<Point>({ x: 0, y: 0 });
   const offsetCountRef = useRef(0);
-  const frameOffset = (): Point => {
+  // null until a stroke is accepted: the matcher then anchors on the stroke itself.
+  const frameOffset = (): Point | null => {
     const n = offsetCountRef.current;
-    if (n === 0) return { x: 0, y: 0 };
+    if (n === 0) return null;
     return clampMagnitude(
       { x: offsetSumRef.current.x / n, y: offsetSumRef.current.y / n },
       DEFAULT_THRESHOLDS.maxOffset,
